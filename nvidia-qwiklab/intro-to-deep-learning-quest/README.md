@@ -1,4 +1,4 @@
-# Class #1 - Introduction to Deep Learning
+# Class #1 - Introduction to Deep Learning 
 + [Video](http://on-demand.gputechconf.com/gtc/2015/webinar/deep-learning-course/intro-to-deep-learning.mp4)
 + [Slides](http://on-demand.gputechconf.com/gtc/2015/webinar/deep-learning-course/intro-to-deep-learning.pdf)
 + Office Hours
