@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<!-- saved from url=(0055)http://ec2-54-227-24-191.compute-1.amazonaws.com/task2/ -->
+<html class="dj_webkit dj_chrome dj_contentbox has-webkit has-no-quirks"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>nodeMirror</title>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        border: none;
+        height: 100%;
+      }
+    </style>
+    
+    <!-- socket.io -->
+      <script src="socket.io.js"></script>
+      
+    <!-- dojo -->
+      <!-- config -->
+        <script>
+          // The module to "bootstrap"
+          var loadModule = "client/client";
+          window._nodeMirrorGlobal = {
+            webpath: "/task2/"
+          };
+          
+          // Configuration Object for Dojo Loader:
+    	  dojoConfig = {
+            baseUrl: "/task2/", // Where we will put our packages
+            async: 1, // We want to make sure we are using the "modern" loader
+            locale: 'en-us',
+            // While it is possible to use config-tlmSiblingOfDojo to tell the
+            // loader that your packages share the same root path as the loader,
+            // this really isn't always a good idea and it is better to be
+            // explicit about our package map.
+            packages: [{
+              name: "dojo",
+              location: "client/dojo"
+            },{
+                name: "dijit",
+                location: "dijit"
+            },{
+                name: "dojox",
+                location: "dojox"
+            },{
+                name: "main",
+                location: "main"
+            },{
+                name: "client",
+                location: "client"
+            },{
+                name: "sol",
+                location: "sol"
+            },{
+                name: "dgrid",
+                location: "dgrid"
+            },{
+                name: "jshint",
+                location: "jshint"
+            },{
+                name: "peg",
+                location: "peg"
+            },{
+                name: "codemirror",
+                location: "codemirror"
+            },{
+                name: "codemirror4",
+                location: "codemirror4"
+            },{
+                name: "promiseland",
+                location: "promiseland"
+            },{
+                name: "audio",
+                location: "audio"
+            },{
+                name: "video",
+                location: "video"
+            },{
+                name: "avc",
+                location: "avc"
+            }],
+            deps: [ loadModule ] // And array of modules to load on "boot"
+          };
+	    </script>
+      
+      <!-- loader -->
+        <script type="text/javascript" charset="utf-8" src="dojo_en-us.js"></script><script type="text/javascript" charset="utf-8" src="acme.js"></script><script type="text/javascript" charset="utf-8" src="jshint.js"></script><script type="text/javascript" charset="utf-8" src="main(1).js"></script><script type="text/javascript" charset="utf-8" src="promiseland.js"></script><script type="text/javascript" charset="utf-8" src="createClass.js"></script><script type="text/javascript" charset="utf-8" src="Promise.js"></script><script type="text/javascript" charset="utf-8" src="Chainable.js"></script><script type="text/javascript" charset="utf-8" src="Tracker.js"></script><script type="text/javascript" charset="utf-8" src="moduleSystem.js"></script><script type="text/javascript" charset="utf-8" src="classSystem.js"></script><script type="text/javascript" charset="utf-8" src="frames.js"></script><script type="text/javascript" charset="utf-8" src="ParserClass.js"></script><script type="text/javascript" charset="utf-8" src="errorMsg.js"></script><script type="text/javascript" charset="utf-8" src="DynInstance.js"></script><script type="text/javascript" charset="utf-8" src="Wrapper.js"></script><script type="text/javascript" charset="utf-8" src="TrackedPromise.js"></script><script type="text/javascript" charset="utf-8" src="provisional.js"></script><script type="text/javascript" charset="utf-8" src="temporary.js"></script><script type="text/javascript" charset="utf-8" src="promiseOf.js"></script><script type="text/javascript" charset="utf-8" src="sync.js"></script><script type="text/javascript" charset="utf-8" src="savable.js"></script><script type="text/javascript" charset="utf-8" src="codeGeneration.js"></script><script type="text/javascript" charset="utf-8" src="Map.js"></script><script src="dojo.js"></script><link rel="stylesheet" type="text/css" href="dgrid.css"><link rel="stylesheet" type="text/css" href="ColumnResizer.css"><link rel="stylesheet" type="text/css" href="has-transforms3d.css">
+    
+    <!-- all styles -->
+      <link rel="stylesheet" type="text/css" href="style.css">
+      <style>
+        #startupscreen{
+          position: absolute;
+          width: 100%;
+          height: 100%;
+        }
+        
+        #startupscreen .graynode {
+          position: absolute;
+          top: 0px;
+          left: 0px;
+          background-color: white;
+          opacity: 0.7;
+          width: 100%;
+          height: 100%;
+          z-index: 100000;
+        }
+        #startupscreen .startupmsg {
+          position: absolute;
+          top: 50px;
+          left: 0px;
+          right: 0px;
+          width: 100%;
+          opacity: 1;
+          z-index: 110000;
+        }
+        #startupscreen .outsideTheBox{
+          margin-left: auto;
+          margin-right: auto;
+          width: 800px;
+          border: 0;
+          padding: 0;
+        }
+        
+        #startupscreen .startupmsg .box {
+          /*background-color: black;*/
+          /*border-left: 2px solid #8ca1fa;
+          border-right: 2px solid #8ca1fa;*/
+          margin: 0;
+          padding: 0;
+        }
+        
+        #startupscreen .startupmsg .msg {
+          color: #8ca1fa;
+          text-align: center;
+          font-size: large;
+          width: 800px;
+          margin: 0;
+          padding: 0;
+        }
+        
+        #startupscreen .startupmsg .msg.msg1 {
+          border-bottom: 2px solid #8ca1fa;
+          text-align: left;
+          padding-left: 20px;
+        }
+        
+        #startupscreen .startupmsg .msg2 {
+          border-bottom: 2px solid #8ca1fa;
+          text-align: right;
+          padding-right: 20px;
+          width: 800px;
+        }
+        
+      </style>
+  <style></style></head>
+  <body class="nodeMirror claro">
+    
+  
+
+<div class="dijitBorderContainerNoGutter dijitContainer mainBc dijitLayoutContainer" id="dijit_layout_BorderContainer_0" widgetid="dijit_layout_BorderContainer_0" style="padding: 0px;"><div class="dijitTabContainer dijitTabContainerTop dijitContainer dijitLayoutContainer dijitTabContainerNested mainWidget sideBar dijitBorderContainerNoGutter-child dijitBorderContainerNoGutter-dijitTabContainerTop dijitBorderContainerNoGutterPane dijitAlignLeft" id="dijit_layout_TabContainer_0" widgetid="dijit_layout_TabContainer_0" style="left: 0px; top: 0px; position: absolute; height: 496px;">
+	<div role="tablist" data-dojo-attach-event="onkeydown:onkeydown" class="dijitTabController dijitTabContainerTop-tabs dijitTabContainerTabListNested dijitAlignTop" id="dijit_layout_TabContainer_0_tablist" widgetid="dijit_layout_TabContainer_0_tablist" _dijitmenudijit_layout_tabcontainer_0_tablist_menu="1" style="left: 0px; top: 0px; position: absolute; width: 236px;"><div role="presentation" data-dojo-attach-point="titleNode,innerDiv,tabContent" class="dijitTabInner dijitTabContent dijitTab dijitTabChecked dijitChecked" widgetid="dijit_layout_TabContainer_0_tablist_dijit_layout_BorderContainer_1">
+	<span role="presentation" class="dijitInline dijitIcon dijitTabButtonIcon dijitNoIcon" data-dojo-attach-point="iconNode"></span>
+	<span data-dojo-attach-point="containerNode,focusNode" class="tabLabel" role="tab" tabindex="0" id="dijit_layout_TabContainer_0_tablist_dijit_layout_BorderContainer_1" name="dijit_layout_TabContainer_0_tablist_dijit_layout_BorderContainer_1" aria-disabled="false" title="" aria-selected="true" style="-webkit-user-select: none;">Files</span>
+	<span class="dijitInline dijitTabCloseButton dijitTabCloseIcon" data-dojo-attach-point="closeNode" role="presentation" title="Close" style="display: none;">
+		<span data-dojo-attach-point="closeText" class="dijitTabCloseText">[x]</span></span>
+</div></div>
+	<div data-dojo-attach-point="tablistSpacer" class="dijitTabSpacer dijitTabContainerTop-spacer dijitTabContainerSpacerNested dijitAlignTop" style="left: 0px; top: 34px; position: absolute; width: 240px;"></div>
+	<div class="dijitTabPaneWrapper dijitTabContainerTop-container dijitTabPaneWrapperNested dijitAlignCenter" data-dojo-attach-point="containerNode" style="left: 0px; top: 34px; position: absolute; width: 240px; height: 462px;"><div role="tabpanel" class="dijitTabContainerTopChildWrapper dijitVisible" aria-labelledby="dijit_layout_TabContainer_0_tablist_dijit_layout_BorderContainer_1"><div class="dijitBorderContainerNoGutter dijitContainer dijitTabPane dijitTabContainerTop-child dijitTabContainerTop-dijitBorderContainerNoGutter dijitLayoutContainer" id="dijit_layout_BorderContainer_1" widgetid="dijit_layout_BorderContainer_1" style="padding: 0px; left: 0px; top: 0px; width: 240px; height: 462px;"><div role="tree" class="dijitBorderContainerNoGutter-child dijitBorderContainerNoGutter-dijitTree dijitBorderContainerNoGutterPane dijitAlignCenter dojoDndContainer dijitTree" id="uniqName_4_0" widgetid="uniqName_4_0" tabindex="0" aria-multiselectable="true" aria-expanded="true" style="left: 0px; top: 0px; position: absolute; width: 240px; height: 462px;">
+	<div class="dijitInline dijitTreeIndent" style="position: absolute; top: -9999px" data-dojo-attach-point="indentDetector"></div>
+	<div class="dijitTreeExpando dijitTreeExpandoLoading" data-dojo-attach-point="rootLoadingIndicator" style="display: none;"></div>
+	<div data-dojo-attach-point="containerNode" class="dijitTreeContainer" role="presentation" style="width: 100%;">
+	<div class="dijitTreeNode dijitTreeNodeNotLoaded dijitNotLoaded dijitTreeIsRoot" role="presentation" id="dijit__TreeNode_0" widgetid="dijit__TreeNode_0" style="background-position: 0px 0px;"><div data-dojo-attach-point="rowNode" class="dijitTreeRow" role="presentation" style="padding-left: 0px;"><span data-dojo-attach-point="expandoNode" class="dijitInline dijitTreeExpando dijitTreeExpandoLeaf" role="presentation"></span><span data-dojo-attach-point="expandoNodeText" class="dijitExpandoText" role="presentation">*</span><span data-dojo-attach-point="contentNode" class="dijitTreeContent dijitTreeContentExpanded" role="presentation">
+			<span role="presentation" class="dijitInline dijitIcon dijitTreeIcon dijitFolderOpened" data-dojo-attach-point="iconNode"></span><span data-dojo-attach-point="labelNode,focusNode" class="dijitTreeLabel" role="treeitem" tabindex="-1" aria-selected="false" aria-expanded="true">src</span>
+		</span><div class="treeOpenMore moreNode"><span class="treeOpenMore moreNodeInner">...</span></div></div>
+	<div data-dojo-attach-point="containerNode" class="dijitTreeNodeContainer" role="group" style="height: auto;"></div>
+<div class="backgroundNode"></div></div></div>
+</div></div></div></div>
+</div><div class="dijitSplitter dijitSplitterV dijitAlignLeft" data-dojo-attach-event="onkeydown:_onKeyDown,press:_startDrag,onmouseenter:_onMouse,onmouseleave:_onMouse" tabindex="0" role="separator" id="dijit_layout_TabContainer_0_splitter" widgetid="dijit_layout_TabContainer_0_splitter" style="left: 240px; top: 0px; position: absolute; height: 496px;"><div class="dijitSplitterThumb"></div></div><div id="dijit__WidgetBase_1" class="mainWidget sideBarStub dijitBorderContainerNoGutter-child dijitBorderContainerNoGutterPane dijitAlignLeft" widgetid="dijit__WidgetBase_1" style="left: 0px; top: 0px; position: absolute; height: 496px;"><span class="dijit dijitReset dijitInline dijitButton openBtn" role="presentation" widgetid="dijit_form_Button_0"><span class="dijitReset dijitInline dijitButtonNode" data-dojo-attach-event="ondijitclick:__onClick" role="presentation"><span class="dijitReset dijitStretch dijitButtonContents" data-dojo-attach-point="titleNode,focusNode" role="button" aria-labelledby="dijit_form_Button_0_label" tabindex="0" id="dijit_form_Button_0" style="-webkit-user-select: none;"><span class="dijitReset dijitInline dijitIcon dijitNoIcon" data-dojo-attach-point="iconNode"></span><span class="dijitReset dijitToggleButtonIconChar">●</span><span class="dijitReset dijitInline dijitButtonText" id="dijit_form_Button_0_label" data-dojo-attach-point="containerNode">&lt;</span></span></span><input type="button" value="" class="dijitOffScreen" data-dojo-attach-event="onclick:_onClick" tabindex="-1" role="presentation" data-dojo-attach-point="valueNode"></span></div><div class="dijitTabContainer dijitTabContainerTop dijitContainer dijitLayoutContainer tabStrip-disabled mainWidget contentTabs dijitBorderContainerNoGutter-child dijitBorderContainerNoGutter-dijitTabContainerTop dijitBorderContainerNoGutterPane dijitAlignCenter" id="dijit_layout_TabContainer_1" widgetid="dijit_layout_TabContainer_1" style="left: 245px; top: 0px; position: absolute; width: 740px; height: 496px;">
+	<div class="dijitTabListContainer-top dijitTabController dijitScrollingTabController tabStrip-disabled dijitAlignTop dijitLayoutContainer" style="left: 0px; top: 0px; position: absolute; width: 740px; height: 34px;" id="dijit_layout_TabContainer_1_tablist" widgetid="dijit_layout_TabContainer_1_tablist" _dijitmenudijit_layout_tabcontainer_1_tablist_menu="1">
+	<div data-dojo-attach-event="ondijitclick:_onClick" class="dijitTabInnerDiv dijitTabContent dijitButtonContents dijitTab tabStripButton dijitbelow-altArrowButton tabStripButton-top dijitAlignRight" data-dojo-attach-point="focusNode" role="button" tabindex="-1" id="dijit_layout_TabContainer_1_tablist_menuBtn" title="" widgetid="dijit_layout_TabContainer_1_tablist_menuBtn" style="-webkit-user-select: none; display: none; left: 740px; top: 0px; position: absolute; height: 17px;">
+	<span role="presentation" class="dijitInline dijitTabStripIcon dijitTabStripMenuIcon" data-dojo-attach-point="iconNode"></span>
+	<span data-dojo-attach-point="containerNode,titleNode" class="dijitButtonText dijitDisplayNone">▼</span>
+</div>
+	<div data-dojo-attach-event="ondijitclick:_onClick" class="dijitTabInnerDiv dijitTabContent dijitButtonContents tabStripButton-top dijitAlignLeft dijitTab tabStripButton dijitTabDisabled tabStripButtonDisabled dijitDisabled" data-dojo-attach-point="focusNode" role="button" id="dijit_layout_TabContainer_1_tablist_leftBtn" title="" widgetid="dijit_layout_TabContainer_1_tablist_leftBtn" aria-disabled="true" tabindex="-1" style="-webkit-user-select: none; display: none; left: 0px; top: 0px; position: absolute; height: 17px;">
+	<span role="presentation" class="dijitInline dijitTabStripIcon dijitTabStripSlideLeftIcon" data-dojo-attach-point="iconNode"></span>
+	<span data-dojo-attach-point="containerNode,titleNode" class="dijitButtonText dijitDisplayNone">◀</span>
+</div>
+	<div data-dojo-attach-event="ondijitclick:_onClick" class="dijitTabInnerDiv dijitTabContent dijitButtonContents tabStripButton-top dijitAlignRight dijitTab tabStripButton dijitTabDisabled tabStripButtonDisabled dijitDisabled" data-dojo-attach-point="focusNode" role="button" id="dijit_layout_TabContainer_1_tablist_rightBtn" title="" widgetid="dijit_layout_TabContainer_1_tablist_rightBtn" aria-disabled="true" tabindex="-1" style="-webkit-user-select: none; display: none; left: 740px; top: 0px; position: absolute; height: 17px;">
+	<span role="presentation" class="dijitInline dijitTabStripIcon dijitTabStripSlideRightIcon" data-dojo-attach-point="iconNode"></span>
+	<span data-dojo-attach-point="containerNode,titleNode" class="dijitButtonText dijitDisplayNone">▶</span>
+</div>
+	<div class="dijitTabListWrapper dijitTabContainerTopNone dijitAlignCenter" data-dojo-attach-point="tablistWrapper" style="height: 34px; left: 0px; top: 0px; position: absolute; width: 740px;">
+		<div role="tablist" data-dojo-attach-event="onkeydown:onkeydown" data-dojo-attach-point="containerNode" class="nowrapTabStrip dijitTabContainerTop-tabs" style="width: 50800px;"><div role="presentation" data-dojo-attach-point="titleNode,innerDiv,tabContent" class="dijitTabInner dijitTabContent dijitClosable dijitTab dijitTabChecked dijitChecked" widgetid="dijit_layout_TabContainer_1_tablist_uniqName_18_0">
+	<span role="presentation" class="dijitInline dijitIcon dijitTabButtonIcon dijitNoIcon" data-dojo-attach-point="iconNode"></span>
+	<span data-dojo-attach-point="containerNode,focusNode" class="tabLabel" role="tab" tabindex="0" id="dijit_layout_TabContainer_1_tablist_uniqName_18_0" name="dijit_layout_TabContainer_1_tablist_uniqName_18_0" aria-disabled="false" title="/solver.prototxt" aria-selected="true" style="-webkit-user-select: none;">solver.prototxt</span>
+	<span class="dijitInline dijitTabCloseButton dijitTabCloseIcon" data-dojo-attach-point="closeNode" role="presentation" title="Close">
+		<span data-dojo-attach-point="closeText" class="dijitTabCloseText">[x]</span></span>
+<div class="fadeNode" style="opacity: 0;"></div></div></div>
+	</div>
+</div>
+	<div data-dojo-attach-point="tablistSpacer" class="dijitTabSpacer dijitTabContainerTop-spacer dijitAlignTop" style="left: 0px; top: 34px; position: absolute; width: 740px;"></div>
+	<div class="dijitTabPaneWrapper dijitTabContainerTop-container dijitAlignCenter" data-dojo-attach-point="containerNode" style="left: 0px; top: 34px; position: absolute; width: 738px; height: 461px;"><div role="tabpanel" class="dijitTabContainerTopChildWrapper dijitVisible" aria-labelledby="dijit_layout_TabContainer_1_tablist_uniqName_18_0"><div class="dijitBorderContainerNoGutter dijitContainer contentTab content text dijitTabPane dijitTabContainerTop-child dijitTabContainerTop-dijitBorderContainerNoGutter dijitLayoutContainer" id="uniqName_18_0" widgetid="uniqName_18_0" title="" style="padding: 0px; left: 0px; top: 0px; width: 738px; height: 461px;"><div class="dijit dijitReset dijitInline dijitLeft dijitBorderContainerNoGutter-child dijitBorderContainerNoGutter-dijitTextBox dijitBorderContainerNoGutterPane dijitAlignTop dijitTextBox" id="widget_dijit_form_TextBox_1" role="presentation" widgetid="dijit_form_TextBox_1" style="left: 0px; top: 0px; position: absolute; width: 736px;"><div class="dijitReset dijitInputField dijitInputContainer"><input class="dijitReset dijitInputInner" data-dojo-attach-point="textbox,focusNode" autocomplete="off" type="text" tabindex="0" id="dijit_form_TextBox_1" value=""></div></div><div class="dijit dijitToolbar dijitBorderContainerNoGutter-child dijitBorderContainerNoGutter-dijitToolbar dijitBorderContainerNoGutterPane dijitAlignTop" role="toolbar" tabindex="0" data-dojo-attach-point="containerNode" id="dijit_Toolbar_1" widgetid="dijit_Toolbar_1" style="left: 0px; top: 24px; position: absolute; width: 734px;"><span class="dijit dijitReset dijitInline dijitButton" role="presentation" widgetid="dijit_form_Button_7"><span class="dijitReset dijitInline dijitButtonNode" data-dojo-attach-event="ondijitclick:__onClick" role="presentation"><span class="dijitReset dijitStretch dijitButtonContents" data-dojo-attach-point="titleNode,focusNode" role="button" aria-labelledby="dijit_form_Button_7_label" tabindex="-1" id="dijit_form_Button_7" style="-webkit-user-select: none;"><span class="dijitReset dijitInline dijitIcon dijitAdditionalEditorIconSave" data-dojo-attach-point="iconNode"></span><span class="dijitReset dijitToggleButtonIconChar">●</span><span class="dijitReset dijitInline dijitButtonText" id="dijit_form_Button_7_label" data-dojo-attach-point="containerNode">save</span></span></span><input type="button" value="" class="dijitOffScreen" data-dojo-attach-event="onclick:_onClick" tabindex="-1" role="presentation" data-dojo-attach-point="valueNode"></span><span class="dijit dijitReset dijitInline dijitButton" role="presentation" widgetid="dijit_form_Button_8"><span class="dijitReset dijitInline dijitButtonNode" data-dojo-attach-event="ondijitclick:__onClick" role="presentation"><span class="dijitReset dijitStretch dijitButtonContents" data-dojo-attach-point="titleNode,focusNode" role="button" aria-labelledby="dijit_form_Button_8_label" tabindex="-1" id="dijit_form_Button_8" style="-webkit-user-select: none;"><span class="dijitReset dijitInline dijitIcon dijitNoIcon" data-dojo-attach-point="iconNode"></span><span class="dijitReset dijitToggleButtonIconChar">●</span><span class="dijitReset dijitInline dijitButtonText" id="dijit_form_Button_8_label" data-dojo-attach-point="containerNode">reload</span></span></span><input type="button" value="" class="dijitOffScreen" data-dojo-attach-event="onclick:_onClick" tabindex="-1" role="presentation" data-dojo-attach-point="valueNode"></span><span class="dijit dijitReset dijitInline dijitButton" role="presentation" widgetid="dijit_form_Button_9"><span class="dijitReset dijitInline dijitButtonNode" data-dojo-attach-event="ondijitclick:__onClick" role="presentation"><span class="dijitReset dijitStretch dijitButtonContents" data-dojo-attach-point="titleNode,focusNode" role="button" aria-labelledby="dijit_form_Button_9_label" tabindex="-1" id="dijit_form_Button_9" style="-webkit-user-select: none;"><span class="dijitReset dijitInline dijitIcon dijitNoIcon" data-dojo-attach-point="iconNode"></span><span class="dijitReset dijitToggleButtonIconChar">●</span><span class="dijitReset dijitInline dijitButtonText" id="dijit_form_Button_9_label" data-dojo-attach-point="containerNode">download</span></span></span><input type="button" value="" class="dijitOffScreen" data-dojo-attach-event="onclick:_onClick" tabindex="-1" role="presentation" data-dojo-attach-point="valueNode"></span><span class="dijit dijitReset dijitInline dijitButton" role="presentation" widgetid="dijit_form_Button_10"><span class="dijitReset dijitInline dijitButtonNode" data-dojo-attach-event="ondijitclick:__onClick" role="presentation"><span class="dijitReset dijitStretch dijitButtonContents" data-dojo-attach-point="titleNode,focusNode" role="button" aria-labelledby="dijit_form_Button_10_label" tabindex="-1" id="dijit_form_Button_10" style="-webkit-user-select: none;"><span class="dijitReset dijitInline dijitIcon dijitNoIcon" data-dojo-attach-point="iconNode"></span><span class="dijitReset dijitToggleButtonIconChar">●</span><span class="dijitReset dijitInline dijitButtonText" id="dijit_form_Button_10_label" data-dojo-attach-point="containerNode">open Folder</span></span></span><input type="button" value="" class="dijitOffScreen" data-dojo-attach-event="onclick:_onClick" tabindex="-1" role="presentation" data-dojo-attach-point="valueNode"></span><span class="dijit dijitReset dijitInline dijitButton" role="presentation" widgetid="dijit_form_Button_11"><span class="dijitReset dijitInline dijitButtonNode" data-dojo-attach-event="ondijitclick:__onClick" role="presentation"><span class="dijitReset dijitStretch dijitButtonContents" data-dojo-attach-point="titleNode,focusNode" role="button" aria-labelledby="dijit_form_Button_11_label" tabindex="-1" id="dijit_form_Button_11" style="-webkit-user-select: none;"><span class="dijitReset dijitInline dijitIcon dijitNoIcon" data-dojo-attach-point="iconNode"></span><span class="dijitReset dijitToggleButtonIconChar">●</span><span class="dijitReset dijitInline dijitButtonText" id="dijit_form_Button_11_label" data-dojo-attach-point="containerNode">Hex-Editor</span></span></span><input type="button" value="" class="dijitOffScreen" data-dojo-attach-event="onclick:_onClick" tabindex="-1" role="presentation" data-dojo-attach-point="valueNode"></span><span class="dijit dijitReset dijitInline dijitDropDownButton" widgetid="dijit_form_DropDownButton_0"><span class="dijitReset dijitInline dijitButtonNode" data-dojo-attach-event="ondijitclick:__onClick" data-dojo-attach-point="_buttonNode"><span class="dijitReset dijitStretch dijitButtonContents dijitDownArrowButton" data-dojo-attach-point="focusNode,titleNode,_arrowWrapperNode,_popupStateNode" role="button" aria-haspopup="true" aria-labelledby="dijit_form_DropDownButton_0_label" tabindex="-1" id="dijit_form_DropDownButton_0" style="-webkit-user-select: none;"><span class="dijitReset dijitInline dijitIcon dijitNoIcon" data-dojo-attach-point="iconNode"></span><span class="dijitReset dijitInline dijitButtonText" data-dojo-attach-point="containerNode" id="dijit_form_DropDownButton_0_label">Settings</span><span class="dijitReset dijitInline dijitArrowButtonInner"></span><span class="dijitReset dijitInline dijitArrowButtonChar">▼</span></span></span><input type="button" value="" class="dijitOffScreen" tabindex="-1" data-dojo-attach-event="onclick:_onClick" data-dojo-attach-point="valueNode" role="presentation"></span><span class="dijit dijitReset dijitInline dijitToggleButton dijitToggleButtonChecked dijitChecked" role="presentation" widgetid="dijit_form_ToggleButton_0"><span class="dijitReset dijitInline dijitButtonNode" data-dojo-attach-event="ondijitclick:__onClick" role="presentation"><span class="dijitReset dijitStretch dijitButtonContents" data-dojo-attach-point="titleNode,focusNode" role="button" aria-labelledby="dijit_form_ToggleButton_0_label" tabindex="-1" id="dijit_form_ToggleButton_0" aria-pressed="true" checked="checked" style="-webkit-user-select: none;"><span class="dijitReset dijitInline dijitIcon dijitNoIcon" data-dojo-attach-point="iconNode"></span><span class="dijitReset dijitToggleButtonIconChar">●</span><span class="dijitReset dijitInline dijitButtonText" id="dijit_form_ToggleButton_0_label" data-dojo-attach-point="containerNode">syntax check</span></span></span><input type="button" value="" class="dijitOffScreen" data-dojo-attach-event="onclick:_onClick" tabindex="-1" role="presentation" data-dojo-attach-point="valueNode"></span><span class="dijit dijitReset dijitInline dijitDropDownButton" widgetid="dijit_form_DropDownButton_1"><span class="dijitReset dijitInline dijitButtonNode" data-dojo-attach-event="ondijitclick:__onClick" data-dojo-attach-point="_buttonNode"><span class="dijitReset dijitStretch dijitButtonContents dijitDownArrowButton" data-dojo-attach-point="focusNode,titleNode,_arrowWrapperNode,_popupStateNode" role="button" aria-haspopup="true" aria-labelledby="dijit_form_DropDownButton_1_label" tabindex="-1" id="dijit_form_DropDownButton_1" style="-webkit-user-select: none;"><span class="dijitReset dijitInline dijitIcon dijitNoIcon" data-dojo-attach-point="iconNode"></span><span class="dijitReset dijitInline dijitButtonText" data-dojo-attach-point="containerNode" id="dijit_form_DropDownButton_1_label">comment</span><span class="dijitReset dijitInline dijitArrowButtonInner"></span><span class="dijitReset dijitInline dijitArrowButtonChar">▼</span></span></span><input type="button" value="" class="dijitOffScreen" tabindex="-1" data-dojo-attach-event="onclick:_onClick" data-dojo-attach-point="valueNode" role="presentation"></span><span class="dijit dijitReset dijitInline dijitToggleButton" role="presentation" widgetid="dijit_form_ToggleButton_1"><span class="dijitReset dijitInline dijitButtonNode" data-dojo-attach-event="ondijitclick:__onClick" role="presentation"><span class="dijitReset dijitStretch dijitButtonContents" data-dojo-attach-point="titleNode,focusNode" role="button" aria-labelledby="dijit_form_ToggleButton_1_label" tabindex="-1" id="dijit_form_ToggleButton_1" aria-pressed="false" style="-webkit-user-select: none;"><span class="dijitReset dijitInline dijitIcon dijitNoIcon" data-dojo-attach-point="iconNode"></span><span class="dijitReset dijitToggleButtonIconChar">●</span><span class="dijitReset dijitInline dijitButtonText" id="dijit_form_ToggleButton_1_label" data-dojo-attach-point="containerNode">wrap</span></span></span><input type="button" value="" class="dijitOffScreen" data-dojo-attach-event="onclick:_onClick" tabindex="-1" role="presentation" data-dojo-attach-point="valueNode"></span></div><div id="dijit__WidgetBase_4" widgetid="dijit__WidgetBase_4" class="dijitBorderContainerNoGutter-child dijitBorderContainerNoGutterPane dijitAlignCenter" style="left: 0px; top: 79px; position: absolute; width: 738px; height: 382px;"><div class="CodeMirror cm-s-default  " style="width: 738px; height: 382px;"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 4px; left: 58px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-hscrollbar" style="left: 54px;"><div style="height: 100%; min-height: 1px; width: 0px;"></div></div><div class="CodeMirror-vscrollbar" style="bottom: 0px;"><div style="min-width: 1px; height: 0px;"></div></div><div class="CodeMirror-scrollbar-filler"></div><div class="CodeMirror-gutter-filler"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 54px; min-width: 285.75px; min-height: 216px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines"><div style="position: relative; outline: none;"><div class="CodeMirror-measure"><div style="width: 50px; height: 50px; overflow-x: scroll;"></div></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-cursors" style="visibility: hidden;"><div class="CodeMirror-cursor" style="left: 4px; top: 0px; height: 13px;">&nbsp;</div></div><div class="CodeMirror-code"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-wrapper" style="position: absolute; left: -54px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 16px; width: 20px;">1</div></div><pre class=""><span style="padding-right: 0.1px;">test_iter: 100</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="position: absolute; left: -54px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 16px; width: 20px;">2</div></div><pre class=""><span style="padding-right: 0.1px;">test_interval: 250</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="position: absolute; left: -54px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 16px; width: 20px;">3</div></div><pre class=""><span style="padding-right: 0.1px;">base_lr: 0.01</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="position: absolute; left: -54px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 16px; width: 20px;">4</div></div><pre class=""><span style="padding-right: 0.1px;">display: 20</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="position: absolute; left: -54px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 16px; width: 20px;">5</div></div><pre class=""><span style="padding-right: 0.1px;">max_iter: 750</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="position: absolute; left: -54px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 16px; width: 20px;">6</div></div><pre class=""><span style="padding-right: 0.1px;">lr_policy: "step"</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="position: absolute; left: -54px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 16px; width: 20px;">7</div></div><pre class=""><span style="padding-right: 0.1px;">gamma: 0.1</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="position: absolute; left: -54px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 16px; width: 20px;">8</div></div><pre class=""><span style="padding-right: 0.1px;">momentum: 0.9</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="position: absolute; left: -54px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 16px; width: 20px;">9</div></div><pre class=""><span style="padding-right: 0.1px;">weight_decay: 0.0005</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="position: absolute; left: -54px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 16px; width: 20px;">10</div></div><pre class=""><span style="padding-right: 0.1px;">stepsize: 500</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="position: absolute; left: -54px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 16px; width: 20px;">11</div></div><pre class=""><span style="padding-right: 0.1px;">snapshot: 250</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="position: absolute; left: -54px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 16px; width: 20px;">12</div></div><pre class=""><span style="padding-right: 0.1px;">snapshot_prefix: "checkpoints/snapshot"</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="position: absolute; left: -54px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 16px; width: 20px;">13</div></div><pre class=""><span style="padding-right: 0.1px;">solver_mode: GPU</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="position: absolute; left: -54px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 16px; width: 20px;">14</div></div><pre class=""><span style="padding-right: 0.1px;">net: "src/train_val.prototxt"</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="position: absolute; left: -54px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 16px; width: 20px;">15</div></div><pre class=""><span style="padding-right: 0.1px;">solver_type: SGD</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" style="position: absolute; left: -54px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 16px; width: 20px;">16</div></div><pre class=""><span style="padding-right: 0.1px;"><span>​</span></span></pre></div></div></div></div></div></div><div style="position: absolute; height: 30px; width: 1px; top: 216px;"></div><div class="CodeMirror-gutters" style="height: 382px; left: 0px;"><div class="CodeMirror-gutter CodeMirror-lint-markers"></div><div class="CodeMirror-gutter CodeMirror-linenumbers" style="width: 28px;"></div><div class="CodeMirror-gutter CodeMirror-foldgutter"></div></div></div></div></div></div></div></div>
+</div></div><div id="dijit__WidgetBase_0" class="treeOverFlowWidget" widgetid="dijit__WidgetBase_0" style="opacity: 0.9;"></div><div class="dijitPopup" role="region" aria-label="dijit_TooltipDialog_0" style="display: none; height: auto; overflow: visible;"><div role="alertdialog" tabindex="-1" class="dijitTooltipDialog" id="dijit_TooltipDialog_0" widgetid="dijit_TooltipDialog_0" style="top: 0px;">
+	<div class="dijitTooltipContainer" role="presentation">
+		<div class="dijitTooltipContents dijitTooltipFocusNode" data-dojo-attach-point="containerNode"><div class="dijitLayoutContainer dijitContainer codeMirrorSettingsTable" id="dojox_layout_TableContainer_0" widgetid="dojox_layout_TableContainer_0"><table class="dijit dijitReset dijitInline dijitLeft dijitSelect dijitValidationTextBox dijitDownArrowButton" data-dojo-attach-point="_buttonNode,tableNode,focusNode,_popupStateNode" cellspacing="0" cellpadding="0" role="listbox" aria-haspopup="true" tabindex="0" id="dijit_form_Select_0" widgetid="dijit_form_Select_0" aria-expanded="false" style="-webkit-user-select: none;"><tbody role="presentation"><tr role="presentation"><td class="dijitReset dijitStretch dijitButtonContents" role="presentation"><div class="dijitReset dijitInputField dijitButtonText" data-dojo-attach-point="containerNode,textDirNode" role="presentation"><span role="option" class="dijitReset dijitInline dijitSelectLabel dijitValidationTextBoxLabel ">default</span></div><div class="dijitReset dijitValidationContainer"><input class="dijitReset dijitInputField dijitValidationIcon dijitValidationInner" value="Χ " type="text" tabindex="-1" readonly="readonly" role="presentation"></div><input type="hidden" data-dojo-attach-point="valueNode" value="default" aria-hidden="true"></td><td class="dijitReset dijitRight dijitButtonNode dijitArrowButton dijitDownArrowButton dijitArrowButtonContainer" data-dojo-attach-point="titleNode" role="presentation"><input class="dijitReset dijitInputField dijitArrowButtonInner" value="▼ " type="text" tabindex="-1" readonly="readonly" role="presentation"></td></tr></tbody></table><table class="dijit dijitReset dijitInline dijitLeft dijitSelect dijitValidationTextBox dijitDownArrowButton" data-dojo-attach-point="_buttonNode,tableNode,focusNode,_popupStateNode" cellspacing="0" cellpadding="0" role="listbox" aria-haspopup="true" tabindex="0" id="dijit_form_Select_1" widgetid="dijit_form_Select_1" aria-expanded="false" style="-webkit-user-select: none;"><tbody role="presentation"><tr role="presentation"><td class="dijitReset dijitStretch dijitButtonContents" role="presentation"><div class="dijitReset dijitInputField dijitButtonText" data-dojo-attach-point="containerNode,textDirNode" role="presentation"><span role="option" class="dijitReset dijitInline dijitSelectLabel dijitValidationTextBoxLabel ">default</span></div><div class="dijitReset dijitValidationContainer"><input class="dijitReset dijitInputField dijitValidationIcon dijitValidationInner" value="Χ " type="text" tabindex="-1" readonly="readonly" role="presentation"></div><input type="hidden" data-dojo-attach-point="valueNode" value="default" aria-hidden="true"></td><td class="dijitReset dijitRight dijitButtonNode dijitArrowButton dijitDownArrowButton dijitArrowButtonContainer" data-dojo-attach-point="titleNode" role="presentation"><input class="dijitReset dijitInputField dijitArrowButtonInner" value="▼ " type="text" tabindex="-1" readonly="readonly" role="presentation"></td></tr></tbody></table><div class="dijit dijitReset dijitInline dijitCheckBox dijitCheckBoxChecked dijitChecked" role="presentation" widgetid="dijit_form_CheckBox_0"><input type="checkbox" role="checkbox" aria-checked="true" class="dijitReset dijitCheckBoxInput" data-dojo-attach-point="focusNode" data-dojo-attach-event="ondijitclick:_onClick" value="on" tabindex="0" id="dijit_form_CheckBox_0" style="-webkit-user-select: none;"></div><div class="dijit dijitReset dijitInline dijitCheckBox dijitCheckBoxChecked dijitChecked" role="presentation" widgetid="dijit_form_CheckBox_1"><input type="checkbox" role="checkbox" aria-checked="true" class="dijitReset dijitCheckBoxInput" data-dojo-attach-point="focusNode" data-dojo-attach-event="ondijitclick:_onClick" value="on" tabindex="0" id="dijit_form_CheckBox_1" style="-webkit-user-select: none;"></div><div class="dijit dijitReset dijitInline dijitCheckBox" role="presentation" widgetid="dijit_form_CheckBox_2"><input type="checkbox" role="checkbox" aria-checked="false" class="dijitReset dijitCheckBoxInput" data-dojo-attach-point="focusNode" data-dojo-attach-event="ondijitclick:_onClick" value="on" tabindex="0" id="dijit_form_CheckBox_2" style="-webkit-user-select: none;"></div><div class="dijit dijitReset dijitInline dijitCheckBox dijitCheckBoxChecked dijitChecked" role="presentation" widgetid="dijit_form_CheckBox_3"><input type="checkbox" role="checkbox" aria-checked="true" class="dijitReset dijitCheckBoxInput" data-dojo-attach-point="focusNode" data-dojo-attach-event="ondijitclick:_onClick" value="on" tabindex="0" id="dijit_form_CheckBox_3" style="-webkit-user-select: none;"></div><div class="dijit dijitReset dijitInline dijitCheckBox dijitCheckBoxChecked dijitChecked" role="presentation" widgetid="dijit_form_CheckBox_4"><input type="checkbox" role="checkbox" aria-checked="true" class="dijitReset dijitCheckBoxInput" data-dojo-attach-point="focusNode" data-dojo-attach-event="ondijitclick:_onClick" value="on" tabindex="0" id="dijit_form_CheckBox_4" style="-webkit-user-select: none;"></div><div class="dijit dijitReset dijitInline dijitCheckBox dijitCheckBoxChecked dijitChecked" role="presentation" widgetid="dijit_form_CheckBox_5"><input type="checkbox" role="checkbox" aria-checked="true" class="dijitReset dijitCheckBoxInput" data-dojo-attach-point="focusNode" data-dojo-attach-event="ondijitclick:_onClick" value="on" tabindex="0" id="dijit_form_CheckBox_5" style="-webkit-user-select: none;"></div><table class="dijit dijitReset dijitSlider dijitSliderH" cellspacing="0" cellpadding="0" border="0" rules="none" data-dojo-attach-event="onkeydown:_onKeyDown, onkeyup:_onKeyUp" role="presentation" id="dijit_form_HorizontalSlider_0" widgetid="dijit_form_HorizontalSlider_0"><tbody><tr class="dijitReset"><td class="dijitReset" colspan="2"></td><td data-dojo-attach-point="topDecoration" class="dijitReset dijitSliderDecoration dijitSliderDecorationT dijitSliderDecorationH"></td><td class="dijitReset" colspan="2"></td></tr><tr class="dijitReset"><td class="dijitReset dijitSliderButtonContainer dijitSliderButtonContainerH"><div class="dijitSliderDecrementIconH" data-dojo-attach-point="decrementButton"><span class="dijitSliderButtonInner">-</span></div></td><td class="dijitReset"><div class="dijitSliderBar dijitSliderBumper dijitSliderBumperH dijitSliderLeftBumper" data-dojo-attach-event="press:_onClkDecBumper"></div></td><td class="dijitReset"><input data-dojo-attach-point="valueNode" type="hidden" value="10"><div class="dijitReset dijitSliderBarContainerH" role="presentation" data-dojo-attach-point="sliderBarContainer"><div role="presentation" data-dojo-attach-point="progressBar" class="dijitSliderBar dijitSliderBarH dijitSliderProgressBar dijitSliderProgressBarH" data-dojo-attach-event="press:_onBarClick" style="width: 18.3673%;"><div class="dijitSliderMoveable dijitSliderMoveableH"><div data-dojo-attach-point="sliderHandle,focusNode" class="dijitSliderImageHandle dijitSliderImageHandleH" data-dojo-attach-event="press:_onHandleClick" role="slider" aria-valuemin="1" aria-valuemax="50" tabindex="0" aria-valuenow="10"></div></div></div><div role="presentation" data-dojo-attach-point="remainingBar" class="dijitSliderBar dijitSliderBarH dijitSliderRemainingBar dijitSliderRemainingBarH" data-dojo-attach-event="press:_onBarClick" style="width: 81.6327%;"></div></div></td><td class="dijitReset"><div class="dijitSliderBar dijitSliderBumper dijitSliderBumperH dijitSliderRightBumper" data-dojo-attach-event="press:_onClkIncBumper"></div></td><td class="dijitReset dijitSliderButtonContainer dijitSliderButtonContainerH"><div class="dijitSliderIncrementIconH" data-dojo-attach-point="incrementButton"><span class="dijitSliderButtonInner">+</span></div></td></tr><tr class="dijitReset"><td class="dijitReset" colspan="2"></td><td data-dojo-attach-point="containerNode,bottomDecoration" class="dijitReset dijitSliderDecoration dijitSliderDecorationB dijitSliderDecorationH"></td><td class="dijitReset" colspan="2"></td></tr></tbody></table></div></div>
+	</div>
+	<div class="dijitTooltipConnector" role="presentation" data-dojo-attach-point="connectorNode"></div>
+</div></div><div class="dijitPopup" role="region" aria-label="dijit_DropDownMenu_0" style="display: none; height: auto; overflow: visible;"><table class="dijit dijitMenu dijitMenuPassive dijitReset dijitMenuTable" role="menu" tabindex="0" cellspacing="0" id="dijit_DropDownMenu_0" widgetid="dijit_DropDownMenu_0" style="top: 0px;">
+	<tbody class="dijitReset" data-dojo-attach-point="containerNode"><tr class="dijitReset dijitMenuItem" data-dojo-attach-point="focusNode" role="menuitem" tabindex="-1" id="dijit_MenuItem_4" aria-label="block " widgetid="dijit_MenuItem_4" style="-webkit-user-select: none;">
+	<td class="dijitReset dijitMenuItemIconCell" role="presentation">
+		<span role="presentation" class="dijitInline dijitIcon dijitMenuItemIcon dijitNoIcon" data-dojo-attach-point="iconNode"></span>
+	</td>
+	<td class="dijitReset dijitMenuItemLabel" colspan="2" data-dojo-attach-point="containerNode,textDirNode" id="dijit_MenuItem_4_text">block</td>
+	<td class="dijitReset dijitMenuItemAccelKey" style="display: none" data-dojo-attach-point="accelKeyNode" id="dijit_MenuItem_4_accel"></td>
+	<td class="dijitReset dijitMenuArrowCell" role="presentation">
+		<span data-dojo-attach-point="arrowWrapper" style="visibility: hidden">
+			<span class="dijitInline dijitIcon dijitMenuExpand"></span>
+			<span class="dijitMenuExpandA11y">+</span>
+		</span>
+	</td>
+</tr><tr class="dijitReset dijitMenuItem" data-dojo-attach-point="focusNode" role="menuitem" tabindex="-1" id="dijit_MenuItem_5" aria-label="line " widgetid="dijit_MenuItem_5" style="-webkit-user-select: none;">
+	<td class="dijitReset dijitMenuItemIconCell" role="presentation">
+		<span role="presentation" class="dijitInline dijitIcon dijitMenuItemIcon dijitNoIcon" data-dojo-attach-point="iconNode"></span>
+	</td>
+	<td class="dijitReset dijitMenuItemLabel" colspan="2" data-dojo-attach-point="containerNode,textDirNode" id="dijit_MenuItem_5_text">line</td>
+	<td class="dijitReset dijitMenuItemAccelKey" style="display: none" data-dojo-attach-point="accelKeyNode" id="dijit_MenuItem_5_accel"></td>
+	<td class="dijitReset dijitMenuArrowCell" role="presentation">
+		<span data-dojo-attach-point="arrowWrapper" style="visibility: hidden">
+			<span class="dijitInline dijitIcon dijitMenuExpand"></span>
+			<span class="dijitMenuExpandA11y">+</span>
+		</span>
+	</td>
+</tr><tr class="dijitReset dijitMenuItem" data-dojo-attach-point="focusNode" role="menuitem" tabindex="-1" id="dijit_MenuItem_6" aria-label="uncomment " widgetid="dijit_MenuItem_6" style="-webkit-user-select: none;">
+	<td class="dijitReset dijitMenuItemIconCell" role="presentation">
+		<span role="presentation" class="dijitInline dijitIcon dijitMenuItemIcon dijitNoIcon" data-dojo-attach-point="iconNode"></span>
+	</td>
+	<td class="dijitReset dijitMenuItemLabel" colspan="2" data-dojo-attach-point="containerNode,textDirNode" id="dijit_MenuItem_6_text">uncomment</td>
+	<td class="dijitReset dijitMenuItemAccelKey" style="display: none" data-dojo-attach-point="accelKeyNode" id="dijit_MenuItem_6_accel"></td>
+	<td class="dijitReset dijitMenuArrowCell" role="presentation">
+		<span data-dojo-attach-point="arrowWrapper" style="visibility: hidden">
+			<span class="dijitInline dijitIcon dijitMenuExpand"></span>
+			<span class="dijitMenuExpandA11y">+</span>
+		</span>
+	</td>
+</tr></tbody>
+</table></div></body></html>
