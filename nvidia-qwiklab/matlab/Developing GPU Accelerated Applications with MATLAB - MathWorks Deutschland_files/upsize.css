@@ -1,0 +1,29 @@
+.content_container { 
+  	font-size:1.4em;
+	line-height:143%;
+}
+
+h1 {
+	font-family: "futura-pt-n7","futura-pt","Arial","Helvetica",sans-serif; font-style: normal; font-weight: 700;
+}
+
+.content_frame, #nextgen_br .content_frame, #nextgen_lbr .content_frame, #nextgen_lbr-float .content_frame {
+    padding: 30px 0 0;
+}
+
+p { margin:0px 0px 20px 0px; }
+ul { margin:0px 0px 20px 0px; }
+ol { margin:0px 0px 20px 0px; }
+
+ul li, ol li ul li { background-position: 0 0.5em; }
+ul li ul li { background-position: 0px 13px; }
+ul.checked_list li {background-position: 0px 4px;}
+ol ul li, ol li ul li { background-position: 0 0.55em; } 
+/* Adjust the body lead container when it exists to override the content frame padding */
+.body_lead_container {padding:40px 0px 0px 0px; margin:-30px 0px 30px 0px; font-size: 1.4em; line-height: 170%;}
+#nextgen_br .body_lead_container { margin:-30px 0px 30px 0px;}
+
+/* Font Exceptions */
+.rotating_features p { font-size: 1em; } 
+.rotating_features .text_light a.cta, .rotating_features .text_dark a.cta, .rotating_features .text_neutral a.cta { background-position: 0px 8px;}
+.callout_content a.cta { background-position: 0px 6px;}

@@ -1,0 +1,243 @@
+/* Stylesheet Description
+products.css contains styles for Products & Services */
+
+/* GLOBAL PRODUCT PAGE STYLES */
+@font-face { font-family: 'MATLABRegular'; src: url('/images/fonts/matlab-logo-webfont.eot'); src: url('/images/fonts/matlab-logo-webfont.eot?#iefix') format('embedded-opentype'),  url('/images/fonts/matlab-logo-webfont.woff') format('woff'),  url('/images/fonts/matlab-logo-webfont.ttf') format('truetype'),  url('/images/fonts/matlab-logo-webfont.svg#MATLABRegular') format('svg'); font-weight: normal; font-style: normal; }
+@font-face { font-family: 'simulinkRegular'; src: url('/images/fonts/simulink-logo-webfont.eot'); src: url('/images/fonts/simulink-logo-webfont.eot?#iefix') format('embedded-opentype'),  url('/images/fonts/simulink-logo-webfont.woff') format('woff'),  url('/images/fonts/simulink-logo-webfont.ttf') format('truetype'),  url('/images/fonts/simulink-logo-webfont.svg#simulinkRegular') format('svg'); font-weight: normal; font-style: normal; }
+h1.matlab_logo_font, .section_image p.h1.matlab_logo_font, .rotating_features p.h1.matlab_logo_font { font-family: 'MATLABRegular'; font-size: 44px; font-weight: normal; font-style: normal; line-height:90%; margin-bottom:-3px; }
+h1.simulink_logo_font, .section_image p.h1.simulink_logo_font, .rotating_features p.h1.simulink_logo_font { font-family: 'simulinkRegular'; font-size: 44px; font-weight: normal; font-style: normal; line-height:90%; margin-bottom:-3px; }
+.level_3 h1.matlab_logo_font, .level_3 h1.simulink_logo_font, .level_3.section_image p.h1.matlab_logo_font, .rotating_features p.h1.matlab_logo_font, .level_3.section_image p.h1.simulink_logo_font, .rotating_features p.h1.simulink_logo_font { font-size: 30px; }
+#ctabox_trybuy { padding: 15px 0 15px 75px; }
+#try_or_buy { padding: 25px 10px 10px 15px; background-color:#F2F2F2; background-position: 10px 10px; background-position: right; } 
+.product_flag { margin-left: 20px; display: inline; }
+.product_flag, .product_flag a { color: #d6d6d6; }
+h1 .vendor_attribute { font-size: 0.6em; font-style:italic; display: inline; }
+code { display:inline; padding:1px; font-family: "Courier New", Courier, monospace; background:transparent; border:0px; } /*Should go to Site5 */
+.caption { font-size:0.9em; color: #575757; line-height:140%; overflow:hidden; } /* Remove when CMS is updated to support nextgen */
+.productvideo { overflow:hidden; margin-bottom:20px; } /* Remove when CMS is updated to support nextgen */
+.productvideo .thumbnail { float:left; margin-right:10px; } /* Remove when CMS is updated to support nextgen */
+.productvideo .caption { padding-top:15px; } /* Remove when CMS is updated to support nextgen */
+.image { width:10%; display:table; } /* Remove when CMS is updated to support nextgen */
+.image_container { height: auto; } /* Remove when CMS is updated to support nextgen */
+.image .image_container + .caption { margin-top:-25px; } /* Remove when CMS is updated to support nextgen */
+/*Mobile Site --- #mobile --- START */
+/* "Limitation" link on Overview page  */
+#mobile h3 a, #mobile h3 a:visited, #mobile h3 a:hover { color: #000; text-decoration: none; }
+/* fix bullets view in IE 6.0 -- make them visible */
+#mobile ul li { display: block; position: relative; }
+#mobile .callout_content ul { margin: 0; }
+#mobile .no_margin { margin: 0; }
+#mobile .mm_cta { margin-bottom: 15px; }
+#mobile tt { font-size: 1.2em; }
+#mobile .section_secondary { border-top: 1px solid #DADADA; padding-top: 25px; }
+#connector-unavailable-panel, #download-connector-help-panel, #download_content, #mobile-connector-wrapper { display: none; }
+#overview-content #connector-unavailable-panel { margin-top: 15px; border-bottom: 1px solid #DADADA; padding-bottom: 15px; }
+.overview_video { margin: 15px 0 0 20px; }
+.resource_links { margin: 20px 0 0 0; font-size: 0.9em; }
+/* Two panel selector, need to update after product pilots are complete to have images in nextgen */
+ul.panel_options { padding:0px; margin:0px; }
+.panel_content { margin-top: 15px; }
+/*maintained from global.css */
+.associated { margin-bottom: 10px; }
+.active { display: block; }
+.section_image h1.section_header_sm { font-size: 1.6em; margin-top: 10px; }
+.video_details { margin-top: 10px; }
+/*being moved to site5, can be removed afterwards */
+.toggle_section h3 { cursor: pointer; background: url("/includes_content/nextgen/images/icon_open.gif") no-repeat scroll 0 5px transparent; font-weight: bold; margin: 5px 0 0 0; padding: 0 0 0 14px; color: #4C4C4C; }
+.toggle_section h3.active { background: url("/includes_content/nextgen/images/icon_close.gif") no-repeat scroll 0 5px transparent; }
+.toggle_section div { margin-left: 15px; }
+/*callout styles, add into the respective callout includes later*/
+#dl_matlab_mobile { min-height: 52px; }
+#dl_matlab_mobile h1 { color: #0057b2; font-size: 1.4em; margin: 0; font-family: "futura-pt-n7", "futura-pt", "Arial", "Helvetica", sans-serif; font-style: normal; font-weight: 700; letter-spacing: -.02em; }
+#dl_matlab_mobile h3 { color: #515151; font-size: 1.2em; font-family: "futura-pt-n7", "futura-pt", "Arial", "Helvetica", sans-serif; font-style: normal; font-weight: 700; letter-spacing: -.02em; margin: 5px 0 3px 0; }
+.callout_container #dl_matlab_mobile.bg_right { padding: 0; }
+#dl_matlab_connector { min-height: 52px; }
+#dl_matlab_connector h1 { color: #0057b2; font-size: 1.4em; font-family: "futura-pt-n7", "futura-pt", "Arial", "Helvetica", sans-serif; font-style: normal; font-weight: 700; letter-spacing: -.02em; margin: 0; }
+#dl_matlab_connector h3 { color: #515151; font-size: 1.2em; font-family: "futura-pt-n7", "futura-pt", "Arial", "Helvetica", sans-serif; font-style: normal; font-weight: 700; letter-spacing: -.02em; margin: 5px 0 3px 0; }
+.callout_container #dl_matlab_connector.bg_right { padding: 0; }
+.solid { background-color: #F2F2F2; }
+/*Mobile Site --- #mobile --- END */
+
+
+
+/*MATLAB on the Web Site --- #matlab_web --- START */
+/* Two panel selector, need to update after product pilots are complete to have images in nextgen */
+#matlab_web ul.panel_options { padding:0px; margin:0px; }
+#matlab_web .panel_options li.fade_top { height: 20px; background:transparent url("/products/matlab/web/images/bg_panel_list_top_fadeout.png") no-repeat bottom right; }
+#matlab_web .panel_options li.fade_bottom { padding:50px 0px; background:transparent url("/products/matlab/web/images/bg_panel_list_bottom_fadeout.png") no-repeat top right; }
+#matlab_web .panel_options li { padding:0px; margin:0px; list-style-type:none; background:#f5f5f5 url("/products/matlab/web/images/bg_panel_item.png") repeat-y top right; }
+#matlab_web .panel_options li a, #matlab_web .panel_options li a:visited { width:156px; padding:14px 14px 14px 0px; color:#3f3f3f; line-height:140%; display:block; text-align:right; font-weight: bold; }
+#matlab_web .panel_options li a:hover { text-decoration:none; background:transparent url("/products/matlab/web/images//bg_panel_item_hover.png") repeat-y top right; }
+#matlab_web .panel_options li.active { padding:4px 0px 0px; margin:-4px 0px -4px; background:transparent url("/products/matlab/web/images/bg_panel_item_active_top.png") no-repeat top left; position:relative; z-index:3; }
+#matlab_web .panel_options li.active a, #matlab_web .panel_options li.active a:visited { padding:14px 15px 18px 0px; color:#bf3c0f; background:transparent url("/products/matlab/web/images/bg_panel_item_active_bottom.png") no-repeat bottom left; }
+#matlab_web .panel_content { margin-top: 15px; }
+#matlab_web .section_secondary { border-top: 1px solid #DADADA; padding-top: 25px; }
+.margin_top_20 { margin-top: 20px; }
+.margin_bottom_30 { margin-bottom: 30px; }
+.margin_bottom_5 { margin-bottom: 5px; }
+#matlab_web ul li { display: block; position: relative; }
+/* MATLAB Mobile iFrame */
+.dijitButton #motw_mobileUpload_uploadBtn_label:hover { width:200px; height:43px; color:transparent; text-indent:-9999px; background:url("/images/nextgen/supporting/products/mobile/btn-upload-run-files-hover.png") no-repeat; }
+.dijitButton #motw_mobileUpload_downloadBtn_label:hover { width:200px; height:43px; color:transparent; text-indent:-9999px; background:url("/images/nextgen/supporting/products/mobile/btn-download-save-files-hover.png") no-repeat; }
+#motw_mobileUpload_uploadBtn_label, .dijitDisabled #motw_mobileUpload_uploadBtn_label:hover { width:200px; height:43px; color:transparent; text-indent:-9999px; background: url("/images/nextgen/supporting/products/mobile/btn-upload-run-files.png") no-repeat; }
+#motw_mobileUpload_downloadBtn_label, .dijitDisabled #motw_mobileUpload_downloadBtn_label:hover { width:200px; height:43px; color:transparent; text-indent:-9999px; background:url("/images/nextgen/supporting/products/mobile/btn-download-save-files.png") no-repeat; }
+.tundra .dijitButtonNode { border-width:0; background:none; }
+.tundra .dijitButtonDisabled .dijitButtonNode, .tundra .dijitButtonHover .dijitButtonNode, .tundra .dijitButtonNodeHover, .dijitButtonHover .dijitButtonText, .tundra .dijitButtonActive .dijitButtonNode { background:none; }
+.dijitButtonDisabled { opacity:0.4; filter:alpha(opacity=40); }
+/*Simulink Projects --- #simulink_projects --- START */
+/*from release highlights, need to move to site5 */
+.ctaBtn { cursor: pointer; font-size: 11px !important; line-height: 13px; text-decoration: none; margin: 0; /*overrides site5 */ }
+.ctaBtn.blue { background: #4880cf url(/images/nextgen/global/bg_ctabtn_blue.gif) no-repeat bottom left; /* fallback */ background:-webkit-gradient(linear, left top, left bottom, from(#4377bf), to(#2c4973)); background:-moz-linear-gradient(top, #4377bf, #2c4973); -pie-background:linear-gradient(top, #4377bf, #2c4973); border: 1px solid #034462; text-shadow: 0 1px 1px #23406A; }
+.ctaBtn.blue a { color: #fff; }
+.ctaBtn.blue:hover, .ctaBtn.blue:focus { background: #4880cf url(/images/nextgen/global/bg_ctabtn_blue.gif) no-repeat bottom left; /* fallback */ background:-webkit-gradient(linear, left top, left bottom, from(#3b68a7), to(#274166)); background:-moz-linear-gradient(top, #3b68a7, #274166); -pie-background:linear-gradient(top, #3b68a7, #274166); border: 1px solid #033952; color: #FFFFFF; }
+.ctaBtn .icon_container { background: url("/images/nextgen/global/bgd-ctabutton-iconcontainer.png") no-repeat scroll 6px center transparent; margin-bottom: 1px; margin-top: 2px; }
+/*for consideration to implement for site5 */
+.margin_bottom_50 { margin-bottom: 50px; }
+.margin_bottom_5 { margin-bottom: 5px; }
+#simulink_projects ul li { display: block; position: relative; }
+/*need to move to site5 */
+.de_emphasize { color:#666; }
+h5 { color: #666; font-style: italic; font-size: 1.1em; line-height: 140%; margin: 0 0 5px; }
+.req { color: #ff0000; }
+.section_image.level_3 td { padding-left: 30px; }
+/*Simulink Projects --- #simulink_projects --- END */	
+
+
+/* PRODUCT AND SERVICE MAIN PAGE */  /* Cleaned up 11/11/11 */
+#product_main_page .cta.right { float: right; }
+#product_main_page .order_by { float:left; margin:0px; padding:0px 0px 18px; }
+#product_main_page .order_by li { float:left; background:none; list-style:none; list-style-type:none; padding:0px 15px 0px 0px; margin:0px; }
+#product_main_page .order_by .active { font-weight:bold; }
+#product_main_page .alpha_index { margin:0px 0px 20px 0px; }
+#product_main_page .alpha_index li { display:inline; list-style-type:none; background:none; padding:0px 9px 0px 0px; font-weight:bold; color:#898989; }
+#product_main_page .alpha_index li.all { border-right:1px solid #000; margin-right:9px; }
+#product_main_page .alpha { color: #a8a8a8; margin:0px 0px 20px 0px; }
+#product_main_page .separator_vertical { color:#7C7C7C; }
+/* For Real-Time Windows Target supported hardware page */
+#rtwt_supported_hardware .form_module { border: 1px solid #D6D4D4; width: 100%; }
+/*Callouts with fixed heights in CMS driven pages*/
+#callout_basic_fixed_height, #callout_cta2_product_free_trial { height: 70px; }
+.callout_container #product_free_trial, .callout_container #callout_cta2_product_free_trial { padding-right: 60px; }
+/*Classic thumbnail size to be maintained per OVP Phase 1 */
+.thumbnail_container_lg .thumbnail .video_overlay_classic { background: url("/images/nextgen/video_stills/video-thumbnail-overlay-lg.png") no-repeat scroll 0 0 transparent; height: 134px; position: absolute; width: 188px; z-index: 5; }
+/* MATLAB and Simulink pilots */
+#matlab_main .body_intro, #simulink_main .body_intro { padding-top:15px; }
+/* Doc Examples - Suppress MATLAB Links */
+.execmatlabproduct { display:none; }
+.open_example { display:none; }
+/* Doc Examples - Image scaling */
+#content_container2 .scaled-image, #content_container .scaled-image, #doc_center_content .scaled-image { width:auto; max-width:400px; height:auto; max-height:300px; padding:5px 5px 20px 5px; border:1px dashed #D6D6D6; background:#fff url(/images/nextgen/doc_center/ico_zoom_in.png) no-repeat bottom right; cursor: pointer; position:relative; z-index:5; }
+#content_container2 .expanded-image, #content_container .expanded-image, #doc_center_content .expanded-image { padding:5px 5px 20px 5px; background-image:url(/images/nextgen/doc_center/ico_zoom_out.png); }
+#content_container2 img.animated-image, #content_container img.animated-image, #doc_center_content img.animated-image { width:auto; max-width:400px; height:auto; max-height:300px; padding:5px 5px 20px 5px; border:1px dashed #D6D6D6; background:#fff url(/images/nextgen/doc_center/ico-animation-play.png) no-repeat bottom right; cursor: pointer; }
+#content_container2 img.dynamic-image, #content_container img.dynamic-image, #doc_center_content img.dynamic-image { padding:5px 5px 20px 5px; background-image:url(/images/nextgen/doc_center/ico-animation-stop.png); }
+/* Doc Examples - Code Formatting */
+#doc_center_content pre { white-space:pre-wrap; white-space:-moz-pre-wrap !important; white-space:-o-pre-wrap; word-wrap:break-word; }
+/* Release Highlights (New Product Latest Features */
+.new_product_release_highlights ul.update li { padding-left:6px; }
+.new_product_release_highlights li.major { background: transparent url(/images/nextgen/supporting/products/asterisk.gif) 0px 3px no-repeat!important; }
+.new_product_release_highlights p.major { padding-left:7px; background: transparent url(/images/nextgen/supporting/products/asterisk.gif) 0px 6px no-repeat; }
+/* Hardware Support Catalog */
+#hardware_details .header_mathworks { background-image: url("/images/nextgen/supporting/hardware-support/heading-mathworks.png "); }
+#hardware_details .header_third_party { background-image: url("/images/nextgen/supporting/hardware-support/heading-third-party.png"); }
+#hardware_details .column_image_header_container { height:35px; }
+/* Doc CSS for Product Examples */
+/* Whitespace Gecks */
+#doc_center_content { line-height:142% !important; }
+#doc_center_content h2 { border-color:#ccc; }
+#doc_center_content h3 { padding:5px 0px 0px; margin:0px 0px 1px 0px; color:#b04200; line-height:142%; }
+#doc_center_content h4 { color:#000; line-height:142%; }
+#doc_center_content h3.expand { padding-top:0px; color:#005fce; }
+#doc_center_content .search_refine h3 { color:#000; }
+#doc_center_content p, #doc_center_content ul, #doc_center_content ol, #doc_center_content pre { margin-bottom:10px; }
+#doc_center_content ul { padding-top:0px; }
+#doc_center_content ul li p { margin-bottom: 5px; }
+#doc_center_content pre { line-height:142%; }
+#doc_center_content pre.codeinput { background:#f6f6f6; }
+#doc_center_content pre.programlisting { margin-left:2em; }
+#doc_center_content .doc_topic_desc .purpose_container p { font-family:"futura-pt-n4", "futura-pt", "Arial", "Helvetica", sans-serif; font-style:normal; font-weight:400; letter-spacing:-.02em; font-size:1.2em; color:#555651; }
+#doc_center_content .doc_topic_desc p:empty { display:none; }
+#doc_center_content .doc_topic_desc p:empty + .switch { margin-top:0px; }
+#doc_center_content .doc_topic_desc:empty { padding-top:8px; margin-bottom:0px; }
+#doc_center_content .programlisting.codeinput { padding:8px; margin:0px 0px 12px 10px; border-color:#ccc; }
+#doc_center_content .programlisting.codeoutput { padding:0px 8px; margin:0px 0px 12px 10px; }
+#doc_center_content .ref_cluster { padding-bottom:20px; }
+#doc_center_content .ref_cluster_content { padding:0px; border:none; border-left:10px solid #e6e6e6; background:#f6f6f6; }
+#doc_center_content .ref_cluster_content td { padding:6px 5px; }
+#doc_center_content .ref_cluster_content tr + tr td { border-top:1px dotted #ccc; }
+#doc_center_content .examples_container { margin-bottom:20px; }
+#doc_center_content .moreabout_container { margin-bottom:20px; }
+#doc_center_content ul.doc_categories { padding-top:0px; }
+#doc_center_content .doc_category_nav_foot { margin-top:-10px; }
+#doc_center_content .datatable { border-color:#ccc; }
+#doc_center_content .datatable td { padding:6px 5px; font-size:1.1em; line-height:142%; border-color:#ccc; }
+#doc_center_content .datatable td pre { margin-bottom:0px; }
+#doc_center_content .datatable td p { margin-bottom:0px; }
+#doc_center_content .datatable td p + p, #doc_center_content .datatable td p + ul, #doc_center_content .datatable td p + ol, #doc_center_content .datatable td p + pre { margin-top:10px; }
+#doc_center_content .datatable td pre + p, #doc_center_content .datatable td pre + ul, #doc_center_content .datatable td pre + ol, #doc_center_content .datatable td pre + pre { margin-top:10px; }
+#doc_center_content .datatable .even { background:#f6f6f6; }
+#doc_center_content table { margin-bottom:12px; border:1px solid #ccc; font-size:0.9em; }
+#doc_center_content table th { padding:6px 5px; color:#000; font-weight:bold; vertical-align:center; background:#eaeaea; border:1px solid #ccc; border-right:none; }
+#doc_center_content table td { padding:6px 5px; font-size:1.1em; line-height:142%; border-color:#ccc; background:#fff; border-bottom:none; }
+#doc_center_content table td pre { margin-bottom:0px; }
+#doc_center_content table td p { margin-bottom:0px; }
+#doc_center_content table td p + p, #doc_center_content table td p + ul, #doc_center_content table td p + ol, #doc_center_content table td p + pre { margin-top:10px; }
+#doc_center_content table td pre + p, #doc_center_content table td pre + ul, #doc_center_content table td pre + ol, #doc_center_content table td pre + pre { margin-top:10px; }
+#doc_center_content table { border-right:none; border-bottom:none; }
+#doc_center_content table th, #doc_center_content table td { border-right:1px solid #ccc; border-bottom:1px solid #ccc; }
+#doc_center_content table.simplelist_nottable_last { margin-left:0px; }
+#doc_center_content table.simplelist_nottable_notlast { margin-left:0px; }
+#doc_center_content td table.simplelist_table_last { border:none; }
+#doc_center_content td table.simplelist_table_last td { border:none; }
+#doc_center_content table.divider { border:none; border-bottom:1px solid #ececec; }
+#doc_center_content table.divider td { height:1px; padding:0px; font-size:1px; line-height:1px; border:none; background:transparent !important; }
+#doc_center_content table.divider td img { display:none; }
+#doc_center_content h2 + table { margin-top:-8px; border-top:none; }
+#doc_center_content td.argumentlistentrycell { border-top:none; }
+#doc_center_content .doc_productdescgroup_container + .doc_productsetupgroup_container { margin-top:-16px; }
+#doc_center_content .ref_cluster_content table { border:none; border-top:1px solid #ccc; }
+#doc_center_content h2 + .ref_cluster .ref_cluster_content table { border-top:none; }
+#doc_center_content .ref_cluster_content table td { padding:3px 5px; }
+#doc_center_content table.layout_table { border:none; }
+#doc_center_content table.layout_table td { padding:5px 10px 5px 0px; border:none; }
+#doc_center_content table.layout_table tr:nth-child(even) td { background:#fff; }
+#doc_center_content .example_element { border:none; }
+#doc_center_content .example_element td { border:none; }
+/* Below: Pricing and licensing styles */
+
+#pl .main_section { background-color: #f5f5f5; padding: 15px 0; float: left; }
+#pl .license_info { background-color: #6DA1DD; float:left; }
+#pl .product_detail { padding: 30px 20px; }
+#pl .product_detail p, #pl .product_detail p a { color: white; }
+#pl .price_statement { margin-left: 20px; color: white; position: absolute; bottom: -15px; }
+#pl #license_list { background-color: #f5f5f5; min-height: 520px; }
+#pl .sector_item { margin-left: 15px; padding: 15px 0 7px; cursor: pointer; }
+#pl .sector_item a:hover { text-decoration: none; }
+#pl .sector:hover { background-color: #dedede; }
+#pl .sector_item.sta { background:url(/images/nextgen/global/ico-corporation-24.png) no-repeat left; }
+#pl .blue_arrow .sector_item.sta { background:url(/images/nextgen/global/ico-corporation-rev-24.png) no-repeat left; }
+#pl .sector_item.edu { background:url(/images/nextgen/global/ico-university-24.png) no-repeat left; }
+#pl .blue_arrow .sector_item.edu { background:url(/images/nextgen/global/ico-university-rev-24.png) no-repeat left; }
+#pl .sector_item.home { background:url(/images/nextgen/global/ico-home-24.png) no-repeat left; }
+#pl .blue_arrow .sector_item.home { background:url(/images/nextgen/global/ico-home-rev-24.png) no-repeat left; }
+#pl .sector_item.student { background:url(/images/nextgen/global/ico-student-24.png) no-repeat left; }
+#pl .blue_arrow .sector_item.student { background:url(/images/nextgen/global/ico-student-rev-24.png) no-repeat left; }
+#pl .blue_arrow, #pl .blue_arrow:hover { background-color: #2A69D8; position: relative; display:block; z-index:999; -webkit-box-shadow: 2px 0px 4px -2px rgba(80,121,166,1); -moz-box-shadow: 2px 0px 4px -2px rgba(80,121,166,1); box-shadow: 2px 0px 4px -2px rgba(80,121,166,1); }
+#pl .blue_arrow:after { width: 0px; height: 0px; border-style: solid; border-width: 25px 0 25px 30px; border-color: transparent transparent transparent #2a6ad8; position:absolute; content: ""; line-height: 0; left: 210px; top: 0; z-index:999; }
+#pl .blue_arrow h2 a { color: white !important; }
+#pl .white_arrow { position: relative; background-color: white; border: 3px solid #6DA1DD; border-left: 0px; }
+#pl .white_arrow:before { width: 0px; height: 0px; border-style: solid; border-width: 25px 30px 25px 0; border-color: transparent #ffffff transparent transparent; position:absolute; content: ""; line-height: 0; right: 437px; top: 40%; z-index: 999; }
+#pl .box { padding: 15px 20px 1px 20px; }
+#pl .box.white_arrow { padding: 12px 20px 1px 20px; }
+#pl .box:hover { background-color: #dedede; cursor: pointer; }
+#pl .box.white_arrow:hover { background-color:#fff; cursor:text; }
+#pl #license_list h2 a:hover { text-decoration:none; }
+#pl .required_list { background-color: #9cbce2; padding: 15px; }
+
+/* Above: Pricing and licensing styles */
+
+/* Below: Trials for all styles */
+#trials_for_all .loader_container { margin:0 auto; width:285px; }
+#trials_for_all .loader_content { padding:10px; border:1px solid #394045; -moz-border-radius:7px; border-radius:7px; background:#fff url(/images/training/bg_loader.gif) repeat-x center center; -moz-box-shadow:5px 5px 5px rgba(0,0,0,0.5); -webkit-box-shadow:5px 5px 5px rgba(0,0,0,0.5); box-shadow:5px 5px 5px rgba(0,0,0,0.5); }
+#trials_for_all .loader_content h3 { padding:5px 0px 5px 35px; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:1.3em; font-weight:bold; line-height:120%; color:#fff; background:url(/images/training/ani_loader.gif) no-repeat 0px center; }
+#trials_for_all.loader_positioning { position:absolute; z-index:100; left: 20%; top: 100px;}
+/* Above: Trials for all styles */

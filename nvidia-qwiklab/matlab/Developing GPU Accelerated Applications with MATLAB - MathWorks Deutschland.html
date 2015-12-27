@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<!-- saved from url=(0057)http://de.mathworks.com/programs/gpu-trial/tutorials.html -->
+<html class="wf-museoslab-n7-active wf-futurapt-i4-active wf-futurapt-n5-active wf-futurapt-i5-active wf-futurapt-n7-active wf-futurapt-i7-active wf-automate-n7-active wf-minionprosubhead-n4-active wf-futurapt-n4-active wf-active gr__de_mathworks_com"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<title>Developing GPU Accelerated Applications with MATLAB - MathWorks Deutschland</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<!-- BEGIN Adobe DTM -->
+<script type="text/javascript" async="" src="./Developing GPU Accelerated Applications with MATLAB - MathWorks Deutschland_files/ahy.js"></script><script type="text/javascript" async="" src="./Developing GPU Accelerated Applications with MATLAB - MathWorks Deutschland_files/elqCfg.min.js"></script><script src="http://edge.quantserve.com/aquant.js?a=p-zfNtLVVEHXE-1" async="" type="text/javascript"></script><script src="./Developing GPU Accelerated Applications with MATLAB - MathWorks Deutschland_files/satelliteLib-e8d23c2e444abadc572df06537e2def59c01db09.js"></script><script src="./Developing GPU Accelerated Applications with MATLAB - MathWorks Deutschland_files/mbox.js"></script><style type="text/css">{visibility: hidden;}</style><style>.mboxDefault { visibility:hidden; }</style>
+<!-- END Adobe DTM --> <link href="./Developing GPU Accelerated Applications with MATLAB - MathWorks Deutschland_files/reset.css" rel="stylesheet" type="text/css">
+<link href="./Developing GPU Accelerated Applications with MATLAB - MathWorks Deutschland_files/960.css" rel="stylesheet" type="text/css">
+<link href="./Developing GPU Accelerated Applications with MATLAB - MathWorks Deutschland_files/site5.css" rel="stylesheet" type="text/css">
+<!--[if IE 6]>
+<link href="/includes_content/nextgen/css/site5_ie6.css?20131015" rel="stylesheet" type="text/css">
+<![endif]-->
+<!--[if IE 7]>
+<link href="/includes_content/nextgen/css/site5_ie7.css?20131015" rel="stylesheet" type="text/css">
+<![endif]-->
+<!--[if IE 8]>
+<link href="/includes_content/nextgen/css/site5_ie8.css?20131015" rel="stylesheet" type="text/css">
+<![endif]-->
+<!--[if IE 9]>
+<link href="/includes_content/nextgen/css/site5_ie9.css?20131015" rel="stylesheet" type="text/css">
+<![endif]-->
+<link rel="stylesheet" href="./Developing GPU Accelerated Applications with MATLAB - MathWorks Deutschland_files/upsize.css" type="text/css">
+<!--[if IE 6]>
+<link href="/includes_content/nextgen/css/templates/upsize_ie6.css" rel="stylesheet" type="text/css">
+<![endif]-->
+<!--[if IE 7]>
+<link href="/includes_content/nextgen/css/templates/upsize_ie7.css" rel="stylesheet" type="text/css">
+<![endif]-->
+<!--[if IE 8]>
+<link href="/includes_content/nextgen/css/templates/upsize_ie8.css" rel="stylesheet" type="text/css">
+<![endif]-->
+<!--[if IE 9]>
+<link href="/includes_content/nextgen/css/templates/upsize_ie9.css" rel="stylesheet" type="text/css">
+<![endif]-->
+<link rel="stylesheet" href="./Developing GPU Accelerated Applications with MATLAB - MathWorks Deutschland_files/products.css">
+<!--[if IE 8]>
+<link href="/includes_content/nextgen/css/products/products_ie8.css" rel="stylesheet" type="text/css">
+<![endif]-->
+<!--[if IE 9]>
+<link href="/includes_content/nextgen/css/products/products_ie9.css" rel="stylesheet" type="text/css">
+<![endif]-->
+<!-- Begin Eloqua 1st Party Cookie Tracking Script-->
+<script type="text/javascript">
+var _elqQ = _elqQ || [];
+_elqQ.push(['elqSetSiteId', '646005169']);
+_elqQ.push(['elqTrackPageView']);
+_elqQ.push(['elqUseFirstPartyCookie', 'tracking.mathworks.com']);
+(function () {
+function async_load() {
+var s = document.createElement('script'); s.type = 'text/javascript';
+s.async = true; s.src = '//img.en25.com/i/elqCfg.min.js';
+var x = document.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x);
+}
+if (window.addEventListener) window.addEventListener('DOMContentLoaded', async_load, false);
+else if (window.attachEvent) window.attachEvent('onload', async_load);
+})();
+</script>
+<!--End Eloqua 1st Party Cookie Tracking Script-->
+<link href="./Developing GPU Accelerated Applications with MATLAB - MathWorks Deutschland_files/print.css" rel="stylesheet" type="text/css" media="print">
+<link rel="stylesheet" type="text/css" href="./Developing GPU Accelerated Applications with MATLAB - MathWorks Deutschland_files/shadowbox.css">
+<link href="./Developing GPU Accelerated Applications with MATLAB - MathWorks Deutschland_files/styles_de.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="./Developing GPU Accelerated Applications with MATLAB - MathWorks Deutschland_files/jquery-latest.js"></script>
+<script type="text/javascript" src="./Developing GPU Accelerated Applications with MATLAB - MathWorks Deutschland_files/jquery.hover-intent.js"></script>
+<script type="text/javascript" src="./Developing GPU Accelerated Applications with MATLAB - MathWorks Deutschland_files/localnav.js"></script>
+<script type="text/javascript" src="./Developing GPU Accelerated Applications with MATLAB - MathWorks Deutschland_files/global.js"></script>
+<script type="text/javascript" src="./Developing GPU Accelerated Applications with MATLAB - MathWorks Deutschland_files/global_search.js"></script>
+<script type="text/javascript" src="./Developing GPU Accelerated Applications with MATLAB - MathWorks Deutschland_files/shadowbox.js"></script>
+<script type="text/javascript">
+Shadowbox.init();
+</script>
+<script type="text/javascript" language="JavaScript1.3">var domain = "de";</script>
+<script type="text/javascript" src="./Developing GPU Accelerated Applications with MATLAB - MathWorks Deutschland_files/xvy5baa.js"></script>
+<style type="text/css">.tk-museo-slab{font-family:"museo-slab",serif;}.tk-futura-pt{font-family:"futura-pt","Arial","Helvetica",sans-serif;}.tk-automate{font-family:"automate",sans-serif;}.tk-minion-pro-subhead{font-family:"minion-pro-subhead",serif;}</style><link rel="stylesheet" href="./Developing GPU Accelerated Applications with MATLAB - MathWorks Deutschland_files/xvy5baa-d.css"><script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+<meta name="robots" content="NOINDEX, NOFOLLOW">
+<script type="text/javascript" src="./Developing GPU Accelerated Applications with MATLAB - MathWorks Deutschland_files/jquery.cookie.js"></script>
+<script type="text/javascript">
+(function() {
+// Check if cookies are enabled
+function cookiesEnabled() {
+return $.cookie('check', 'valid', { expires: 1 }) && $.cookie('check') == 'valid';
+}
+// Set the language of the domain and redirect to the domain
+function setDomainLanguage(language) {
+if($.cookie("lang") != null) {
+$.removeCookie("lang");
+}
+$.cookie("lang", 'lang=' + language, {path: '/', expires: 365, domain: 'ch.mathworks.com'});
+}
+// do not display the domain selector if querystring is not present
+// or if query string has nocookie value
+// or if cookies are disabled
+var displayDomainSelector = true;
+function detectDomain() {
+var queries = {};
+$.each(document.location.search.substr(1).split('&'), function(c,q){
+if(q != undefined && q != "") {
+var i = q.split('=');
+if(i[1] != undefined) {
+queries[i[0].toString()] = i[1].toString();
+}
+}
+});
+var requested_domain = (queries['requestedDomain'] != undefined) ? queries['requestedDomain'] : "";
+var nocookie = (queries['nocookie'] != undefined) ? queries['nocookie'] : "";
+var client = (queries['client'] != undefined) ? queries['client'] : "";
+if(requested_domain == "" || nocookie == "true" || !cookiesEnabled() || client == "addons") {
+displayDomainSelector = false;
+}
+}
+detectDomain();
+$(document).ready(function () {
+// determine if links need to be rewritten
+if ( $( "#country-unselected li a" ).length ) {
+$("#country-unselected li a").each(function() {
+var link_url = $(this).attr("href").replace(/%26requestedDomain(%3D[^%26|&]*)?|requestedDomain(%3D[^%26|&]*)?(%26)?/, "");
+$(this).attr("href", link_url);
+});
+}
+if ( $( "li.headernav_login > a" ).length ) {
+var login_url = $("li.headernav_login > a").attr("href").replace(/%26requestedDomain(%3D[^%26|&]*)?|requestedDomain(%3D[^%26|&]*)?(%26)?/, "");
+$("li.headernav_login > a").attr("href", login_url);
+}
+if ( $( "li.mwa-nav_logout > a" ).length ) {
+var login_url = $("li.mwa-nav_logout > a").attr("href").replace(/%26requestedDomain(%3D[^%26|&]*)?|requestedDomain(%3D[^%26|&]*)?(%26)?/, "");
+$("li.mwa-nav_logout > a").attr("href", login_url);
+}
+if ( $( ".mwa-nav li a" ).length ) {
+$(".mwa-nav li a").each(function() {
+var link_url = $(this).attr("href").replace(/%26requestedDomain(%3D[^%26|&]*)?|requestedDomain(%3D[^%26|&]*)?(%26)?/, "");
+$(this).attr("href", link_url);
+});
+}
+// set the country dropdown link to open the new domain selector
+$("#globalcountry_link").click(function(){
+var content = $('#country-unselected').html();
+Shadowbox.open({
+content: content,
+player: "html",
+height: 630,
+width: 800
+});
+});
+// set the selector button to close the modal
+$('body').on('click','#domain_select_button',function(){
+Shadowbox.close();
+});
+// set the click function for Switzerland/French link
+$('body').on('click','#swiss_french',function(){
+setDomainLanguage('fr');
+});
+// set the click function for the Switzerland/German link
+$('body').on('click','#swiss_german',function(){
+setDomainLanguage('de');
+});
+});
+// onload functionality for the selector
+window.onload = function() {
+$(document).ready(function () {
+if(displayDomainSelector) {
+var content = $('#country-unselected').html();
+Shadowbox.open({
+content: content,
+player: "html",
+height: 630,
+width: 800
+});
+}
+});
+}
+})(jQuery);
+</script>
+<script src="./Developing GPU Accelerated Applications with MATLAB - MathWorks Deutschland_files/s-code-contents-73da148cb454c4f6e395aa8df704854c99540662.js"></script><style type="text/css" id="ki-zy3-zm"></style><style type="text/css" id="ki-zy3-zv"></style></head>
+<body id="response_page">
+<div class="container_192">
+  <div class="grid_192">
+    <div class="page_container response_page">
+      <div class="grid_192"><div class="header_container">
+<div class="headernav">
+<ul>
+<li class="headernav_country"><a href="http://de.mathworks.com/programs/gpu-trial/tutorials.html#" id="globalcountry_link">Deutschland</a></li>
+<li class="headernav_contact"><a href="http://de.mathworks.com/company/aboutus/contact_us/?s_tid=gn_cntus">Kontakt</a></li>
+<li class="headernav_store"><a href="http://de.mathworks.com/store/?s_tid=gn_store">Kaufinfos</a></li>
+<li class="headernav_search"><form name="search" id="site_search" class="site_search" action="http://de.mathworks.com/search/site_search.html" method="get">
+<input type="text" name="q" id="query" class="textfield clear_global_search_text_onfocus" value="MathWorks-Suche" autocomplete="off">
+<input type="submit" id="searchbutton" value="Search" class="submit_go clear_global_search_text_onsubmit">
+</form></li>
+</ul>
+</div>
+<div class="mwa-nav">
+<ul>
+<li class="mwa-nav_name"><a href="https://de.mathworks.com/accesslogin/editProfile.do?s_tid=gn_ep">Praveen Kulkarni</a></li>
+<li class="mwa-nav_account"><a href="https://de.mathworks.com/accesslogin/myAccount.do?s_tid=gn_myac">Eigener Account</a></li>
+<li class="mwa-nav_logout"><a href="https://de.mathworks.com/accesslogin/logout.do?uri=http://de.mathworks.com/programs/gpu-trial/tutorials.html" id="mwa-log_out">Abmelden</a></li>
+</ul>
+</div>
+<div class="logo_container">
+<a href="http://de.mathworks.com/index.html?s_tid=gn_logo"><img src="./Developing GPU Accelerated Applications with MATLAB - MathWorks Deutschland_files/bg_header_mwlogo_notag.jpg" alt="MathWorks" class="mw_logo"></a>
+<p class="tagline">Accelerating the pace of engineering and science</p>
+</div>
+</div></div>
+      	<div class="grid_192">        
+        <div class="section_image level_3" style="background-color:#004494; background-image:url(/images/nextgen/global/bg_banner_wide.jpg);
+        ">
+      <table width="100%" border="0" cellspacing="0" cellpadding="0">
+            <tbody><tr>
+          <td>       <h1>Developing GPU Accelerated Applications with MATLAB</h1>
+ </td>
+        </tr>
+          </tbody></table>
+    </div>
+</div>
+      <div class="content_frame">
+      	<div class="grid_192">
+<div class="body_lead_container">
+<div class="grid_180 push_6">
+<div class="grid_180">
+<h2 class="futura-book font_24 margined_20">Learn How to Run MATLAB Code on NVIDIA GPUs in This Hands-On Lab</h2>
+</div>
+<div class="grid_180">
+<div class="grid_118">
+<p>This lab demonstrates how you can leverage NVIDIA GPUs to accelerate computationally intensive MATLAB<sup>®</sup> applications in areas such as image processing, signal processing, and computational finance. You will learn about the different approaches to GPU computing in MATLAB, and see how MATLAB can be used to evaluate and test CUDA kernels.</p>
+<p>Get started by viewing an overview video about MATLAB and its basic GPU capabilities.</p>
+</div>
+<div class="grid_56 push_6">
+<div class="asset_container margined_40">
+<div class="asset_image asset_image_lg margined_5">
+<div class="thumbnail_image thumbnail_image_lg">
+<a href="http://de.mathworks.com/videos/developing-gpu-accelerated-applications-with-matlab-introduction-to-matlab-for-gpu-computing-96800.html?type=shadow" rel="shadowbox;width=935;height=632" title="Learn about MATLAB® and the three main approaches to GPU computing using MATLAB.">
+<img src="./Developing GPU Accelerated Applications with MATLAB - MathWorks Deutschland_files/62009828001_3867703868001_Developing-GPU-Accelerated-Applications-with-MATLAB-Introduction-to-MATLAB-for-GPU-Computing-thumb.jpg" style="width:208px; height:116px">
+<div class="overlay_container">
+<span class="icon_video_overlay">
+<span class="video_length">6:27</span>
+</span>
+</div>
+</a>
+</div>
+</div>
+<div class="asset_content asset_content_vertical_lg">
+<p><a href="http://de.mathworks.com/videos/developing-gpu-accelerated-applications-with-matlab-introduction-to-matlab-for-gpu-computing-96800.html?type=shadow" rel="shadowbox;width=935;height=632">Introduction to MATLAB for GPU Computing</a> </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+        <div class="grid_180 push_6">
+          <div class="content_container" id="content_container">
+            <div class="grid_180">
+            	      
+ 
+
+        
+        
+        <div class="grid_180">
+          <!--Section Intro -->
+        </div>
+        <div class="grid_180">
+          <!--Section Intro -->
+          <div class="grid_180">
+            <h2 class="futura-book font_24 emphasize_color margined_30">Exercise 1: Solving a 2D Heat Equation</h2>
+          </div>
+          <div class="grid_180">
+            <p>Watch the exercise 1 description video, and then open your MATLAB session and follow the steps outlined below. Spend about 5-10 minutes on this exercise. When you finish (or if you get stuck) view the exercise 1 solution video.</p>
+
+  
+  
+  
+  
+  
+  
+  
+
+  
+  
+  
+  
+      <div class="callout_container   solid margined_30 no_border ">
+        <div class="callout_content  bg_center_center">               <div class="upsize">
+    
+    
+ 
+    
+    
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+     
+    
+   
+
+    
+    
+    
+    
+        
+                
+        
+            
+          
+          
+        
+    
+
+    
+    
+        
+        
+        
+      
+    
+    
+    <div class="asset_container margined_0">
+    	<div class="asset_image asset_image_lg">
+            <div class="thumbnail_image thumbnail_image_lg">
+                <a href="http://de.mathworks.com/videos/developing-gpu-accelerated-applications-with-matlab-exercise-1-description-96801.html?type=shadow" rel="shadowbox;width=935;height=632" title="Use MATLAB® to solve a 2D heat transfer problem on the GPU.">
+                <img src="./Developing GPU Accelerated Applications with MATLAB - MathWorks Deutschland_files/62009828001_3867714952001_Developing-GPU-Accelerated-Applications-with-MATLAB-Exercise-1-Description-thumb.jpg" style="width:208px; height:116px">
+                    <div class="overlay_container">
+                       <span class="icon_video_overlay">
+                           <span class="video_length">5:38</span>
+                       </span>
+                    </div>
+                </a>
+            </div>
+        </div>
+  		<div class="asset_content asset_content_lg">
+        <p><a href="http://de.mathworks.com/videos/developing-gpu-accelerated-applications-with-matlab-exercise-1-description-96801.html?type=shadow" rel="shadowbox;width=935;height=632">Exercise 1 Description</a> <br>
+      <span class="secondary_color">Use MATLAB<sup>®</sup> to solve a 2D heat transfer problem on the GPU.</span></p>
+      	</div>
+	</div>
+    
+    
+    
+    
+ 
+              </div>
+ </div>
+      </div>
+
+  
+          </div>
+          <div class="grid_180">
+            <div class="grid_42">
+              <h3>Exercise 1 steps:</h3>
+            </div>
+            <div class="grid_134 push_4">
+              <ol>
+                <li>Navigate to <code>/home/ubuntu/GPU/Exercise1/@HeatTransferApp</code> in the Current Folder browser</li>
+                <li>Open <code>heatXferGPU</code> (double-click file name in Current Folder browser)</li>
+                <li>Update file so that equation is solved on the GPU instead of CPU</li>
+                <li>Save file </li>
+                <li>Run GUI by navigating up one level <code>(/home/ubuntu/GPU/Exercise1)</code> and typing <code>HeatTransferApp</code> at the Command line</li>
+                <li>Explore GPU speedup for different grid sizes</li>
+              </ol>
+            </div>
+          </div>
+          <div class="grid_180">
+            <div class="grid_42">
+              <h3>Exercise 1 hint:</h3>
+            </div>
+            <div class="grid_134 push_4">
+              <p>The only change you need to make is to the function <code>init_temp_distribution</code> (see bottom of <code>heatXferGPU</code>)</p>
+              <p>Once you have completed the exercise, watch the following video to see the solution.</p>
+    
+    
+ 
+    
+    
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+     
+    
+   
+
+    
+    
+    
+    
+        
+                
+        
+            
+          
+          
+        
+    
+
+    
+    
+        
+        
+        
+      
+    
+    
+    <div class="asset_container margined_0">
+    	<div class="asset_image asset_image_lg">
+            <div class="thumbnail_image thumbnail_image_lg">
+                <a href="http://de.mathworks.com/videos/developing-gpu-accelerated-applications-with-matlab-exercise-1-solution-96802.html?type=shadow" rel="shadowbox;width=935;height=632" title="See how to update the MATLAB® code to solve the heat equation on the GPU.">
+                <img src="./Developing GPU Accelerated Applications with MATLAB - MathWorks Deutschland_files/62009828001_3878650904001_Developing-GPU-Accelerated-Applications-with-MATLAB-Exercise-1-Solution-thumb.jpg" style="width:208px; height:116px">
+                    <div class="overlay_container">
+                       <span class="icon_video_overlay">
+                           <span class="video_length">1:18</span>
+                       </span>
+                    </div>
+                </a>
+            </div>
+        </div>
+  		<div class="asset_content asset_content_lg">
+        <p><a href="http://de.mathworks.com/videos/developing-gpu-accelerated-applications-with-matlab-exercise-1-solution-96802.html?type=shadow" rel="shadowbox;width=935;height=632">Exercise 1 Solution</a> <br>
+      <span class="secondary_color">See how to update the MATLAB<sup>®</sup> code to solve the heat equation on the GPU.</span></p>
+      	</div>
+	</div>
+    
+    
+    
+    
+ 
+            </div>
+          </div>
+        </div>
+        <div class="grid_180">
+          <div class="clear margined_40"></div>
+          <div class="separator margined_30"></div>
+        </div>
+        <div class="grid_180"> 
+          <div class="grid_180">
+            <h2 class="futura-book font_24 emphasize_color margined_30">Exercise 2: Option Pricing Using the Black Scholes Equation</h2>
+          </div>
+          <div class="grid_180">
+            <p>Watch the exercise 2 description video, and then open your MATLAB session and follow the steps outlined below. Spend about 10 minutes on this exercise. When you finish (or if you get stuck) view the exercise 2 solution video.</p>
+
+  
+  
+  
+  
+  
+  
+  
+
+  
+  
+  
+  
+      <div class="callout_container   solid margined_30 no_border ">
+        <div class="callout_content  bg_center_center">               <div class="upsize">
+    
+    
+ 
+    
+    
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+     
+    
+   
+
+    
+    
+    
+    
+        
+                
+        
+            
+          
+          
+        
+    
+
+    
+    
+        
+        
+        
+      
+    
+    
+    <div class="asset_container margined_0">
+    	<div class="asset_image asset_image_lg">
+            <div class="thumbnail_image thumbnail_image_lg">
+                <a href="http://de.mathworks.com/videos/developing-gpu-accelerated-applications-with-matlab-exercise-2-description-96803.html?type=shadow" rel="shadowbox;width=935;height=632" title="Use MATLAB® to solve an options pricing problem on the GPU.">
+                <img src="./Developing GPU Accelerated Applications with MATLAB - MathWorks Deutschland_files/62009828001_3867703877001_Developing-GPU-Accelerated-Applications-with-MATLAB-Exercise-2-Description-thumb.jpg" style="width:208px; height:116px">
+                    <div class="overlay_container">
+                       <span class="icon_video_overlay">
+                           <span class="video_length">4:03</span>
+                       </span>
+                    </div>
+                </a>
+            </div>
+        </div>
+  		<div class="asset_content asset_content_lg">
+        <p><a href="http://de.mathworks.com/videos/developing-gpu-accelerated-applications-with-matlab-exercise-2-description-96803.html?type=shadow" rel="shadowbox;width=935;height=632">Exercise 2 Description</a> <br>
+      <span class="secondary_color">Use MATLAB<sup>®</sup> to solve an options pricing problem on the GPU.</span></p>
+      	</div>
+	</div>
+    
+    
+    
+    
+ 
+              </div>
+ </div>
+      </div>
+
+  
+          </div>
+          <div class="grid_180">
+            <div class="grid_42">
+              <h3>Exercise 2 steps:</h3>
+            </div>
+            <div class="grid_134 push_4">
+              <ol type="1">
+                <li>Navigate to <code>/home/ubuntu/GPU/Exercise2</code> in the Current Folder browser</li>
+                <li>Open <code>blsDemo</code> (double-click file name in Current Folder browser)</li>
+                <li>Update file so that the <code>blsPriceAndGreeks</code> function runs on the GPU</li>
+                <li>Save updated file as <code>blsDemoGPU</code> </li>
+              </ol>
+            </div>
+          </div>
+          <div class="grid_180">
+            <div class="grid_42">
+              <h3>Exercise 2 hints:</h3>
+            </div>
+            <div class="grid_134 push_4">
+              <ul>
+                <li>The  only code changes you will need to make are to <code>blsDemo</code>.&nbsp; You do not need to update any code within <code>blsCreateContracts</code> or <code>blsPriceAndGreeks</code>. </li>
+                <li>All operations within <code>blsPriceAndGreeks</code> are element-wise</li>
+                <li><code>blsPriceAndGreeks</code> returns 12 output variables.&nbsp; Take this  into account when using <code>arrayfun</code>:
+                  <p>
+                  </p><pre class="code">[result1, result2] = arrayfun(@myFunction,arg1,arg2);</pre>
+                  where <code>arg1</code> and <code>arg2</code> are inputs to <code>myFunction</code>
+                  <p></p>
+                </li>
+                <li>To clear all variables from your workspace and clear  the command window, type: <code>clear  all; clc</code></li>
+              </ul>
+              <p>Once you have completed the exercise, watch the following video to see the solution.</p>
+    
+    
+ 
+    
+    
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+     
+    
+   
+
+    
+    
+    
+    
+        
+                
+        
+            
+          
+          
+        
+    
+
+    
+    
+        
+        
+        
+      
+    
+    
+    <div class="asset_container margined_0">
+    	<div class="asset_image asset_image_lg">
+            <div class="thumbnail_image thumbnail_image_lg">
+                <a href="http://de.mathworks.com/videos/developing-gpu-accelerated-applications-with-matlab-exercise-2-solution-96804.html?type=shadow" rel="shadowbox;width=935;height=632" title="See how to update MATLAB® code to solve the Black Scholes equation on the GPU.">
+                <img src="./Developing GPU Accelerated Applications with MATLAB - MathWorks Deutschland_files/62009828001_3867714961001_Developing-GPU-Accelerated-Applications-with-MATLAB-Exercise-2-Solution-thumb.jpg" style="width:208px; height:116px">
+                    <div class="overlay_container">
+                       <span class="icon_video_overlay">
+                           <span class="video_length">1:24</span>
+                       </span>
+                    </div>
+                </a>
+            </div>
+        </div>
+  		<div class="asset_content asset_content_lg">
+        <p><a href="http://de.mathworks.com/videos/developing-gpu-accelerated-applications-with-matlab-exercise-2-solution-96804.html?type=shadow" rel="shadowbox;width=935;height=632">Exercise 2 Solution</a> <br>
+      <span class="secondary_color">See how to update MATLAB<sup>®</sup> code to solve the Black Scholes equation on the GPU.</span></p>
+      	</div>
+	</div>
+    
+    
+    
+    
+ 
+            </div>
+          </div>
+        </div>
+        <div class="grid_180">
+          <div class="clear margined_40"></div>
+          <div class="separator margined_30"></div>
+        </div>
+        <div class="grid_180"> 
+          <div class="grid_180">
+            <h2 class="futura-book font_24 emphasize_color margined_30">Exercise 3: Image White Balancing</h2>
+          </div>
+          <div class="grid_180">
+            <p>Watch the exercise 3 description video, and then open your MATLAB session and follow the steps outlined below.  Spend about 10 minutes on this exercise.  When you finish (or if you get stuck) view the exercise 3 solution video.</p>
+
+  
+  
+  
+  
+  
+  
+  
+
+  
+  
+  
+  
+      <div class="callout_container   solid margined_30 no_border ">
+        <div class="callout_content  bg_center_center">               <div class="upsize">
+    
+    
+ 
+    
+    
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+     
+    
+   
+
+    
+    
+    
+    
+        
+                
+        
+            
+          
+          
+        
+    
+
+    
+    
+        
+        
+        
+      
+    
+    
+    <div class="asset_container margined_0">
+    	<div class="asset_image asset_image_lg">
+            <div class="thumbnail_image thumbnail_image_lg">
+                <a href="http://de.mathworks.com/videos/developing-gpu-accelerated-applications-with-matlab-exercise-3-description-96805.html?type=shadow" rel="shadowbox;width=935;height=632" title="Use MATLAB® with CUDA kernels to implement an image white balance algorithm.">
+                <img src="./Developing GPU Accelerated Applications with MATLAB - MathWorks Deutschland_files/62009828001_3867734419001_Developing-GPU-Accelerated-Applications-with-MATLAB-Exercise-3-Description-thumb.jpg" style="width:208px; height:116px">
+                    <div class="overlay_container">
+                       <span class="icon_video_overlay">
+                           <span class="video_length">5:21</span>
+                       </span>
+                    </div>
+                </a>
+            </div>
+        </div>
+  		<div class="asset_content asset_content_lg">
+        <p><a href="http://de.mathworks.com/videos/developing-gpu-accelerated-applications-with-matlab-exercise-3-description-96805.html?type=shadow" rel="shadowbox;width=935;height=632">Exercise 3 Description</a> <br>
+      <span class="secondary_color">Use MATLAB<sup>®</sup> with CUDA kernels to implement an image white balance algorithm.</span></p>
+      	</div>
+	</div>
+    
+    
+    
+    
+ 
+              </div>
+ </div>
+      </div>
+
+  
+          </div>
+          <div class="grid_180">
+            <div class="grid_42">
+              <h3>Exercise 3 steps:</h3>
+            </div>
+            <div class="grid_134 push_4">
+              <ol start="1" type="1">
+                <li>Navigate to <code>/home/ubuntu/GPU/Exercise3</code> in the Current Folder<strong> </strong>browser. </li>
+                <li>Open <code>whitebalance_cuda.m</code> and update areas with *FIXME* so that image  scaling operation from original algorithm (<code>whitebalance.m</code>) is replaced with a  call to <code>applyScaleFactors.cu.</code>
+                  <pre class="code"><span class="comment">% Scale the image to the new gray value.</span>
+imageData(:,:,1) = unit8(double(imageData(:,:,1))*factors(1));
+imageData(:,:,2) = unit8(double(imageData(:,:,2))*factors(2));
+imageData(:,:,3) = unit8(double(imageData(:,:,3))*factors(3));</pre>
+                </li>
+                <li>Check your result and view speedup by stepping through <code>verify.m</code></li>
+              </ol>
+            </div>
+          </div>
+          <div class="grid_180">
+            <div class="grid_42">
+              <h3>Exercise 3 hints:</h3>
+            </div>
+            <div class="grid_134 push_4">
+              <ul>
+                <li>Use the following commands if you want to evaluate your function and plot the result:
+                  <pre class="code">&gt;&gt; adjImage = whitebalance_cuda(imageData);
+&gt;&gt; imshow(adjImage)</pre>
+                </li>
+                <li>Open <code>applyScaleFactors.cu</code> in MATLAB Editor to see input arguments.  You will need to take this into account for *FIXME* on line 23 of <code>whitebalance_cuda.m</code></li>
+              </ul>
+              <p>Once you have completed the exercise, watch the following video to see the solution.</p>
+    
+    
+ 
+    
+    
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+     
+    
+   
+
+    
+    
+    
+    
+        
+                
+        
+            
+          
+          
+        
+    
+
+    
+    
+        
+        
+        
+      
+    
+    
+    <div class="asset_container margined_0">
+    	<div class="asset_image asset_image_lg">
+            <div class="thumbnail_image thumbnail_image_lg">
+                <a href="http://de.mathworks.com/videos/developing-gpu-accelerated-applications-with-matlab-exercise-3-solution-96806.html?type=shadow" rel="shadowbox;width=935;height=632" title="See how to integrate the CUDA kernel in the MATLAB® white balance algorithm.">
+                <img src="./Developing GPU Accelerated Applications with MATLAB - MathWorks Deutschland_files/62009828001_3867714964001_Developing-GPU-Accelerated-Applications-with-MATLAB-Exercise-3-Solution-thumb.jpg" style="width:208px; height:116px">
+                    <div class="overlay_container">
+                       <span class="icon_video_overlay">
+                           <span class="video_length">1:19</span>
+                       </span>
+                    </div>
+                </a>
+            </div>
+        </div>
+  		<div class="asset_content asset_content_lg">
+        <p><a href="http://de.mathworks.com/videos/developing-gpu-accelerated-applications-with-matlab-exercise-3-solution-96806.html?type=shadow" rel="shadowbox;width=935;height=632">Exercise 3 Solution</a> <br>
+      <span class="secondary_color">See how to integrate the CUDA kernel in the MATLAB<sup>®</sup> white balance algorithm.</span></p>
+      	</div>
+	</div>
+    
+    
+    
+    
+ 
+            </div>
+          </div>
+        </div>
+        <div class="grid_180">
+          <div class="clear margined_40"></div>
+          <div class="separator margined_30"></div>
+        </div>
+        <h2>Conclusions and Next Steps</h2>
+        <p>These  examples illustrate how to use MATLAB to develop GPU accelerated applications.  Here are some best practices to keep in mind when performing GPU computing in  MATLAB:</p>
+        <ul>
+          <li>Profile your code to identify bottlenecks.</li>
+          <li>Work on large enough matrices to see the benefits  of GPU parallelization.</li>
+          <li>Minimize data transfer between CPUs and GPUs by  including a sustained use of supported functionality and creating variables  directly on the GPU.</li>
+          <li>Use array indexing and branching in moderation.</li>
+          <li>Combine multiple element-wise calculations  together into a single function call by using arrayfun.</li>
+        </ul>
+        <p><a href="http://de.mathworks.com/discovery/matlab-gpu.html">Learn more</a> about  using MATLAB for GPU computing.</p>
+  
+    </div>
+
+  
+
+         
+ 
+         
+ 
+         
+ 
+         
+ 
+         
+ 
+         
+ 
+         
+ 
+         
+ 
+         
+ 
+         
+ 
+         
+ 
+         
+ 
+         
+ 
+         
+ 
+         
+ 
+         
+ 
+         
+ 
+         
+ 
+         
+ 
+         
+ 
+         
+ 
+         
+ 
+         
+ 
+         
+ 
+ 
+
+                                                                          
+
+<style>
+h2.domain_selector { border-bottom:none; }
+</style>
+
+<div id="country-unselected" style="display:none;"> 
+  <div class="content_container" id="content_container">
+    <div class="container_192">
+      <div class="grid_150 push_3">
+        <object type="image/svg+xml" width="167px" class="mw_logo" alt="MathWorks" data="http://de.mathworks.com/images/responsive/global/pic-header-mathworks-logo2.svg">
+          <img alt="MathWorks" width="167px" src="./Developing GPU Accelerated Applications with MATLAB - MathWorks Deutschland_files/pic-header-mathworks-logo.png">
+        </object>
+      </div>
+      <div class="clear"></div>
+      <div class="separator"></div>
+      <div class="grid_150 push_3 margined_20">
+        <h1>Select Your Country</h1>
+        <p>Choose your country to get translated content where available and see local events and offers. Based on your location, we recommend you select <strong>Deutschland</strong> from the following list:</p>
+      </div>
+      <div class="clear"></div>
+      <div class="grid_150 push_3">
+        <div class="grid_32">
+          <h2 class="domain_selector">Americas</h2>
+          <div class="separator"></div>
+          <ul class="unbulleted_list">
+            <li><a href="http://www.mathworks.com/programs/gpu-trial/tutorials.html?action=changeCountry&amp;s_tid=gn_loc_drop">Canada</a> (English)</li>
+            <li><a href="http://www.mathworks.com/programs/gpu-trial/tutorials.html?action=changeCountry&amp;s_tid=gn_loc_drop">United States</a> (English)</li>
+          </ul>
+        </div>
+        <div class="grid_76 push_5">
+          <h2 class="domain_selector">Europe</h2>
+          <div class="separator"></div>
+          <div class="grid_32">
+            <ul class="unbulleted_list">
+              <li><a href="http://nl.mathworks.com/programs/gpu-trial/tutorials.html?action=changeCountry&amp;s_tid=gn_loc_drop">Belgium</a> (English)</li>
+              <li><a href="http://se.mathworks.com/programs/gpu-trial/tutorials.html?action=changeCountry&amp;s_tid=gn_loc_drop">Denmark</a> (English)</li>
+              <li><a href="http://de.mathworks.com/programs/gpu-trial/tutorials.html?action=changeCountry&amp;s_tid=gn_loc_drop">Deutschland</a> (Deutsch)</li>
+              <li><a href="http://es.mathworks.com/programs/gpu-trial/tutorials.html?action=changeCountry&amp;s_tid=gn_loc_drop">España</a> (Español)</li>
+              <li><a href="http://se.mathworks.com/programs/gpu-trial/tutorials.html?action=changeCountry&amp;s_tid=gn_loc_drop">Finland</a> (English)</li>
+              <li><a href="http://fr.mathworks.com/programs/gpu-trial/tutorials.html?action=changeCountry&amp;s_tid=gn_loc_drop">France</a> (Français)</li>
+              <li><a href="http://uk.mathworks.com/programs/gpu-trial/tutorials.html?action=changeCountry&amp;s_tid=gn_loc_drop">Ireland</a> (English)</li>
+              <li><a href="http://it.mathworks.com/programs/gpu-trial/tutorials.html?action=changeCountry&amp;s_tid=gn_loc_drop">Italia</a> (Italiano)</li>
+              <li><a href="http://nl.mathworks.com/programs/gpu-trial/tutorials.html?action=changeCountry&amp;s_tid=gn_loc_drop">Luxembourg</a> (English)</li>
+            </ul>
+          </div>
+          <div class="grid_32 push_5">
+            <ul class="unbulleted_list">
+              <li><a href="http://nl.mathworks.com/programs/gpu-trial/tutorials.html?action=changeCountry&amp;s_tid=gn_loc_drop">Netherlands</a> (English)</li>
+              <li><a href="http://se.mathworks.com/programs/gpu-trial/tutorials.html?action=changeCountry&amp;s_tid=gn_loc_drop">Norway</a> (English)</li>
+              <li><a href="http://de.mathworks.com/programs/gpu-trial/tutorials.html?action=changeCountry&amp;s_tid=gn_loc_drop">Österreich</a> (Deutsch)</li>
+              <li><a href="http://www.mathworks.com/programs/gpu-trial/tutorials.html?action=changeCountry&amp;s_tid=gn_loc_drop">Portugal</a> (English)</li>
+              <li><a href="http://se.mathworks.com/programs/gpu-trial/tutorials.html?action=changeCountry&amp;s_tid=gn_loc_drop">Sweden</a> (English)</li>
+              <li>Switzerland
+                <ul class="unbulleted_list" style="margin-left:20px;">
+                  <li><a href="http://ch.mathworks.com/programs/gpu-trial/tutorials.html?action=changeCountry&amp;s_tid=gn_loc_drop" id="swiss_german">Deutsch</a></li>
+                  <li><a href="http://ch.mathworks.com/programs/gpu-trial/tutorials.html?action=changeCountry&amp;s_tid=gn_loc_drop" id="swiss_french">Français</a></li>
+                </ul>
+              </li>
+              <li><a href="http://uk.mathworks.com/programs/gpu-trial/tutorials.html?action=changeCountry&amp;s_tid=gn_loc_drop">United Kingdom</a> (English)</li>
+            </ul>
+          </div>
+        </div>
+        <div class="grid_32 push_5">
+          <h2 class="domain_selector">Asia Pacific</h2>
+          <div class="separator"></div>
+          <ul class="unbulleted_list">
+            <li><a href="http://au.mathworks.com/programs/gpu-trial/tutorials.html?action=changeCountry&amp;s_tid=gn_loc_drop">Australia</a> (English)</li>
+            <li><a href="http://in.mathworks.com/programs/gpu-trial/tutorials.html?action=changeCountry&amp;s_tid=gn_loc_drop">India</a> (English)</li>
+            <li><a href="http://au.mathworks.com/programs/gpu-trial/tutorials.html?action=changeCountry&amp;s_tid=gn_loc_drop">New Zealand</a> (English)</li>
+            <li><a href="http://cn.mathworks.com/programs/gpu-trial/tutorials.html?action=changeCountry&amp;s_tid=gn_loc_drop">中国</a> (简体中文)</li>
+            <li><a href="http://jp.mathworks.com/programs/gpu-trial/tutorials.html?action=changeCountry&amp;s_tid=gn_loc_dropp">日本</a> (日本語)</li>
+            <li><a href="http://kr.mathworks.com/programs/gpu-trial/tutorials.html?action=changeCountry&amp;s_tid=gn_loc_drop">한국</a> (한국어)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="clear"></div>
+      <div class="grid_150 push_3">
+        <p class="txt_center"><strong><a href="http://de.mathworks.com/company/worldwide/">See all countries</a></strong></p>
+      </div>
+    </div>
+  </div>
+  
+</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="grid_192"> <div class="footer_container">
+<div class="footer">
+<div class="social_media_icon_container">
+<div class="social_media_icons">
+<ul class="footernav">
+<li class="footernav_rss"><a href="http://de.mathworks.com/company/rss/index.html"></a></li>
+<li class="footernav_linkedin"><a href="http://de.mathworks.com/programs/bounce_hub_generic.html?s_tid=mlc_lkd&amp;url=http://www.linkedin.com/company/the-mathworks_2" target="_blank"></a></li>
+<li class="footernav_google"><a href="http://de.mathworks.com/programs/bounce_hub_generic.html?s_tid=mlc_glg&amp;url=https://plus.google.com/117177960465154322866?prsrc=3" target="_blank"></a></li>
+<li class="footernav_facebook"><a href="http://de.mathworks.com/programs/bounce_hub_generic.html?s_tid=mlc_fbk&amp;url=http://www.facebook.com/MATLAB" target="_blank"></a></li>
+<li class="footernav_twitter"><a href="http://de.mathworks.com/programs/bounce_hub_generic.html?s_tid=mlc_twt&amp;url=http://www.twitter.com/MATLAB" target="_blank"></a></li>
+</ul>
+</div>
+<p><em>Folgen Sie uns</em></p>
+</div>
+<ul class="footernav">
+<li class="footernav_piracy"><a href="http://de.mathworks.com/company/aboutus/policies_statements/piracy.html?s_tid=gf_pir">Preventing Piracy</a></li>
+<li class="footernav_privacy"><a href="http://de.mathworks.com/company/aboutus/policies_statements/?s_tid=gf_priv">Datenschutz</a></li>
+<li class="footernav_trademarks"><a href="http://de.mathworks.com/company/aboutus/policies_statements/trademarks.html?s_tid=gf_trd">Handelsmarken</a></li>
+<li class="footernav_patents"><a href="http://de.mathworks.com/company/aboutus/policies_statements/patents.html?s_tid=gf_pat">Patente</a></li>
+</ul>
+<div class="copyright">© 1994-2015 The MathWorks, Inc.</div>
+</div>
+</div>
+<!-- Quantcast Tag -->
+<script>
+(function(){
+var elem = document.createElement('script');
+elem.src = (document.location.protocol == "https:" ? "https://secure" : "http://edge") + ".quantserve.com/aquant.js?a=p-zfNtLVVEHXE-1";
+elem.async = true;
+elem.type = "text/javascript";
+var scpt = document.getElementsByTagName('script')[0];
+scpt.parentNode.insertBefore(elem,scpt);
+}());
+var smarttagdata={qacct: 'p-zfNtLVVEHXE-1',
+orderid: '',
+revenue: '',
+};
+</script>
+<noscript>
+&lt;img src="//pixel.quantserve.com/pixel/p-zfNtLVVEHXE-1.gif?labels=_fp.event.Default;" style="display: none;" border="0" height="1" width="1" alt="Quantcast"/&gt;
+</noscript>
+<!-- End Quantcast tag -->
+<!-- BEGIN Google Code for UK and .COM Domains-->
+<script type="text/javascript">
+/* <![CDATA[ */
+var google_conversion_id = 1023777138;
+var google_conversion_label = "SVIBCMq3xwIQ8rKW6AM";
+var google_custom_params = window.google_tag_params;
+var google_remarketing_only = true;
+/* ]]> */
+</script>
+<script type="text/javascript" src="./Developing GPU Accelerated Applications with MATLAB - MathWorks Deutschland_files/conversion.js">
+</script><iframe name="google_conversion_frame" title="Google conversion frame" width="300" height="13" src="./Developing GPU Accelerated Applications with MATLAB - MathWorks Deutschland_files/saved_resource.html" frameborder="0" marginwidth="0" marginheight="0" vspace="0" hspace="0" allowtransparency="true" scrolling="no">&lt;img height="1" width="1" border="0" alt="" src="https://googleads.g.doubleclick.net/pagead/viewthroughconversion/1023777138/?frame=0&amp;random=1451181137522&amp;cv=8&amp;fst=1451181137522&amp;num=1&amp;fmt=1&amp;label=SVIBCMq3xwIQ8rKW6AM&amp;guid=ON&amp;u_h=1080&amp;u_w=1920&amp;u_ah=1040&amp;u_aw=1920&amp;u_cd=24&amp;u_his=2&amp;u_tz=60&amp;u_java=false&amp;u_nplug=5&amp;u_nmime=7&amp;frm=0&amp;url=http%3A//de.mathworks.com/programs/gpu-trial/tutorials.html&amp;ref=http%3A//ec2-107-22-50-151.compute-1.amazonaws.com/" /&gt;</iframe>
+<noscript>
+&lt;div style="display:inline;"&gt;
+&lt;img height="1" width="1" style="border-style:none;" alt="" src="//googleads.g.doubleclick.net/pagead/viewthroughconversion/1023777138/?value=0&amp;label=SVIBCMq3xwIQ8rKW6AM&amp;guid=ON&amp;script=0"/&gt;
+&lt;/div&gt;
+</noscript>
+<!-- END Google Code for UK and .COM Domains-->
+<!-- BEGIN Adobe DTM -->
+<script type="text/javascript">
+try {
+_satellite.pageBottom();
+} catch (e) {
+//something went wrong
+}
+</script>
+<!-- END Adobe DTM -->
+<!-- BEGIN Qualaroo -->
+<script type="text/javascript">
+var _kiq = _kiq || [];
+(function(){
+setTimeout(function(){
+var d = document, f = d.getElementsByTagName('script')[0], s = d.createElement('script'); s.type = 'text/javascript';
+s.async = true; s.src = '//s3.amazonaws.com/ki.js/49559/ahy.js'; f.parentNode.insertBefore(s, f);
+}, 1);
+})();
+</script>
+<!-- END Qualaroo --> </div>
+</div>
+
+
+<div id="sb-container"><div id="sb-overlay"></div><div id="sb-wrapper"><div id="sb-title"><div id="sb-nav"><a id="sb-nav-close" title="Close" onclick="Shadowbox.close()"></a><a id="sb-nav-next" title="Next" onclick="Shadowbox.next()"></a><a id="sb-nav-play" title="Play" onclick="Shadowbox.play()"></a><a id="sb-nav-pause" title="Pause" onclick="Shadowbox.pause()"></a><a id="sb-nav-previous" title="Previous" onclick="Shadowbox.previous()"></a><div id="sb-counter"></div></div><div id="sb-title-inner"></div></div><div id="sb-wrapper-inner"><div id="sb-body"><div id="sb-body-inner"></div><div id="sb-loading"><div id="sb-loading-inner"><span>loading</span></div></div></div></div><div id="sb-info"><div id="sb-info-inner"></div></div></div></div></body><span class="gr__tooltip"><span class="gr__tooltip-content"></span><i class="gr__tooltip-logo"></i><span class="gr__triangle"></span></span></html>
