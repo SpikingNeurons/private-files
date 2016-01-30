@@ -10,6 +10,7 @@ g_truth_cipher_text = None
 g_keys = None
 g_key = None
 
+
 def _print_pointer(data):
     import ctypes
     print('.........................................')
@@ -27,7 +28,7 @@ def _print_data_to_hexstr(data):
     print('b\'' + '\\'.join([hex(i)[1:] for i in data]) + '\'')
 
 
-def _generate_fake_arrays():
+def _generate_fake_dataset():
     global g_plain_text, g_truth_cipher_text, g_keys, g_key
     np.random.seed(1234567)
 
@@ -47,7 +48,7 @@ def _generate_fake_arrays():
     _print_data_to_hexstr(g_key)
 
 
-def _code_to_blabla():
+def ____code_to_blabla():
     np.random.seed(1234567)
     g_plain_text = np.random.randint(0, np.iinfo(np.uint16).max, (g_num_traces, g_num_words_per_trace))
     _print_pointer(g_plain_text)
@@ -59,8 +60,16 @@ def _code_to_blabla():
     print(g_plain_text[0:32])
 
 
+def generate_cipher_text_from_hazmat():
+    from cryptography.hazmat.backends.openssl.backend import backend
+    from cryptography.hazmat.primitives.ciphers import algorithms, base, modes
+
+
 def main():
-    _generate_fake_arrays()
+    import sys
+    print(sys.version)
+    _generate_fake_dataset()
+    generate_cipher_text_from_hazmat()
 
 
 if __name__ == "__main__":
