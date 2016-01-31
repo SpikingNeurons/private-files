@@ -78,7 +78,7 @@ def ____code_to_blabla():
     g_plain_text.tobytes('C') == g_plain_text.tobytes()
 
 
-class ThirdPartyCryptography():
+class ThirdPartyCryptography:
 
     def __init__(self):
         pass
@@ -113,6 +113,15 @@ class ThirdPartyCryptography():
             'SEED')
         print('Cipher text')
         _print_data_to_hexstr(g_truth_cipher_text[0:32])
+
+
+class AlgorithmSEED:
+
+    def __init__(self):
+        pass
+
+    def _key_schedule_update(self):
+        pass
 
 
 def main():
