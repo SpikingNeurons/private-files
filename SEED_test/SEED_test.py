@@ -80,6 +80,9 @@ def ____code_to_blabla():
 
 class ThirdPartyCryptography():
 
+    def __init__(self):
+        pass
+
     @staticmethod
     def encrypt_seed(plain_text, key):
         from cryptography.hazmat.backends.openssl.backend import backend
@@ -101,17 +104,22 @@ class ThirdPartyCryptography():
             return np.fromstring(ct, dtype=np.uint8)
         return None
 
+    @staticmethod
+    def test_SEED():
+        global g_plain_text, g_truth_cipher_text, g_keys, g_key
+        g_truth_cipher_text = ThirdPartyCryptography.generate_cipher(
+            g_plain_text,
+            g_key,
+            'SEED')
+        print('Cipher text')
+        _print_data_to_hexstr(g_truth_cipher_text[0:32])
+
 
 def main():
-    global g_plain_text, g_truth_cipher_text, g_keys, g_key
     import sys
     print(sys.version)
     _generate_fake_dataset()
-    g_truth_cipher_text = ThirdPartyCryptography.generate_cipher(
-        g_plain_text,
-        g_key,
-        'SEED')
-    _print_data_to_hexstr(g_truth_cipher_text[0:32])
+    ThirdPartyCryptography.test_SEED()
 
 
 if __name__ == "__main__":
