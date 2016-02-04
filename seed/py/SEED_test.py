@@ -315,6 +315,7 @@ def _test_c_types():
 if __name__ == '__main__':
     import sys
     from SEED_tables import test_vector_big, test_vectors
+    #np.__config__.show()
     #sys.stdout = open('del_console_stdout.txt', 'w')
     print('Main of SEED.py')
     #test_c_types()
