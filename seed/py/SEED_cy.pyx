@@ -8,7 +8,7 @@ cdef union Food:
     char *spam
     float *eggs
 
-cdef enum CheeseType:
+cdef enum user_input:
     cheddar, edam,
     camembert
 
