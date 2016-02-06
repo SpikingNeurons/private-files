@@ -2,6 +2,18 @@
 
 import binascii
 import numpy as np
+import pyximport
+from numpy.f2py.crackfortran import include_paths
+
+pyximport.install(inplace=False,
+                  setup_args={"include_dirs": np.get_include()},
+                  reload_support=True)
+from Cython.Build import cythonize
+cythonize('SEED_cy.pyx', annotate=True)
+from SEED_cy import SEEDAlgorithm
+
+a = SEEDAlgorithm()
+
 from cryptography.hazmat.backends.openssl.backend import backend
 from cryptography.hazmat.primitives.ciphers import algorithms, base, modes
 from SEED_tables import SS0, SS1, SS2, SS3, KC

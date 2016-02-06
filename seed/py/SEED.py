@@ -3,8 +3,8 @@
 
 """
 
-from scaffold.crypto import CryptoDatum, CryptoTarget
-from scaffold.crypto import CryptoDataProcessor, NoDataProcessor
+from cryptodatum import CryptoDatum, CryptoTarget
+from cryptodataprocessor import CryptoDataProcessor, NoDataProcessor
 
 import logging
 logger = logging.getLogger(__name__)
