@@ -10,9 +10,6 @@ pyximport.install(inplace=False,
                   reload_support=True)
 from Cython.Build import cythonize
 cythonize('SEED_cy.pyx', annotate=True)
-from SEED_cy import SEEDAlgorithm
-
-a = SEEDAlgorithm()
 
 from cryptography.hazmat.backends.openssl.backend import backend
 from cryptography.hazmat.primitives.ciphers import algorithms, base, modes
@@ -341,3 +338,11 @@ if __name__ == '__main__':
     #for i in np.arange(16):
         #generate_key_schedule(test_vector_big.key, i)
     encrypt_seed(test_vector_big.ptx, test_vector_big.key, 0)
+
+
+    from SEED_cy import SEEDAlgorithm
+
+    a = SEEDAlgorithm()
+    a.py_encrypt_seed(test_vector_big.ptx, test_vector_big.key, 0)
+
+
