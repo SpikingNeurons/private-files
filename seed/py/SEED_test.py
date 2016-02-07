@@ -337,12 +337,13 @@ if __name__ == '__main__':
     #generate_key_schedule(test_vector_big.key[48:64])
     #for i in np.arange(16):
         #generate_key_schedule(test_vector_big.key, i)
-    encrypt_seed(test_vector_big.ptx, test_vector_big.key, 0)
+    #encrypt_seed(test_vector_big.ptx, test_vector_big.key, 0)
 
 
     from SEED_cy import SEEDAlgorithm
 
     a = SEEDAlgorithm()
-    a.py_encrypt_seed(test_vector_big.ptx, test_vector_big.key, 0)
+    #a.py_encrypt_seed(test_vector_big.ptx, test_vector_big.key, 0)
+    a.call_cython(test_vector_big.ptx, test_vector_big.key, 0)
 
 

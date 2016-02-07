@@ -1,6 +1,7 @@
 
 import numpy as np
 cimport numpy as np
+import numexpr as ne
 from libc.stdlib cimport malloc, free
 from cpython.mem cimport PyMem_Malloc, PyMem_Realloc, PyMem_Free
 from numpy cimport ndarray
@@ -9,7 +10,10 @@ cimport cython
 from SEED_tables import SS0, SS1, SS2, SS3, KC
 
 
-
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 cdef class SEEDAlgorithm:
     """
     SEED algorithm
@@ -21,8 +25,15 @@ cdef class SEEDAlgorithm:
     cdef const np.uint32_t *_const_SS2
     cdef const np.uint32_t *_const_SS3
 
-    # constants used for fast looping
-    cdef Py_ssize_t _num_bytes, _num_words, _num_keys
+    # variables used for fast looping
+    cdef Py_ssize_t _num_ptxt, _num_keys
+
+    # variables used to store the plaintext passed by python modules in words
+    # four variables represent four parts of plaintext
+    cdef np.uint32_t *_ptxt_x1
+    cdef np.uint32_t *_ptxt_x2
+    cdef np.uint32_t *_ptxt_x3
+    cdef np.uint32_t *_ptxt_x4
 
 
     def __cinit__(self):
@@ -38,7 +49,13 @@ cdef class SEEDAlgorithm:
         self._const_SS1 = _SS1
         self._const_SS2 = _SS2
         self._const_SS3 = _SS3
-        print('init')
+
+        # remaining variables referenced or allocated are set to NULL
+        self._ptxt_x1 = NULL
+        self._ptxt_x2 = NULL
+        self._ptxt_x3 = NULL
+        self._ptxt_x4 = NULL
+
 
 
     def __init__(self):
@@ -57,17 +74,13 @@ cdef class SEEDAlgorithm:
         self._const_SS1 = NULL
         self._const_SS2 = NULL
         self._const_SS3 = NULL
-        pass
 
-    def _py_fragment_block_to_words(self, var):
-        var_ = var[::-1].copy()
-        var_.dtype = np.uint32
-        var__ = var_[::-1]
-        x1 = var__[::4].copy()
-        x2 = var__[1::4].copy()
-        x3 = var__[2::4].copy()
-        x4 = var__[3::4].copy()
-        return x1, x2, x3, x4
+        # dereference references not allocated by cython SEED algorithm
+        PyMem_Free(self._ptxt_x1)
+        PyMem_Free(self._ptxt_x2)
+        PyMem_Free(self._ptxt_x3)
+        PyMem_Free(self._ptxt_x4)
+
 
     def _py_mask_with_8f(self, var):
         #return np.bitwise_and(var, 0xffffffff)
@@ -151,6 +164,73 @@ cdef class SEEDAlgorithm:
             s = hex(elem)[2:].zfill(fill)
             print(s)
         print('\n')
+
+    def _py_fragment_block_to_words(self, var):
+        var_ = var[::-1].copy()
+        var_.dtype = np.uint32
+        var__ = var_[::-1]
+        x1 = var__[::4].copy()
+        x2 = var__[1::4].copy()
+        x3 = var__[2::4].copy()
+        x4 = var__[3::4].copy()
+        return x1, x2, x3, x4
+
+    cdef _cy_fragment_ptxt_to_words(self, np.ndarray[np.uint8_t, ndim=1] ptxt):
+        """
+        Takes plaintext bytes as input and converts them in unsigned word. This step is required so that arithmetic
+        operations can be performed. Every plaintext block has 16 bytes. These bytes are shuffled to obtain word. We
+        get four words for a 128-bit block (16-byte block). This method assigns to class members four extracted words.
+        :param ptxt: byte array that contains plaintext provided by trace file
+        :return: None
+        """
+        # some local temp variables that need to be typed for fast computations
+        cdef Py_ssize_t index, index_1
+
+        # initialize the number of plaintexts to encrypt
+        self._num_ptxt = ptxt.shape[0] / 16
+
+        # check if done earlier (only need to be done once for the lifetime of object)
+        if self._ptxt_x1 == NULL and self._ptxt_x2 == NULL and self._ptxt_x3 == NULL and self._ptxt_x4 == NULL:
+
+            # allocate memory
+            self._ptxt_x1 = <np.uint32_t *> PyMem_Malloc(self._num_ptxt * sizeof(np.uint32_t))
+            self._ptxt_x2 = <np.uint32_t *> PyMem_Malloc(self._num_ptxt * sizeof(np.uint32_t))
+            self._ptxt_x3 = <np.uint32_t *> PyMem_Malloc(self._num_ptxt * sizeof(np.uint32_t))
+            self._ptxt_x4 = <np.uint32_t *> PyMem_Malloc(self._num_ptxt * sizeof(np.uint32_t))
+
+            # byte shuffle logic to convert four bytes to unsigned word, so that arithmetic operations can be performed
+            for index in range(self._num_ptxt):
+                index_1 = index * 16
+                self._ptxt_x1[index] = ((<np.uint32_t> ptxt[index_1]) << 24) | ((<np.uint32_t> ptxt[index_1+1]) << 16)\
+                                       | ((<np.uint32_t> ptxt[index_1+2]) << 8) | (<np.uint32_t> ptxt[index_1+3])
+                index_1 += 4
+                self._ptxt_x2[index] = ((<np.uint32_t> ptxt[index_1]) << 24) | ((<np.uint32_t> ptxt[index_1+1]) << 16)\
+                                       | ((<np.uint32_t> ptxt[index_1+2]) << 8) | (<np.uint32_t> ptxt[index_1+3])
+                index_1 += 4
+                self._ptxt_x3[index] = ((<np.uint32_t> ptxt[index_1]) << 24) | ((<np.uint32_t> ptxt[index_1+1]) << 16)\
+                                       | ((<np.uint32_t> ptxt[index_1+2]) << 8) | (<np.uint32_t> ptxt[index_1+3])
+                index_1 += 4
+                self._ptxt_x4[index] = ((<np.uint32_t> ptxt[index_1]) << 24) | ((<np.uint32_t> ptxt[index_1+1]) << 16)\
+                                       | ((<np.uint32_t> ptxt[index_1+2]) << 8) | (<np.uint32_t> ptxt[index_1+3])
+
+
+    cdef cy_encrypt_seed(
+            self,
+            np.ndarray[np.uint8_t, ndim=1] plain_text,
+            np.ndarray[np.uint8_t, ndim=1] keys,
+            Py_ssize_t rnd):
+        self._cy_fragment_ptxt_to_words(plain_text)
+        x1, x2, x3, x4 = self._py_fragment_block_to_words(plain_text)
+
+        for i in range(self._num_ptxt):
+            if self._ptxt_x1[i] != x1[i] or self._ptxt_x2[i] != x2[i] or self._ptxt_x3[i] != x3[i] or self._ptxt_x4[i] != x4[i]:
+                print('not equal')
+                break
+        pass
+
+
+    def call_cython(self, plain_text, keys, rnd):
+        self.cy_encrypt_seed(plain_text, keys, rnd)
 
     def py_encrypt_seed(self, plain_text, keys, rnd):
         x1, x2, x3, x4 = self._py_fragment_block_to_words(plain_text)
