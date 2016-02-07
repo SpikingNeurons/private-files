@@ -41,6 +41,13 @@ cdef class SEEDAlgorithm:
     cdef np.uint32_t *_ptxt_x3
     cdef np.uint32_t *_ptxt_x4
 
+    # variables used to store the keys passed by python modules in words
+    # four variables represent four parts of keys
+    cdef np.uint32_t *_keys_x1
+    cdef np.uint32_t *_keys_x2
+    cdef np.uint32_t *_keys_x3
+    cdef np.uint32_t *_keys_x4
+
 
     def __cinit__(self):
         """
@@ -123,6 +130,23 @@ cdef class SEEDAlgorithm:
             np.right_shift(var2, 24)
         ))
 
+
+    @cython.profile(True)
+    def _cy_generate_key_schedule(self, np.ndarray[np.uint8_t, ndim=1] keys, Py_ssize_t rnd):
+
+        # some typed local variables
+        cdef Py_ssize_t index
+
+        # here we do the things only once for the lifetime of this object
+        if self._ptxt_x1 == NULL and self._ptxt_x2 == NULL and self._ptxt_x3 == NULL and self._ptxt_x4 == NULL:
+            # fragment plaintext to four words and store them to class variables
+            self._cy_fragment_keys_to_words(keys)
+
+
+
+        pass
+
+    @cython.profile(True)
     def _py_generate_key_schedule(self, keys, rnd):
         x1, x2, x3, x4 = self._py_fragment_block_to_words(keys)
 
@@ -162,6 +186,7 @@ cdef class SEEDAlgorithm:
 
         return key_schedule_0, key_schedule_1
 
+
     def _py_print_hex(self, arr):
         fill = 0
         if arr.dtype == np.uint8:
@@ -177,6 +202,46 @@ cdef class SEEDAlgorithm:
             print(s)
         print('\n')
 
+
+    @cython.profile(True)
+    cdef _cy_fragment_keys_to_words(self, np.ndarray[np.uint8_t, ndim=1] keys):
+        """
+        Takes keys bytes as input and converts them in unsigned word. This step is required so that arithmetic
+        operations can be performed. Every key block has 16 bytes. These bytes are shuffled to obtain word. We
+        get four words for a 128-bit block (or 16-byte block). This method assigns to class members four extracted
+        words. Works for both single and multi key.
+        :param keys: byte array that contains keys provided by trace file
+        :return: None
+        """
+        # some local temp variables that need to be typed for fast computations
+        cdef Py_ssize_t index, index_1
+
+        # initialize the number of plaintexts to encrypt
+        self._num_keys = keys.shape[0] / 16
+
+        # check if done earlier (only need to be done once for the lifetime of object)
+        if self._keys_x1 == NULL and self._keys_x2 == NULL and self._keys_x3 == NULL and self._keys_x4 == NULL:
+
+            # allocate memory
+            self._keys_x1 = <np.uint32_t *> PyMem_Malloc(self._num_keys * sizeof(np.uint32_t))
+            self._keys_x2 = <np.uint32_t *> PyMem_Malloc(self._num_keys * sizeof(np.uint32_t))
+            self._keys_x3 = <np.uint32_t *> PyMem_Malloc(self._num_keys * sizeof(np.uint32_t))
+            self._keys_x4 = <np.uint32_t *> PyMem_Malloc(self._num_keys * sizeof(np.uint32_t))
+
+            # byte shuffle logic to convert four bytes to unsigned word, so that arithmetic operations can be performed
+            for index in range(self._num_keys):
+                index_1 = index * 16
+                self._keys_x1[index] = ((<np.uint32_t> keys[index_1]) << 24) | ((<np.uint32_t> keys[index_1+1]) << 16)\
+                                       | ((<np.uint32_t> keys[index_1+2]) << 8) | (<np.uint32_t> keys[index_1+3])
+                index_1 += 4
+                self._keys_x2[index] = ((<np.uint32_t> keys[index_1]) << 24) | ((<np.uint32_t> keys[index_1+1]) << 16)\
+                                       | ((<np.uint32_t> keys[index_1+2]) << 8) | (<np.uint32_t> keys[index_1+3])
+                index_1 += 4
+                self._keys_x3[index] = ((<np.uint32_t> keys[index_1]) << 24) | ((<np.uint32_t> keys[index_1+1]) << 16)\
+                                       | ((<np.uint32_t> keys[index_1+2]) << 8) | (<np.uint32_t> keys[index_1+3])
+                index_1 += 4
+                self._keys_x4[index] = ((<np.uint32_t> keys[index_1]) << 24) | ((<np.uint32_t> keys[index_1+1]) << 16)\
+                                       | ((<np.uint32_t> keys[index_1+2]) << 8) | (<np.uint32_t> keys[index_1+3])
 
 
     @cython.profile(True)
