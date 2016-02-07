@@ -4,6 +4,7 @@ import binascii
 import numpy as np
 import pyximport
 from numpy.f2py.crackfortran import include_paths
+import cProfile
 
 pyximport.install(inplace=False,
                   setup_args={"include_dirs": np.get_include()},
@@ -342,8 +343,13 @@ if __name__ == '__main__':
 
     from SEED_cy import SEEDAlgorithm
 
+    tt = np.tile(test_vector_big.ptx, 500000)
+    kk = np.tile(test_vector_big.key, 500000)
+
     a = SEEDAlgorithm()
-    #a.py_encrypt_seed(test_vector_big.ptx, test_vector_big.key, 0)
-    a.call_cython(test_vector_big.ptx, test_vector_big.key, 0)
+    #a.py_encrypt_seed(test_vector_big.ptx, test_vector_big.key, 0, 0)
+    a.call_cython(tt, kk, 0, 0)
+
+    #cProfile.run('a.call_cython(tt, kk, 0, 0)')
 
 

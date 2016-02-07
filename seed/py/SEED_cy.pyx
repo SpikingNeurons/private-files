@@ -10,6 +10,8 @@ cimport cython
 from SEED_tables import SS0, SS1, SS2, SS3, KC
 
 
+
+
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.nonecheck(False)
@@ -27,6 +29,10 @@ cdef class SEEDAlgorithm:
 
     # variables used for fast looping
     cdef Py_ssize_t _num_ptxt, _num_keys
+
+    # round and step related variables to keep track of algorithm
+    cdef Py_ssize_t _prev_rnd
+    cdef Py_ssize_t _prev_step
 
     # variables used to store the plaintext passed by python modules in words
     # four variables represent four parts of plaintext
@@ -58,15 +64,21 @@ cdef class SEEDAlgorithm:
 
 
 
+
     def __init__(self):
-        pass
+        # some internal variables
+        self._num_ptxt = -1
+        self._num_keys = -1
+        self._prev_rnd = -1
+        self._prev_step = -1
 
 
     def __dealloc__(self):
         """
         Once the lifetime of the object is over Python will call this method.
-        Since we are sing C memory management, make sure that there is no memory leak by de-allocating memory.
-        :return:
+        Since we are using C memory management, make sure that there is no memory leak by ensuring de-allocation of
+        memory.
+        :return: None
         """
         # dereference SEED algorithm related constants
         self._const_KC = NULL
@@ -75,7 +87,7 @@ cdef class SEEDAlgorithm:
         self._const_SS2 = NULL
         self._const_SS3 = NULL
 
-        # dereference references not allocated by cython SEED algorithm
+        # Deallocate arrays allocated by cython SEED algorithm
         PyMem_Free(self._ptxt_x1)
         PyMem_Free(self._ptxt_x2)
         PyMem_Free(self._ptxt_x3)
@@ -165,21 +177,15 @@ cdef class SEEDAlgorithm:
             print(s)
         print('\n')
 
-    def _py_fragment_block_to_words(self, var):
-        var_ = var[::-1].copy()
-        var_.dtype = np.uint32
-        var__ = var_[::-1]
-        x1 = var__[::4].copy()
-        x2 = var__[1::4].copy()
-        x3 = var__[2::4].copy()
-        x4 = var__[3::4].copy()
-        return x1, x2, x3, x4
 
+
+    @cython.profile(True)
     cdef _cy_fragment_ptxt_to_words(self, np.ndarray[np.uint8_t, ndim=1] ptxt):
         """
         Takes plaintext bytes as input and converts them in unsigned word. This step is required so that arithmetic
         operations can be performed. Every plaintext block has 16 bytes. These bytes are shuffled to obtain word. We
-        get four words for a 128-bit block (16-byte block). This method assigns to class members four extracted words.
+        get four words for a 128-bit block (or 16-byte block). This method assigns to class members four extracted
+        words.
         :param ptxt: byte array that contains plaintext provided by trace file
         :return: None
         """
@@ -214,31 +220,91 @@ cdef class SEEDAlgorithm:
                                        | ((<np.uint32_t> ptxt[index_1+2]) << 8) | (<np.uint32_t> ptxt[index_1+3])
 
 
+    @cython.profile(True)
+    def _py_fragment_block_to_words(self, var):
+        var_ = var[::-1].copy()
+        var_.dtype = np.uint32
+        var__ = var_[::-1]
+        x1 = var__[::4].copy()
+        x2 = var__[1::4].copy()
+        x3 = var__[2::4].copy()
+        x4 = var__[3::4].copy()
+        return x1, x2, x3, x4
+
+
     cdef cy_encrypt_seed(
             self,
             np.ndarray[np.uint8_t, ndim=1] plain_text,
             np.ndarray[np.uint8_t, ndim=1] keys,
-            Py_ssize_t rnd):
-        self._cy_fragment_ptxt_to_words(plain_text)
-        x1, x2, x3, x4 = self._py_fragment_block_to_words(plain_text)
+            Py_ssize_t rnd,
+            Py_ssize_t step):
+        """
 
-        for i in range(self._num_ptxt):
-            if self._ptxt_x1[i] != x1[i] or self._ptxt_x2[i] != x2[i] or self._ptxt_x3[i] != x3[i] or self._ptxt_x4[i] != x4[i]:
-                print('not equal')
-                break
-        pass
+        :param plain_text:
+        :param keys:
+        :param rnd:
+        :param step:
+        :return:
+        """
 
+        # some typed local variables
+        cdef Py_ssize_t index
 
-    def call_cython(self, plain_text, keys, rnd):
-        self.cy_encrypt_seed(plain_text, keys, rnd)
+        # temp references to achieve movement of two words (half plaintext) from right to left
+        cdef np.uint32_t *_ptxt_a1
+        cdef np.uint32_t *_ptxt_a2
+        cdef np.uint32_t *_ptxt_a3
+        cdef np.uint32_t *_ptxt_a4
+
+        # here we do the things only once for the lifetime of this object
+        if self._ptxt_x1 == NULL and self._ptxt_x2 == NULL and self._ptxt_x3 == NULL and self._ptxt_x4 == NULL:
+            # fragment plaintext to four words and store them to class variables
+            self._cy_fragment_ptxt_to_words(plain_text)
+            x1, x2, x3, x4 = self._py_fragment_block_to_words(plain_text)
+
+        for index in range(_MAX_ROUNDS):
+
+            # logic for moving half of right key to left
+            if index % 2 == 0:
+                _ptxt_a1 = self._ptxt_x1
+                _ptxt_a2 = self._ptxt_x2
+                _ptxt_a3 = self._ptxt_x3
+                _ptxt_a4 = self._ptxt_x4
+                a1 = x1
+                a2 = x2
+                a3 = x3
+                a4 = x4
+            else:
+                _ptxt_a1 = self._ptxt_x3
+                _ptxt_a2 = self._ptxt_x4
+                _ptxt_a3 = self._ptxt_x1
+                _ptxt_a4 = self._ptxt_x2
+                a1 = x3
+                a2 = x4
+                a3 = x1
+                a4 = x2
+
+        # keep track of the last step
+        self._prev_step = step
+        self._prev_rnd = rnd
+
 
     def py_encrypt_seed(self, plain_text, keys, rnd):
         x1, x2, x3, x4 = self._py_fragment_block_to_words(plain_text)
-        a1 = x1
-        a2 = x2
-        a3 = x3
-        a4 = x4
+
         for ii in np.arange(16):
+
+            if ii % 2 == 0:
+                a1 = x1
+                a2 = x2
+                a3 = x3
+                a4 = x4
+            else:
+                a1 = x3
+                a2 = x4
+                a3 = x1
+                a4 = x2
+
             print('.......................' + str(ii))
             self._py_print_hex(a1)
             self._py_print_hex(a2)
@@ -258,16 +324,17 @@ cdef class SEEDAlgorithm:
             np.bitwise_xor(a1, t0, out=a1)
             np.bitwise_xor(a2, t1, out=a2)
 
-            if ii % 2 == 0:
-                a1 = x3
-                a2 = x4
-                a3 = x1
-                a4 = x2
-            else:
-                a1 = x1
-                a2 = x2
-                a3 = x3
-                a4 = x4
+
+    def call_cython(self, plain_text, keys, rnd, step):
+        self.cy_encrypt_seed(plain_text, keys, rnd, step)
+
+
+cdef Py_ssize_t _MAX_ROUNDS = 16
+cdef Py_ssize_t _MAX_STEPS = 99
+cdef Py_ssize_t _STEP_UNKNOWN = 0
+cdef Py_ssize_t _STEP_1 = 1
+cdef Py_ssize_t _STEP_2 = 2
+cdef Py_ssize_t _STEP_END = 99
 
 
 cdef np.uint32_t *_KC = \
