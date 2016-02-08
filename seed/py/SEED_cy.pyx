@@ -145,13 +145,14 @@ cdef class SEEDAlgorithm:
     cdef _cy_generate_key_schedule(self, np.ndarray[np.uint8_t, ndim=1] keys, Py_ssize_t rnd):
 
         # some typed local variables
-        cdef Py_ssize_t index, index_1
+        cdef Py_ssize_t index, index_rnd
         cdef np.uint32_t temp_var0, temp_var1
 
         # here we do the things only once for the lifetime of this object
         if self._keys_x1 == NULL and self._keys_x2 == NULL and self._keys_x3 == NULL and self._keys_x4 == NULL:
             # fragment plaintext to four words and store them to class variables
             self._cy_fragment_keys_to_words(keys)
+        self._cy_fragment_keys_to_words(keys)
 
         # allocate memory for key scheduled
         if self._curr_key_schedule_0 == NULL and self._curr_key_schedule_1 == NULL:
@@ -194,12 +195,12 @@ cdef class SEEDAlgorithm:
                                                    self._const_SS3[(temp_var1>>24) & 0xff]
 
         # round 2 ... 16
-        for index_1 in range(2,_MAX_ROUNDS,2):
+        for index_rnd in range(2,_MAX_ROUNDS,2):
             for index in range(self._num_keys):
                 temp_var0 = self._keys_x3[index]
                 self._keys_x3[index] = self._keys_x3[index]<<8 ^ self._keys_x4[index]>>24
                 self._keys_x4[index] = self._keys_x4[index]<<8 ^ temp_var0>>24
-            if rnd == index_1:
+            if rnd == index_rnd:
                 for index in range(self._num_keys):
                     temp_var0 = self._keys_x1[index] + self._keys_x3[index] - self._const_KC[rnd]
                     temp_var1 = self._keys_x2[index] + self._const_KC[rnd] - self._keys_x4[index]
@@ -215,7 +216,7 @@ cdef class SEEDAlgorithm:
                 temp_var0 = self._keys_x1[index]
                 self._keys_x1[index] = self._keys_x1[index]>>8 ^ self._keys_x2[index]<<24
                 self._keys_x2[index] = self._keys_x2[index]>>8 ^ temp_var0<<24
-            if rnd == index_1 + 1:
+            if rnd == index_rnd + 1:
                 for index in range(self._num_keys):
                     temp_var0 = self._keys_x1[index] + self._keys_x3[index] - self._const_KC[rnd]
                     temp_var1 = self._keys_x2[index] + self._const_KC[rnd] - self._keys_x4[index]
@@ -312,20 +313,20 @@ cdef class SEEDAlgorithm:
             self._keys_x3 = <np.uint32_t *> PyMem_Malloc(self._num_keys * sizeof(np.uint32_t))
             self._keys_x4 = <np.uint32_t *> PyMem_Malloc(self._num_keys * sizeof(np.uint32_t))
 
-            # byte shuffle logic to convert four bytes to unsigned word, so that arithmetic operations can be performed
-            for index in range(self._num_keys):
-                index_1 = index * 16
-                self._keys_x1[index] = ((<np.uint32_t> keys[index_1]) << 24) | ((<np.uint32_t> keys[index_1+1]) << 16)\
-                                       | ((<np.uint32_t> keys[index_1+2]) << 8) | (<np.uint32_t> keys[index_1+3])
-                index_1 += 4
-                self._keys_x2[index] = ((<np.uint32_t> keys[index_1]) << 24) | ((<np.uint32_t> keys[index_1+1]) << 16)\
-                                       | ((<np.uint32_t> keys[index_1+2]) << 8) | (<np.uint32_t> keys[index_1+3])
-                index_1 += 4
-                self._keys_x3[index] = ((<np.uint32_t> keys[index_1]) << 24) | ((<np.uint32_t> keys[index_1+1]) << 16)\
-                                       | ((<np.uint32_t> keys[index_1+2]) << 8) | (<np.uint32_t> keys[index_1+3])
-                index_1 += 4
-                self._keys_x4[index] = ((<np.uint32_t> keys[index_1]) << 24) | ((<np.uint32_t> keys[index_1+1]) << 16)\
-                                       | ((<np.uint32_t> keys[index_1+2]) << 8) | (<np.uint32_t> keys[index_1+3])
+        # byte shuffle logic to convert four bytes to unsigned word, so that arithmetic operations can be performed
+        for index in range(self._num_keys):
+            index_1 = index * 16
+            self._keys_x1[index] = ((<np.uint32_t> keys[index_1]) << 24) | ((<np.uint32_t> keys[index_1+1]) << 16)\
+                                   | ((<np.uint32_t> keys[index_1+2]) << 8) | (<np.uint32_t> keys[index_1+3])
+            index_1 += 4
+            self._keys_x2[index] = ((<np.uint32_t> keys[index_1]) << 24) | ((<np.uint32_t> keys[index_1+1]) << 16)\
+                                   | ((<np.uint32_t> keys[index_1+2]) << 8) | (<np.uint32_t> keys[index_1+3])
+            index_1 += 4
+            self._keys_x3[index] = ((<np.uint32_t> keys[index_1]) << 24) | ((<np.uint32_t> keys[index_1+1]) << 16)\
+                                   | ((<np.uint32_t> keys[index_1+2]) << 8) | (<np.uint32_t> keys[index_1+3])
+            index_1 += 4
+            self._keys_x4[index] = ((<np.uint32_t> keys[index_1]) << 24) | ((<np.uint32_t> keys[index_1+1]) << 16)\
+                                   | ((<np.uint32_t> keys[index_1+2]) << 8) | (<np.uint32_t> keys[index_1+3])
 
 
     @cython.profile(True)
@@ -353,20 +354,20 @@ cdef class SEEDAlgorithm:
             self._ptxt_x3 = <np.uint32_t *> PyMem_Malloc(self._num_ptxt * sizeof(np.uint32_t))
             self._ptxt_x4 = <np.uint32_t *> PyMem_Malloc(self._num_ptxt * sizeof(np.uint32_t))
 
-            # byte shuffle logic to convert four bytes to unsigned word, so that arithmetic operations can be performed
-            for index in range(self._num_ptxt):
-                index_1 = index * 16
-                self._ptxt_x1[index] = ((<np.uint32_t> ptxt[index_1]) << 24) | ((<np.uint32_t> ptxt[index_1+1]) << 16)\
-                                       | ((<np.uint32_t> ptxt[index_1+2]) << 8) | (<np.uint32_t> ptxt[index_1+3])
-                index_1 += 4
-                self._ptxt_x2[index] = ((<np.uint32_t> ptxt[index_1]) << 24) | ((<np.uint32_t> ptxt[index_1+1]) << 16)\
-                                       | ((<np.uint32_t> ptxt[index_1+2]) << 8) | (<np.uint32_t> ptxt[index_1+3])
-                index_1 += 4
-                self._ptxt_x3[index] = ((<np.uint32_t> ptxt[index_1]) << 24) | ((<np.uint32_t> ptxt[index_1+1]) << 16)\
-                                       | ((<np.uint32_t> ptxt[index_1+2]) << 8) | (<np.uint32_t> ptxt[index_1+3])
-                index_1 += 4
-                self._ptxt_x4[index] = ((<np.uint32_t> ptxt[index_1]) << 24) | ((<np.uint32_t> ptxt[index_1+1]) << 16)\
-                                       | ((<np.uint32_t> ptxt[index_1+2]) << 8) | (<np.uint32_t> ptxt[index_1+3])
+        # byte shuffle logic to convert four bytes to unsigned word, so that arithmetic operations can be performed
+        for index in range(self._num_ptxt):
+            index_1 = index * 16
+            self._ptxt_x1[index] = ((<np.uint32_t> ptxt[index_1]) << 24) | ((<np.uint32_t> ptxt[index_1+1]) << 16)\
+                                   | ((<np.uint32_t> ptxt[index_1+2]) << 8) | (<np.uint32_t> ptxt[index_1+3])
+            index_1 += 4
+            self._ptxt_x2[index] = ((<np.uint32_t> ptxt[index_1]) << 24) | ((<np.uint32_t> ptxt[index_1+1]) << 16)\
+                                   | ((<np.uint32_t> ptxt[index_1+2]) << 8) | (<np.uint32_t> ptxt[index_1+3])
+            index_1 += 4
+            self._ptxt_x3[index] = ((<np.uint32_t> ptxt[index_1]) << 24) | ((<np.uint32_t> ptxt[index_1+1]) << 16)\
+                                   | ((<np.uint32_t> ptxt[index_1+2]) << 8) | (<np.uint32_t> ptxt[index_1+3])
+            index_1 += 4
+            self._ptxt_x4[index] = ((<np.uint32_t> ptxt[index_1]) << 24) | ((<np.uint32_t> ptxt[index_1+1]) << 16)\
+                                   | ((<np.uint32_t> ptxt[index_1+2]) << 8) | (<np.uint32_t> ptxt[index_1+3])
 
 
     @cython.profile(True)
@@ -397,7 +398,7 @@ cdef class SEEDAlgorithm:
         """
 
         # some typed local variables
-        cdef Py_ssize_t index, index_1
+        cdef Py_ssize_t index_ptxt, index_rnd
         cdef np.uint32_t temp0, temp1, temp2, temp3, temp4, temp5, temp6, temp7, temp8
 
         # temp references to achieve movement of two words (half plaintext) from right to left
@@ -412,10 +413,10 @@ cdef class SEEDAlgorithm:
             self._cy_fragment_ptxt_to_words(plain_text)
 
         # rounds of encryption
-        for index_1 in range(_MAX_ROUNDS):
+        for index_rnd in range(_MAX_ROUNDS):
 
             # logic for moving half of right key to left
-            if index_1 % 2 == 0:
+            if index_rnd % 2 == 0:
                 _ptxt_a1 = self._ptxt_x1
                 _ptxt_a2 = self._ptxt_x2
                 _ptxt_a3 = self._ptxt_x3
@@ -427,21 +428,23 @@ cdef class SEEDAlgorithm:
                 _ptxt_a4 = self._ptxt_x2
 
             # get the key schedule
-            self._cy_generate_key_schedule(keys, rnd)
+            self._cy_generate_key_schedule(keys, index_rnd)
             print('--------------------------------------------------------------------')
 
             # iterate over all plain text values
-            for index in range(self._num_ptxt):
-
+            for index_ptxt in range(self._num_ptxt):
+                print('kkkkkkkkkkkkkkkkkkk')
+                print(hex(self._curr_key_schedule_0[index_ptxt]))
+                print(hex(self._curr_key_schedule_1[index_ptxt]))
                 print('ttttttttttttttttttt')
-                print(hex(_ptxt_a1[index]))
-                print(hex(_ptxt_a2[index]))
-                print(hex(_ptxt_a3[index]))
-                print(hex(_ptxt_a4[index]))
+                print(hex(_ptxt_a1[index_ptxt]))
+                print(hex(_ptxt_a2[index_ptxt]))
+                print(hex(_ptxt_a3[index_ptxt]))
+                print(hex(_ptxt_a4[index_ptxt]))
 
                 # step
-                temp0 = _ptxt_a3[index] ^ self._curr_key_schedule_0[index]
-                temp1 = _ptxt_a4[index] ^ self._curr_key_schedule_1[index]
+                temp0 = _ptxt_a3[index_ptxt] ^ self._curr_key_schedule_0[index_ptxt]
+                temp1 = _ptxt_a4[index_ptxt] ^ self._curr_key_schedule_1[index_ptxt]
                 temp2 = temp1 ^ temp0
 
                 # step
@@ -472,8 +475,8 @@ cdef class SEEDAlgorithm:
                 temp8 = temp5 + temp7
 
                 # step
-                _ptxt_a1[index] = _ptxt_a1[index] ^ temp8
-                _ptxt_a2[index] = _ptxt_a2[index] ^ temp7
+                _ptxt_a1[index_ptxt] = _ptxt_a1[index_ptxt] ^ temp8
+                _ptxt_a2[index_ptxt] = _ptxt_a2[index_ptxt] ^ temp7
 
 
         # keep track of the last step
