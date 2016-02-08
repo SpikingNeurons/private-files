@@ -341,16 +341,18 @@ if __name__ == '__main__':
     #encrypt_seed(test_vector_big.ptx, test_vector_big.key, 0)
 
 
-    from SEED_cy import SEEDAlgorithm
+    from SEED_cy import SEEDAlgorithmCy
+    from SEED_py import SEEDAlgorithmPy
 
     tt = np.tile(test_vector_big.ptx, 100000)
     kk = np.tile(test_vector_big.key, 100000)
     #tt = test_vectors[3].ptx
     #kk = test_vectors[3].key
 
-    a = SEEDAlgorithm()
-    #a.call_cython(tt, kk, 15, 0)
+    acy = SEEDAlgorithmCy()
+    apy = SEEDAlgorithmPy()
 
-    cProfile.run('a.call_cython(tt, kk, 15, 0)')
+    cProfile.run('acy.encrypt(tt, kk, 15, 0)')
+    cProfile.run('apy.encrypt(tt, kk, 15, 0)')
 
 
