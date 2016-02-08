@@ -124,6 +124,7 @@ cdef class SEEDAlgorithmCy:
         if self._keys_x1 == NULL and self._keys_x2 == NULL and self._keys_x3 == NULL and self._keys_x4 == NULL:
             # fragment plaintext to four words and store them to class variables
             self._cy_fragment_keys_to_words(keys)
+        #TODO: check this if the call can be avoided
         self._cy_fragment_keys_to_words(keys)
 
         # allocate memory for key scheduled
