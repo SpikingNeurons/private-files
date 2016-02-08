@@ -145,7 +145,7 @@ cdef class SEEDAlgorithm:
     cdef _cy_generate_key_schedule(self, np.ndarray[np.uint8_t, ndim=1] keys, Py_ssize_t rnd):
 
         # some typed local variables
-        cdef Py_ssize_t index
+        cdef Py_ssize_t index, index_1
         cdef np.uint32_t temp_var0, temp_var1
 
         # here we do the things only once for the lifetime of this object
@@ -175,8 +175,60 @@ cdef class SEEDAlgorithm:
                                                    self._const_SS2[(temp_var1>>16) & 0xff] ^ \
                                                    self._const_SS3[(temp_var1>>24) & 0xff]
 
+        # round 1 update
+        for index in range(self._num_keys):
+            temp_var0 = self._keys_x1[index]
+            self._keys_x1[index] = self._keys_x1[index]>>8 ^ self._keys_x2[index]<<24
+            self._keys_x2[index] = self._keys_x2[index]>>8 ^ temp_var0<<24
+        if rnd == 1:
+            for index in range(self._num_keys):
+                temp_var0 = self._keys_x1[index] + self._keys_x3[index] - self._const_KC[1]
+                temp_var1 = self._keys_x2[index] - self._keys_x4[index] + self._const_KC[1]
+                self._curr_key_schedule_0[index] = self._const_SS0[temp_var0 & 0xff] ^ \
+                                                   self._const_SS1[(temp_var0>>8) & 0xff] ^ \
+                                                   self._const_SS2[(temp_var0>>16) & 0xff] ^ \
+                                                   self._const_SS3[(temp_var0>>24) & 0xff]
+                self._curr_key_schedule_1[index] = self._const_SS0[temp_var1 & 0xff] ^ \
+                                                   self._const_SS1[(temp_var1>>8) & 0xff] ^ \
+                                                   self._const_SS2[(temp_var1>>16) & 0xff] ^ \
+                                                   self._const_SS3[(temp_var1>>24) & 0xff]
 
-
+        # round 2 ... 16
+        for index_1 in range(2,_MAX_ROUNDS,2):
+            for index in range(self._num_keys):
+                temp_var0 = self._keys_x3[index]
+                self._keys_x3[index] = self._keys_x3[index]<<8 ^ self._keys_x4[index]>>24
+                self._keys_x4[index] = self._keys_x4[index]<<8 ^ temp_var0>>24
+            if rnd == index_1:
+                for index in range(self._num_keys):
+                    temp_var0 = self._keys_x1[index] + self._keys_x3[index] - self._const_KC[rnd]
+                    temp_var1 = self._keys_x2[index] + self._const_KC[rnd] - self._keys_x4[index]
+                    self._curr_key_schedule_0[index] = self._const_SS0[temp_var0 & 0xff] ^ \
+                                                       self._const_SS1[(temp_var0>>8) & 0xff] ^ \
+                                                       self._const_SS2[(temp_var0>>16) & 0xff] ^ \
+                                                       self._const_SS3[(temp_var0>>24) & 0xff]
+                    self._curr_key_schedule_1[index] = self._const_SS0[temp_var1 & 0xff] ^ \
+                                                       self._const_SS1[(temp_var1>>8) & 0xff] ^ \
+                                                       self._const_SS2[(temp_var1>>16) & 0xff] ^ \
+                                                       self._const_SS3[(temp_var1>>24) & 0xff]
+            for index in range(self._num_keys):
+                temp_var0 = self._keys_x1[index]
+                self._keys_x1[index] = self._keys_x1[index]>>8 ^ self._keys_x2[index]<<24
+                self._keys_x2[index] = self._keys_x2[index]>>8 ^ temp_var0<<24
+            if rnd == index_1 + 1:
+                for index in range(self._num_keys):
+                    temp_var0 = self._keys_x1[index] + self._keys_x3[index] - self._const_KC[rnd]
+                    temp_var1 = self._keys_x2[index] + self._const_KC[rnd] - self._keys_x4[index]
+                    self._curr_key_schedule_0[index] = self._const_SS0[temp_var0 & 0xff] ^ \
+                                                       self._const_SS1[(temp_var0>>8) & 0xff] ^ \
+                                                       self._const_SS2[(temp_var0>>16) & 0xff] ^ \
+                                                       self._const_SS3[(temp_var0>>24) & 0xff]
+                    self._curr_key_schedule_1[index] = self._const_SS0[temp_var1 & 0xff] ^ \
+                                                       self._const_SS1[(temp_var1>>8) & 0xff] ^ \
+                                                       self._const_SS2[(temp_var1>>16) & 0xff] ^ \
+                                                       self._const_SS3[(temp_var1>>24) & 0xff]
+                    print(hex(self._curr_key_schedule_0[index]))
+                    print(hex(self._curr_key_schedule_1[index]))
 
         pass
 
@@ -429,7 +481,7 @@ cdef class SEEDAlgorithm:
         self.cy_encrypt_seed(plain_text, keys, rnd, step)
 
         self._py_generate_key_schedule(keys, 0)
-        self._cy_generate_key_schedule(keys, 0)
+        self._cy_generate_key_schedule(keys, 15)
 
 
 cdef Py_ssize_t _MAX_ROUNDS = 16
