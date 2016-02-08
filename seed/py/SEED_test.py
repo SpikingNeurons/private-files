@@ -343,8 +343,8 @@ if __name__ == '__main__':
 
     from SEED_cy import SEEDAlgorithm
 
-    tt = np.tile(test_vector_big.ptx, 2)
-    kk = np.tile(test_vector_big.key, 2)
+    tt = np.tile(test_vector_big.ptx, 1)
+    kk = np.tile(test_vector_big.key, 1)
 
     a = SEEDAlgorithm()
     #a.py_encrypt_seed(test_vector_big.ptx, test_vector_big.key, 0, 0)

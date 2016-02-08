@@ -227,10 +227,7 @@ cdef class SEEDAlgorithm:
                                                        self._const_SS1[(temp_var1>>8) & 0xff] ^ \
                                                        self._const_SS2[(temp_var1>>16) & 0xff] ^ \
                                                        self._const_SS3[(temp_var1>>24) & 0xff]
-                    print(hex(self._curr_key_schedule_0[index]))
-                    print(hex(self._curr_key_schedule_1[index]))
 
-        pass
 
     @cython.profile(True)
     def _py_generate_key_schedule(self, keys, rnd):
@@ -400,7 +397,8 @@ cdef class SEEDAlgorithm:
         """
 
         # some typed local variables
-        cdef Py_ssize_t index
+        cdef Py_ssize_t index, index_1
+        cdef np.uint32_t temp0, temp1, temp2, temp3, temp4, temp5, temp6, temp7, temp8
 
         # temp references to achieve movement of two words (half plaintext) from right to left
         cdef np.uint32_t *_ptxt_a1
@@ -412,29 +410,71 @@ cdef class SEEDAlgorithm:
         if self._ptxt_x1 == NULL and self._ptxt_x2 == NULL and self._ptxt_x3 == NULL and self._ptxt_x4 == NULL:
             # fragment plaintext to four words and store them to class variables
             self._cy_fragment_ptxt_to_words(plain_text)
-            x1, x2, x3, x4 = self._py_fragment_block_to_words(plain_text)
 
-        for index in range(_MAX_ROUNDS):
+        # rounds of encryption
+        for index_1 in range(_MAX_ROUNDS):
 
             # logic for moving half of right key to left
-            if index % 2 == 0:
+            if index_1 % 2 == 0:
                 _ptxt_a1 = self._ptxt_x1
                 _ptxt_a2 = self._ptxt_x2
                 _ptxt_a3 = self._ptxt_x3
                 _ptxt_a4 = self._ptxt_x4
-                a1 = x1
-                a2 = x2
-                a3 = x3
-                a4 = x4
             else:
                 _ptxt_a1 = self._ptxt_x3
                 _ptxt_a2 = self._ptxt_x4
                 _ptxt_a3 = self._ptxt_x1
                 _ptxt_a4 = self._ptxt_x2
-                a1 = x3
-                a2 = x4
-                a3 = x1
-                a4 = x2
+
+            # get the key schedule
+            self._cy_generate_key_schedule(keys, rnd)
+            print('--------------------------------------------------------------------')
+
+            # iterate over all plain text values
+            for index in range(self._num_ptxt):
+
+                print('ttttttttttttttttttt')
+                print(hex(_ptxt_a1[index]))
+                print(hex(_ptxt_a2[index]))
+                print(hex(_ptxt_a3[index]))
+                print(hex(_ptxt_a4[index]))
+
+                # step
+                temp0 = _ptxt_a3[index] ^ self._curr_key_schedule_0[index]
+                temp1 = _ptxt_a4[index] ^ self._curr_key_schedule_1[index]
+                temp2 = temp1 ^ temp0
+
+                # step
+                temp3 = self._const_SS0[temp2 & 0xff] ^ \
+                        self._const_SS1[(temp2>>8) & 0xff] ^ \
+                        self._const_SS2[(temp2>>16) & 0xff] ^ \
+                        self._const_SS3[(temp2>>24) & 0xff]
+
+                # step
+                temp4 = temp3 + temp0
+
+                # step
+                temp5 = self._const_SS0[temp4 & 0xff] ^ \
+                        self._const_SS1[(temp4>>8) & 0xff] ^ \
+                        self._const_SS2[(temp4>>16) & 0xff] ^ \
+                        self._const_SS3[(temp4>>24) & 0xff]
+
+                # step
+                temp6 = temp5 + temp3
+
+                # step
+                temp7 = self._const_SS0[temp6 & 0xff] ^ \
+                        self._const_SS1[(temp6>>8) & 0xff] ^ \
+                        self._const_SS2[(temp6>>16) & 0xff] ^ \
+                        self._const_SS3[(temp6>>24) & 0xff]
+
+                # step
+                temp8 = temp5 + temp7
+
+                # step
+                _ptxt_a1[index] = _ptxt_a1[index] ^ temp8
+                _ptxt_a2[index] = _ptxt_a2[index] ^ temp7
+
 
         # keep track of the last step
         self._curr_step = step
@@ -480,8 +520,8 @@ cdef class SEEDAlgorithm:
     def call_cython(self, plain_text, keys, rnd, step):
         self.cy_encrypt_seed(plain_text, keys, rnd, step)
 
-        self._py_generate_key_schedule(keys, 0)
-        self._cy_generate_key_schedule(keys, 15)
+        #self._py_generate_key_schedule(keys, 0)
+        #self._cy_generate_key_schedule(keys, 15)
 
 
 cdef Py_ssize_t _MAX_ROUNDS = 16
