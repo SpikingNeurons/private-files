@@ -10,6 +10,7 @@ pyximport.install(inplace=False,
                   setup_args={"include_dirs": np.get_include()},
                   reload_support=True)
 from Cython.Build import cythonize
+# TODO: check with multi thread
 cythonize('SEED_cy.pyx', annotate=True)
 
 from cryptography.hazmat.backends.openssl.backend import backend
