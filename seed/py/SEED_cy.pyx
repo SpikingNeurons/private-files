@@ -305,7 +305,7 @@ cdef class SEEDAlgorithmCy:
         """
 
         # some typed local variables
-        cdef Py_ssize_t index_ptxt, index_rnd
+        cdef Py_ssize_t index_ptxt, index_rnd, if_many_keys
         cdef np.uint32_t temp0, temp1, temp2, temp3, temp4, temp5, temp6, temp7, temp8
 
         # temp references to achieve movement of two words (half plaintext) from right to left
@@ -336,6 +336,12 @@ cdef class SEEDAlgorithmCy:
 
             # get the key schedule
             self._cy_generate_key_schedule(keys, index_rnd)
+
+            # check number of keys
+            if_many_keys = 1
+            if self._num_keys == 1:
+                if_many_keys = 0
+
             #print('--------------------------------------------------------------------')
 
             # iterate over all plain text values
@@ -350,8 +356,8 @@ cdef class SEEDAlgorithmCy:
                 #print(hex(_ptxt_a4[index_ptxt]))
 
                 # step
-                temp0 = _ptxt_a3[index_ptxt] ^ self._curr_key_schedule_0[index_ptxt]
-                temp1 = _ptxt_a4[index_ptxt] ^ self._curr_key_schedule_1[index_ptxt]
+                temp0 = _ptxt_a3[index_ptxt] ^ self._curr_key_schedule_0[index_ptxt * if_many_keys]
+                temp1 = _ptxt_a4[index_ptxt] ^ self._curr_key_schedule_1[index_ptxt * if_many_keys]
                 temp2 = temp1 ^ temp0
 
                 # step

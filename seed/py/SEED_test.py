@@ -345,7 +345,8 @@ if __name__ == '__main__':
     from SEED_py import SEEDAlgorithmPy
 
     tt = np.tile(test_vector_big.ptx, 100000)
-    kk = np.tile(test_vector_big.key, 100000)
+    #kk = np.tile(test_vector_big.key, 100000)
+    kk = test_vectors[3].key
     #tt = test_vectors[3].ptx
     #kk = test_vectors[3].key
 
