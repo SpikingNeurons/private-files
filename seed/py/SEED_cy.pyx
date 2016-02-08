@@ -31,8 +31,12 @@ cdef class SEEDAlgorithm:
     cdef Py_ssize_t _num_ptxt, _num_keys
 
     # round and step related variables to keep track of algorithm
-    cdef Py_ssize_t _prev_rnd
-    cdef Py_ssize_t _prev_step
+    cdef Py_ssize_t _curr_rnd
+    cdef Py_ssize_t _curr_step
+
+    # current key schedule
+    cdef np.uint32_t *_curr_key_schedule_0
+    cdef np.uint32_t *_curr_key_schedule_1
 
     # variables used to store the plaintext passed by python modules in words
     # four variables represent four parts of plaintext
@@ -68,6 +72,9 @@ cdef class SEEDAlgorithm:
         self._ptxt_x2 = NULL
         self._ptxt_x3 = NULL
         self._ptxt_x4 = NULL
+        # current key schedule
+        self._curr_key_schedule_0 = NULL
+        self._curr_key_schedule_1 = NULL
 
 
 
@@ -76,8 +83,8 @@ cdef class SEEDAlgorithm:
         # some internal variables
         self._num_ptxt = -1
         self._num_keys = -1
-        self._prev_rnd = -1
-        self._prev_step = -1
+        self._curr_rnd = -1
+        self._curr_step = -1
 
 
     def __dealloc__(self):
@@ -99,6 +106,9 @@ cdef class SEEDAlgorithm:
         PyMem_Free(self._ptxt_x2)
         PyMem_Free(self._ptxt_x3)
         PyMem_Free(self._ptxt_x4)
+        # current key schedule
+        PyMem_Free(self._curr_key_schedule_0)
+        PyMem_Free(self._curr_key_schedule_1)
 
 
     def _py_mask_with_8f(self, var):
@@ -132,15 +142,39 @@ cdef class SEEDAlgorithm:
 
 
     @cython.profile(True)
-    def _cy_generate_key_schedule(self, np.ndarray[np.uint8_t, ndim=1] keys, Py_ssize_t rnd):
+    cdef _cy_generate_key_schedule(self, np.ndarray[np.uint8_t, ndim=1] keys, Py_ssize_t rnd):
 
         # some typed local variables
         cdef Py_ssize_t index
+        cdef np.uint32_t temp_var0, temp_var1
 
         # here we do the things only once for the lifetime of this object
-        if self._ptxt_x1 == NULL and self._ptxt_x2 == NULL and self._ptxt_x3 == NULL and self._ptxt_x4 == NULL:
+        if self._keys_x1 == NULL and self._keys_x2 == NULL and self._keys_x3 == NULL and self._keys_x4 == NULL:
             # fragment plaintext to four words and store them to class variables
             self._cy_fragment_keys_to_words(keys)
+
+        # allocate memory for key scheduled
+        if self._curr_key_schedule_0 == NULL and self._curr_key_schedule_1 == NULL:
+            #  initialize the number of keys to encrypt
+            self._num_keys = keys.shape[0] / 16
+            # allocate memory
+            self._curr_key_schedule_0 = <np.uint32_t *> PyMem_Malloc(self._num_keys * sizeof(np.uint32_t))
+            self._curr_key_schedule_1 = <np.uint32_t *> PyMem_Malloc(self._num_keys * sizeof(np.uint32_t))
+
+        # round 0 update
+        if rnd == 0:
+            for index in range(self._num_keys):
+                temp_var0 = self._keys_x1[index] + self._keys_x3[index] - self._const_KC[0]
+                temp_var1 = self._keys_x2[index] - self._keys_x4[index] + self._const_KC[0]
+                self._curr_key_schedule_0[index] = self._const_SS0[temp_var0 & 0xff] ^ \
+                                                   self._const_SS1[(temp_var0>>8) & 0xff] ^ \
+                                                   self._const_SS2[(temp_var0>>16) & 0xff] ^ \
+                                                   self._const_SS3[(temp_var0>>24) & 0xff]
+                self._curr_key_schedule_1[index] = self._const_SS0[temp_var1 & 0xff] ^ \
+                                                   self._const_SS1[(temp_var1>>8) & 0xff] ^ \
+                                                   self._const_SS2[(temp_var1>>16) & 0xff] ^ \
+                                                   self._const_SS3[(temp_var1>>24) & 0xff]
+
 
 
 
@@ -203,6 +237,7 @@ cdef class SEEDAlgorithm:
         print('\n')
 
 
+
     @cython.profile(True)
     cdef _cy_fragment_keys_to_words(self, np.ndarray[np.uint8_t, ndim=1] keys):
         """
@@ -216,11 +251,11 @@ cdef class SEEDAlgorithm:
         # some local temp variables that need to be typed for fast computations
         cdef Py_ssize_t index, index_1
 
-        # initialize the number of plaintexts to encrypt
-        self._num_keys = keys.shape[0] / 16
-
         # check if done earlier (only need to be done once for the lifetime of object)
         if self._keys_x1 == NULL and self._keys_x2 == NULL and self._keys_x3 == NULL and self._keys_x4 == NULL:
+
+            # initialize the number of keys to encrypt
+            self._num_keys = keys.shape[0] / 16
 
             # allocate memory
             self._keys_x1 = <np.uint32_t *> PyMem_Malloc(self._num_keys * sizeof(np.uint32_t))
@@ -257,11 +292,11 @@ cdef class SEEDAlgorithm:
         # some local temp variables that need to be typed for fast computations
         cdef Py_ssize_t index, index_1
 
-        # initialize the number of plaintexts to encrypt
-        self._num_ptxt = ptxt.shape[0] / 16
-
         # check if done earlier (only need to be done once for the lifetime of object)
         if self._ptxt_x1 == NULL and self._ptxt_x2 == NULL and self._ptxt_x3 == NULL and self._ptxt_x4 == NULL:
+
+            # initialize the number of plaintexts to encrypt
+            self._num_ptxt = ptxt.shape[0] / 16
 
             # allocate memory
             self._ptxt_x1 = <np.uint32_t *> PyMem_Malloc(self._num_ptxt * sizeof(np.uint32_t))
@@ -350,8 +385,8 @@ cdef class SEEDAlgorithm:
                 a4 = x2
 
         # keep track of the last step
-        self._prev_step = step
-        self._prev_rnd = rnd
+        self._curr_step = step
+        self._curr_rnd = rnd
 
 
     def py_encrypt_seed(self, plain_text, keys, rnd):
@@ -392,6 +427,9 @@ cdef class SEEDAlgorithm:
 
     def call_cython(self, plain_text, keys, rnd, step):
         self.cy_encrypt_seed(plain_text, keys, rnd, step)
+
+        self._py_generate_key_schedule(keys, 0)
+        self._cy_generate_key_schedule(keys, 0)
 
 
 cdef Py_ssize_t _MAX_ROUNDS = 16
