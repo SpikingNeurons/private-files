@@ -5,6 +5,7 @@ import numpy as np
 import pyximport
 from numpy.f2py.crackfortran import include_paths
 import cProfile
+from collections import namedtuple
 
 pyximport.install(inplace=False,
                   setup_args={"include_dirs": np.get_include()},
@@ -15,7 +16,89 @@ cythonize('SEED_cy.pyx', annotate=True)
 
 from cryptography.hazmat.backends.openssl.backend import backend
 from cryptography.hazmat.primitives.ciphers import algorithms, base, modes
-from SEED_tables import SS0, SS1, SS2, SS3, KC
+
+
+
+
+test_vector = namedtuple('test_vector', 'key ptx ctx')
+
+test_vectors_sksp = [
+    test_vector(
+        key=np.asarray([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+                       np.uint8),
+        ptx=np.asarray([0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F],
+                       np.uint8),
+        ctx=np.asarray([0x5E, 0xBA, 0xC6, 0xE0, 0x05, 0x4E, 0x16, 0x68, 0x19, 0xAF, 0xF1, 0xCC, 0x6D, 0x34, 0x6C, 0xDB],
+                       np.uint8)
+    ),
+    test_vector(
+        key=np.asarray([0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F],
+                       np.uint8),
+        ptx=np.asarray([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+                       np.uint8),
+        ctx=np.asarray([0xC1, 0x1F, 0x22, 0xF2, 0x01, 0x40, 0x50, 0x50, 0x84, 0x48, 0x35, 0x97, 0xE4, 0x37, 0x0F, 0x43],
+                       np.uint8)
+    ),
+    test_vector(
+        key=np.asarray([0x47, 0x06, 0x48, 0x08, 0x51, 0xE6, 0x1B, 0xE8, 0x5D, 0x74, 0xBF, 0xB3, 0xFD, 0x95, 0x61, 0x85],
+                       np.uint8),
+        ptx=np.asarray([0x83, 0xA2, 0xF8, 0xA2, 0x88, 0x64, 0x1F, 0xB9, 0xA4, 0xE9, 0xA5, 0xCC, 0x2F, 0x13, 0x1C, 0x7D],
+                       np.uint8),
+        ctx=np.asarray([0xEE, 0x54, 0xD1, 0x3E, 0xBC, 0xAE, 0x70, 0x6D, 0x22, 0x6B, 0xC3, 0x14, 0x2C, 0xD4, 0x0D, 0x4A],
+                       np.uint8)
+    ),
+    test_vector(
+        key=np.asarray([0x28, 0xDB, 0xC3, 0xBC, 0x49, 0xFF, 0xD8, 0x7D, 0xCF, 0xA5, 0x09, 0xB1, 0x1D, 0x42, 0x2B, 0xE7],
+                       np.uint8),
+        ptx=np.asarray([0xB4, 0x1E, 0x6B, 0xE2, 0xEB, 0xA8, 0x4A, 0x14, 0x8E, 0x2E, 0xED, 0x84, 0x59, 0x3C, 0x5E, 0xC7],
+                       np.uint8),
+        ctx=np.asarray([0x9B, 0x9B, 0x7B, 0xFC, 0xD1, 0x81, 0x3C, 0xB9, 0x5D, 0x0B, 0x36, 0x18, 0xF4, 0x0F, 0x51, 0x22],
+                       np.uint8)
+    )
+]
+
+test_vector_mkmp = test_vector(
+    key=np.asarray([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+                    0x47, 0x06, 0x48, 0x08, 0x51, 0xE6, 0x1B, 0xE8, 0x5D, 0x74, 0xBF, 0xB3, 0xFD, 0x95, 0x61, 0x85,
+                    0x28, 0xDB, 0xC3, 0xBC, 0x49, 0xFF, 0xD8, 0x7D, 0xCF, 0xA5, 0x09, 0xB1, 0x1D, 0x42, 0x2B, 0xE7],
+                   np.uint8),
+    ptx=np.asarray([0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x83, 0xA2, 0xF8, 0xA2, 0x88, 0x64, 0x1F, 0xB9, 0xA4, 0xE9, 0xA5, 0xCC, 0x2F, 0x13, 0x1C, 0x7D,
+                    0xB4, 0x1E, 0x6B, 0xE2, 0xEB, 0xA8, 0x4A, 0x14, 0x8E, 0x2E, 0xED, 0x84, 0x59, 0x3C, 0x5E, 0xC7],
+                   np.uint8),
+    ctx=np.asarray([0x5E, 0xBA, 0xC6, 0xE0, 0x05, 0x4E, 0x16, 0x68, 0x19, 0xAF, 0xF1, 0xCC, 0x6D, 0x34, 0x6C, 0xDB,
+                    0xC1, 0x1F, 0x22, 0xF2, 0x01, 0x40, 0x50, 0x50, 0x84, 0x48, 0x35, 0x97, 0xE4, 0x37, 0x0F, 0x43,
+                    0xEE, 0x54, 0xD1, 0x3E, 0xBC, 0xAE, 0x70, 0x6D, 0x22, 0x6B, 0xC3, 0x14, 0x2C, 0xD4, 0x0D, 0x4A,
+                    0x9B, 0x9B, 0x7B, 0xFC, 0xD1, 0x81, 0x3C, 0xB9, 0x5D, 0x0B, 0x36, 0x18, 0xF4, 0x0F, 0x51, 0x22],
+                   np.uint8)
+)
+
+test_big_size = 10000
+test_vector_big_skmp = test_vector(
+    key=np.asarray(
+        [0x28, 0xDB, 0xC3, 0xBC, 0x49, 0xFF, 0xD8, 0x7D, 0xCF, 0xA5, 0x09, 0xB1, 0x1D, 0x42, 0x2B, 0xE7]
+    ),
+    ptx=np.tile(
+        [0xB4, 0x1E, 0x6B, 0xE2, 0xEB, 0xA8, 0x4A, 0x14, 0x8E, 0x2E, 0xED, 0x84, 0x59, 0x3C, 0x5E, 0xC7]
+        , test_big_size),
+    ctx=np.tile(
+        [0x9B, 0x9B, 0x7B, 0xFC, 0xD1, 0x81, 0x3C, 0xB9, 0x5D, 0x0B, 0x36, 0x18, 0xF4, 0x0F, 0x51, 0x22]
+        , test_big_size),
+)
+
+test_vector_big_mkmp = test_vector(
+    key=np.tile(
+        [0x28, 0xDB, 0xC3, 0xBC, 0x49, 0xFF, 0xD8, 0x7D, 0xCF, 0xA5, 0x09, 0xB1, 0x1D, 0x42, 0x2B, 0xE7]
+        , test_big_size),
+    ptx=np.tile(
+        [0xB4, 0x1E, 0x6B, 0xE2, 0xEB, 0xA8, 0x4A, 0x14, 0x8E, 0x2E, 0xED, 0x84, 0x59, 0x3C, 0x5E, 0xC7]
+        , test_big_size),
+    ctx=np.tile(
+        [0x9B, 0x9B, 0x7B, 0xFC, 0xD1, 0x81, 0x3C, 0xB9, 0x5D, 0x0B, 0x36, 0x18, 0xF4, 0x0F, 0x51, 0x22]
+        , test_big_size),
+)
 
 
 def encrypt_third_party(mode, key, plaintext):
@@ -64,6 +147,25 @@ def build_vectors(mode, filename):
 def write_file(data, filename):
     with open(filename, "w") as f:
         f.write(data)
+
+
+def _test_c_types():
+    aa = np.arange(500).reshape(100, 5)
+    print(aa[:, 0].flags['C_CONTIGUOUS'])
+    print(aa[0, :].flags['C_CONTIGUOUS'])
+
+    tt = aa[:,0]
+    _print_pointer(tt)
+    tt = aa[:,1]
+    _print_pointer(tt)
+    tt = aa[0,:]
+    _print_pointer(tt)
+    tt = aa[1,:]
+    _print_pointer(aa[1,:])
+
+    print(aa.ctypes.shape)
+    print(aa.ctypes.strides)
+    print(aa.ctypes.strides)
 
 
 def _print_hex(arr):
@@ -124,7 +226,7 @@ def _third_party_encrypt_aes(plain_text, key):
     return ct
 
 
-def _third_party_encrypt_third_party(plain_text, key, algorithm):
+def _third_party_encrypt(plain_text, key, algorithm):
     if algorithm == 'SEED':
         ct = _third_party_encrypt_seed(plain_text.tobytes('C'), key.tobytes('C'))
         return np.fromstring(ct, dtype=np.uint8)
@@ -132,139 +234,6 @@ def _third_party_encrypt_third_party(plain_text, key, algorithm):
         ct = _third_party_encrypt_aes(plain_text.tobytes('C'), key.tobytes('C'))
         return np.fromstring(ct, dtype=np.uint8)
     return None
-
-
-def _mask_with_8f(var):
-    #return np.bitwise_and(var, 0xffffffff)
-    return var
-
-
-def _g_func(var):
-    index_l00 = np.bitwise_and(var, 0xff)
-    index_l08 = np.bitwise_and(np.right_shift(var, 8), 0xff)
-    index_l16 = np.bitwise_and(np.right_shift(var, 16), 0xff)
-    index_l24 = np.bitwise_and(np.right_shift(var, 24), 0xff)
-    return np.bitwise_xor(
-        np.bitwise_xor(SS0[index_l00], SS1[index_l08]),
-        np.bitwise_xor(SS2[index_l16], SS3[index_l24])
-    )
-
-
-def _right8_left24_update(var1, var2):
-    return _mask_with_8f(np.bitwise_xor(
-        np.right_shift(var1, 8),
-        np.left_shift(var2, 24)
-    ))
-
-
-def _left8_right24_update(var1, var2):
-    return _mask_with_8f(np.bitwise_xor(
-        np.left_shift(var1, 8),
-        np.right_shift(var2, 24)
-    ))
-
-
-def _fragment_block_to_words(var):
-    var_ = var[::-1].copy()
-    var_.dtype = np.uint32
-    var__ = var_[::-1]
-    x1 = var__[::4].copy()
-    x2 = var__[1::4].copy()
-    x3 = var__[2::4].copy()
-    x4 = var__[3::4].copy()
-    return x1, x2, x3, x4
-
-
-def _fuse_words_to_block(x1, x2, x3, x4):
-    pass
-
-def generate_key_schedule(keys, rnd):
-    x1, x2, x3, x4 = _fragment_block_to_words(keys)
-
-    key_schedule_0 = None
-    key_schedule_1 = None
-    t0 = None
-
-    # round 0 update
-    if rnd == 0:
-        key_schedule_0 = _g_func(_mask_with_8f(x1 + x3 - KC[0]))
-        key_schedule_1 = _g_func(_mask_with_8f(x2 - x4 + KC[0]))
-
-    # round 1 update
-    t0 = x1
-    x1 = _right8_left24_update(x1, x2)
-    x2 = _right8_left24_update(x2, t0)
-    if rnd == 1:
-        key_schedule_0 = _g_func(_mask_with_8f(x1 + x3 - KC[1]))
-        key_schedule_1 = _g_func(_mask_with_8f(x2 + KC[1] - x4))
-
-    # round 2 ... 16
-    for ii in np.arange(16)[2::2]:
-        t0 = x3
-        x3 = _left8_right24_update(x3, x4)
-        x4 = _left8_right24_update(x4, t0)
-        if rnd == ii:
-            key_schedule_0 = _g_func(_mask_with_8f(x1 + x3 - KC[ii]))
-            key_schedule_1 = _g_func(_mask_with_8f(x2 + KC[ii] - x4))
-            break
-        t0 = x1
-        x1 = _right8_left24_update(x1, x2)
-        x2 = _right8_left24_update(x2, t0)
-        if rnd == ii + 1:
-            key_schedule_0 = _g_func(_mask_with_8f(x1 + x3 - KC[ii + 1]))
-            key_schedule_1 = _g_func(_mask_with_8f(x2 + KC[ii + 1] - x4))
-            break
-
-    return key_schedule_0, key_schedule_1
-
-
-def encrypt_seed(plain_text, keys, rnd):
-    x1, x2, x3, x4 = _fragment_block_to_words(plain_text)
-    a1 = x1
-    a2 = x2
-    a3 = x3
-    a4 = x4
-    for ii in np.arange(16):
-        print('.......................' + str(ii))
-        _print_hex(a1)
-        _print_hex(a2)
-        _print_hex(a3)
-        _print_hex(a4)
-
-        ks_0, ks_1 = generate_key_schedule(keys, ii)
-        t0 = np.bitwise_xor(a3, ks_0)
-        t1 = np.bitwise_xor(a4, ks_1)
-        np.bitwise_xor(t1, t0, out=t1)
-        t1 = _g_func(t1)
-        t0 = _mask_with_8f(t0 + t1)
-        t0 = _g_func(t0)
-        t1 = _mask_with_8f(t1 + t0)
-        t1 = _g_func(t1)
-        t0 = _mask_with_8f(t0 + t1)
-        np.bitwise_xor(a1, t0, out=a1)
-        np.bitwise_xor(a2, t1, out=a2)
-
-        if ii % 2 == 0:
-            a1 = x3
-            a2 = x4
-            a3 = x1
-            a4 = x2
-        else:
-            a1 = x1
-            a2 = x2
-            a3 = x3
-            a4 = x4
-
-
-
-
-def check_test_vectors():
-    from SEED_tables import test_vectors
-    for test in test_vectors:
-        ct = _third_party_encrypt_third_party(test.ptx, test.key, 'SEED')
-        print("Arrays are equal = " + str(np.array_equal(test.ctx, ct)))
-        _print_hex(test.ctx)
-        _print_hex(ct)
 
 
 def create_fake_trace_file():
@@ -275,57 +244,63 @@ def create_fake_trace_file():
     tfh = TraceFileHandler(tf, algo='SEED')
     keys = tf['key'].astype(np.uint8)
     plaintext = tfh['plaintext'].astype(np.uint8)
-    ciphertext = tfh['ciphertext'].astype(np.uint8)
-    bla = tfh['5:SEED']
-    print(bla[0])
+    ciphertext_aes = tfh['ciphertext'].astype(np.uint8)
+    #keys = tf['key']
+    #plaintext = tfh['plaintext']
+    #ciphertext_aes = tfh['ciphertext']
+    #bla = tfh['5:SEED']
+    #print(bla[0])
 
     plaintext.dtype = np.uint64
     keys.dtype = np.uint64
-    ciphertext.dtype = np.uint64
+    ciphertext_aes.dtype = np.uint64
+    ciphertext_aes = ciphertext_aes.flatten()
 
-    np.savetxt('del_dump_plaintext.txt', plaintext, fmt='%u')
-    np.savetxt('del_dump_keys.txt', keys, fmt='%u')
-    np.savetxt('del_dump_ciphertext.txt', ciphertext, fmt='%u')
-    plaintext = np.loadtxt('del_dump_plaintext.txt', dtype=np.uint64)
-    keys = np.loadtxt('del_dump_keys.txt', dtype=np.uint64)
-    ciphertext = np.loadtxt('del_dump_ciphertext.txt', dtype=np.uint64)
+    dump = False
+    if dump == True:
+        np.savetxt('del_dump_plaintext.txt', plaintext, fmt='%u')
+        np.savetxt('del_dump_keys.txt', keys, fmt='%u')
+        np.savetxt('del_dump_ciphertext.txt', ciphertext_aes, fmt='%u')
+        plaintext = np.loadtxt('del_dump_plaintext.txt', dtype=np.uint64)
+        keys = np.loadtxt('del_dump_keys.txt', dtype=np.uint64)
+        ciphertext = np.loadtxt('del_dump_ciphertext.txt', dtype=np.uint64)
 
     print('\n\n---------------------------')
-    ct_seed = _third_party_encrypt_third_party(plaintext, keys, 'SEED')
-    ct_aes = _third_party_encrypt_third_party(plaintext, keys, 'AES')
+    ct_seed = _third_party_encrypt(plaintext, keys, 'SEED')
+    ct_aes = _third_party_encrypt(plaintext, keys, 'AES')
     ct_seed.dtype = np.uint64
     ct_aes.dtype = np.uint64
-    _print_hex(keys)
-    _print_hex(plaintext.flatten())
-    _print_hex(ciphertext.flatten())
-    _print_hex(ct_aes)
-    _print_hex(ct_seed)
+    #_print_hex(keys)
+    #_print_hex(plaintext.flatten())
+    #_print_hex(ciphertext_aes.flatten())
+    #_print_hex(ct_aes)
+    #_print_hex(ct_seed)
+    for ii in range(ciphertext_aes.shape[0]):
+        if ciphertext_aes[ii] != ct_aes[ii]:
+            print('bad :(')
     print('---------------------------\n\n')
+    print(tfh['ciphertext'])
+    ct_aes.dtype = np.uint8
+    print(ct_aes)
+
+    # dump the seed results for verification
+    ct_seed.dtype = np.uint32
+    np.save('seed_data\ciphertext_seed', ct_seed)
 
 
+def run_test_cases():
+    from SEED_cy import SEEDAlgorithmCy
 
-def _test_c_types():
-    aa = np.arange(500).reshape(100, 5)
-    print(aa[:, 0].flags['C_CONTIGUOUS'])
-    print(aa[0, :].flags['C_CONTIGUOUS'])
-
-    tt = aa[:,0]
-    _print_pointer(tt)
-    tt = aa[:,1]
-    _print_pointer(tt)
-    tt = aa[0,:]
-    _print_pointer(tt)
-    tt = aa[1,:]
-    _print_pointer(aa[1,:])
-
-    print(aa.ctypes.shape)
-    print(aa.ctypes.strides)
-    print(aa.ctypes.strides)
+    # check third part algorithm is correct or not
+    for test in test_vectors_sksp:
+        ct = _third_party_encrypt(test.ptx, test.key, 'SEED')
+        print("Third party algorithm sksp correct = " + str(np.array_equal(test.ctx, ct)))
+        #_print_hex(test.ctx)
+        #_print_hex(ct)
 
 
 if __name__ == '__main__':
     import sys
-    from SEED_tables import test_vector_big, test_vectors
     #np.__config__.show()
     #sys.stdout = open('del_console_stdout.txt', 'w')
     print('Main of SEED.py')
@@ -341,20 +316,19 @@ if __name__ == '__main__':
         #generate_key_schedule(test_vector_big.key, i)
     #encrypt_seed(test_vector_big.ptx, test_vector_big.key, 0)
 
+    #run_test_cases()
 
     from SEED_cy import SEEDAlgorithmCy
     from SEED_py import SEEDAlgorithmPy
 
-    tt = np.tile(test_vector_big.ptx, 100000)
-    #kk = np.tile(test_vector_big.key, 100000)
-    kk = test_vectors[3].key
-    #tt = test_vectors[3].ptx
-    #kk = test_vectors[3].key
+    tt = np.tile(test_vectors_sksp[3].ptx, 1)
+    #kk = np.tile(test_vectors_sksp[3].key, 1000000)
+    kk = test_vectors_sksp[3].key
 
     acy = SEEDAlgorithmCy()
-    apy = SEEDAlgorithmPy()
+    #apy = SEEDAlgorithmPy()
 
-    cProfile.run('acy.encrypt(tt, kk, 15, 0)')
-    cProfile.run('apy.encrypt(tt, kk, 15, 0)')
+    cProfile.run('acy.encrypt(tt, kk, 15, 7)')
+    #cProfile.run('apy.encrypt(tt, kk, 15, 0)')
 
 
