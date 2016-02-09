@@ -55,31 +55,11 @@ cdef class SEEDAlgorithmCy:
         So for C related memory structures use __cinit__
         :return:
         """
-        # initialize SEED algorithm related constants
-        self._const_KC = _KC
-        self._const_SS0 = _SS0
-        self._const_SS1 = _SS1
-        self._const_SS2 = _SS2
-        self._const_SS3 = _SS3
-
-        # remaining variables referenced or allocated are set to NULL
-        self._ptxt_x1 = NULL
-        self._ptxt_x2 = NULL
-        self._ptxt_x3 = NULL
-        self._ptxt_x4 = NULL
-        # current key schedule
-        self._curr_key_schedule_0 = NULL
-        self._curr_key_schedule_1 = NULL
-
-
+        self._cy_seed_init()
 
 
     def __init__(self):
-        # some internal variables
-        self._num_ptxt = -1
-        self._num_keys = -1
-        self._curr_rnd = -1
-        self._curr_step = -1
+        self._cy_seed_init()
 
 
     def __dealloc__(self):
@@ -89,27 +69,75 @@ cdef class SEEDAlgorithmCy:
         memory.
         :return: None
         """
-        # dereference SEED algorithm related constants
-        self._const_KC = NULL
-        self._const_SS0 = NULL
-        self._const_SS1 = NULL
-        self._const_SS2 = NULL
-        self._const_SS3 = NULL
+        self._cy_seed_reset()
+
+    @cython.profile(True)
+    cdef _cy_seed_init(self):
+
+        # some internal variables
+        self._num_ptxt = -1
+        self._num_keys = -1
+        self._curr_rnd = -1
+        self._curr_step = -1
+
+        # initialize SEED algorithm related constants
+        self._const_KC = _KC
+        self._const_SS0 = _SS0
+        self._const_SS1 = _SS1
+        self._const_SS2 = _SS2
+        self._const_SS3 = _SS3
+
+        # remaining variables referenced or allocated are set to NULL
+        # plain text
+        self._ptxt_x1 = NULL
+        self._ptxt_x2 = NULL
+        self._ptxt_x3 = NULL
+        self._ptxt_x4 = NULL
+        # keys
+        self._keys_x1 = NULL
+        self._keys_x2 = NULL
+        self._keys_x3 = NULL
+        self._keys_x4 = NULL
+        # current key schedule
+        self._curr_key_schedule_0 = NULL
+        self._curr_key_schedule_1 = NULL
+
+    @cython.profile(True)
+    cdef _cy_seed_reset(self):
+
+        # reset internal variables
+        self._num_ptxt = -1
+        self._num_keys = -1
+        self._curr_rnd = -1
+        self._curr_step = -1
 
         # Deallocate arrays allocated by cython SEED algorithm
         # plain text
-        PyMem_Free(self._ptxt_x1)
-        PyMem_Free(self._ptxt_x2)
-        PyMem_Free(self._ptxt_x3)
-        PyMem_Free(self._ptxt_x4)
+        if self._ptxt_x1 != NULL and self._ptxt_x2 != NULL and self._ptxt_x3 != NULL and self._ptxt_x4 != NULL:
+            PyMem_Free(self._ptxt_x1)
+            PyMem_Free(self._ptxt_x2)
+            PyMem_Free(self._ptxt_x3)
+            PyMem_Free(self._ptxt_x4)
+        self._ptxt_x1 = NULL
+        self._ptxt_x2 = NULL
+        self._ptxt_x3 = NULL
+        self._ptxt_x4 = NULL
         # keys
-        PyMem_Free(self._keys_x1)
-        PyMem_Free(self._keys_x2)
-        PyMem_Free(self._keys_x3)
-        PyMem_Free(self._keys_x4)
+        if self._keys_x1 != NULL and self._keys_x2 != NULL and self._keys_x3 != NULL and self._keys_x4 != NULL:
+            PyMem_Free(self._keys_x1)
+            PyMem_Free(self._keys_x2)
+            PyMem_Free(self._keys_x3)
+            PyMem_Free(self._keys_x4)
+        self._keys_x1 = NULL
+        self._keys_x2 = NULL
+        self._keys_x3 = NULL
+        self._keys_x4 = NULL
         # current key schedule
-        PyMem_Free(self._curr_key_schedule_0)
-        PyMem_Free(self._curr_key_schedule_1)
+        if self._curr_key_schedule_0 != NULL and self._curr_key_schedule_1 != NULL:
+            PyMem_Free(self._curr_key_schedule_0)
+            PyMem_Free(self._curr_key_schedule_1)
+        self._curr_key_schedule_0 = NULL
+        self._curr_key_schedule_1 = NULL
 
 
 
@@ -129,11 +157,13 @@ cdef class SEEDAlgorithmCy:
 
         # allocate memory for key scheduled
         if self._curr_key_schedule_0 == NULL and self._curr_key_schedule_1 == NULL:
-            #  initialize the number of keys to encrypt
+            # initialize the number of keys to encrypt
             self._num_keys = keys.shape[0] / 16
             # allocate memory
             self._curr_key_schedule_0 = <np.uint32_t *> PyMem_Malloc(self._num_keys * sizeof(np.uint32_t))
             self._curr_key_schedule_1 = <np.uint32_t *> PyMem_Malloc(self._num_keys * sizeof(np.uint32_t))
+            assert self._curr_key_schedule_0 is not NULL and self._curr_key_schedule_1 is not NULL, \
+                "Failed to allocate memory fot Key Schedule"
 
         # round 0 update
         if rnd == 0:
@@ -168,7 +198,7 @@ cdef class SEEDAlgorithmCy:
                                                    self._const_SS3[(temp_var1>>24) & 0xff]
 
         # round 2 ... 16
-        for index_rnd in range(2,_MAX_ROUNDS,2):
+        for index_rnd in range(2,MAX_ROUNDS,2):
             for index in range(self._num_keys):
                 temp_var0 = self._keys_x3[index]
                 self._keys_x3[index] = self._keys_x3[index]<<8 ^ self._keys_x4[index]>>24
@@ -203,8 +233,6 @@ cdef class SEEDAlgorithmCy:
                                                        self._const_SS3[(temp_var1>>24) & 0xff]
 
 
-
-
     @cython.profile(True)
     cdef _cy_fragment_keys_to_words(self, np.ndarray[np.uint8_t, ndim=1] keys):
         """
@@ -221,14 +249,14 @@ cdef class SEEDAlgorithmCy:
         # check if done earlier (only need to be done once for the lifetime of object)
         if self._keys_x1 == NULL and self._keys_x2 == NULL and self._keys_x3 == NULL and self._keys_x4 == NULL:
 
-            # initialize the number of keys to encrypt
-            self._num_keys = keys.shape[0] / 16
-
             # allocate memory
             self._keys_x1 = <np.uint32_t *> PyMem_Malloc(self._num_keys * sizeof(np.uint32_t))
             self._keys_x2 = <np.uint32_t *> PyMem_Malloc(self._num_keys * sizeof(np.uint32_t))
             self._keys_x3 = <np.uint32_t *> PyMem_Malloc(self._num_keys * sizeof(np.uint32_t))
             self._keys_x4 = <np.uint32_t *> PyMem_Malloc(self._num_keys * sizeof(np.uint32_t))
+            assert self._keys_x1 is not NULL and self._keys_x2 is not NULL and \
+                   self._keys_x3 is not NULL and self._keys_x4 is not NULL, \
+                "Failed to allocate memory fot Keys"
 
         # byte shuffle logic to convert four bytes to unsigned word, so that arithmetic operations can be performed
         for index in range(self._num_keys):
@@ -262,14 +290,16 @@ cdef class SEEDAlgorithmCy:
         # check if done earlier (only need to be done once for the lifetime of object)
         if self._ptxt_x1 == NULL and self._ptxt_x2 == NULL and self._ptxt_x3 == NULL and self._ptxt_x4 == NULL:
 
-            # initialize the number of plaintexts to encrypt
-            self._num_ptxt = ptxt.shape[0] / 16
-
             # allocate memory
             self._ptxt_x1 = <np.uint32_t *> PyMem_Malloc(self._num_ptxt * sizeof(np.uint32_t))
             self._ptxt_x2 = <np.uint32_t *> PyMem_Malloc(self._num_ptxt * sizeof(np.uint32_t))
             self._ptxt_x3 = <np.uint32_t *> PyMem_Malloc(self._num_ptxt * sizeof(np.uint32_t))
             self._ptxt_x4 = <np.uint32_t *> PyMem_Malloc(self._num_ptxt * sizeof(np.uint32_t))
+            assert self._ptxt_x1 is not NULL and self._ptxt_x2 is not NULL and \
+                   self._ptxt_x3 is not NULL and self._ptxt_x4 is not NULL, \
+                "Failed to allocate memory fot plain text"
+        else:
+            assert "Plaintext memory from previous sessions is not de-allocated"
 
         # byte shuffle logic to convert four bytes to unsigned word, so that arithmetic operations can be performed
         for index in range(self._num_ptxt):
@@ -287,9 +317,17 @@ cdef class SEEDAlgorithmCy:
                                    | ((<np.uint32_t> ptxt[index_1+2]) << 8) | (<np.uint32_t> ptxt[index_1+3])
 
 
+    @cython.profile(True)
+    cdef _cy_fuse_words_with_swap(self, np.ndarray[np.uint8_t, ndim=1] ptxt):
+        pass
+
 
     @cython.profile(True)
-    cdef _cy_encrypt_seed(
+    cdef _cy_fuse_words_without_swap(self, np.ndarray[np.uint8_t, ndim=1] ptxt):
+        pass
+
+    @cython.profile(True)
+    cdef _cy_encrypt(
             self,
             np.ndarray[np.uint8_t, ndim=1] plain_text,
             np.ndarray[np.uint8_t, ndim=1] keys,
@@ -314,15 +352,53 @@ cdef class SEEDAlgorithmCy:
         cdef np.uint32_t *_ptxt_a3
         cdef np.uint32_t *_ptxt_a4
 
+        # check data types
+        if keys.dtype is not np.uint8 and plain_text.dtype is not np.uint8:
+            assert "Please verify the datatype of plain text and keys"
+
+        # initialize the number of plaintexts and keys
+        self._num_keys = keys.shape[0] / 16
+        self._num_ptxt = plain_text.shape[0] / 16
+
+        # allocate memory for the result based on step selected
+        if step == STEP_RoundKey_64:
+            res_temp = np.empty(self._num_keys, dtype=np.uint64)
+        elif step == STEP_Right_64 or step == STEP_AddRoundKey_64 or step == STEP_F_64:
+            res_temp = np.empty(self._num_ptxt, dtype=np.uint64)
+        elif step == STEP_GDa_32 or step == STEP_GC_32 or step == STEP_GDb_32:
+            res_temp = np.empty(self._num_ptxt, dtype=np.uint32)
+        elif step == STEP_Output_128:
+            res_temp = np.empty(self._num_ptxt * 16, dtype=np.uint8)
+        else:
+            assert "Invalid Step selected"
+        res_temp.dtype = np.uint8
+        cdef np.uint8_t[:] result = res_temp
+
         # here we do the things only once for the lifetime of this object
-        if self._ptxt_x1 == NULL and self._ptxt_x2 == NULL and self._ptxt_x3 == NULL and self._ptxt_x4 == NULL:
+        if self._curr_rnd == -1 and self._curr_step == -1:
+            # update current round
+            self._curr_rnd = 0
             # fragment plaintext to four words and store them to class variables
             self._cy_fragment_ptxt_to_words(plain_text)
 
         # rounds of encryption
-        for index_rnd in range(_MAX_ROUNDS):
+        # first argument of range is efficient logic to retrieve results from previous iteration
+        for index_rnd in range(self._curr_rnd, MAX_ROUNDS):
 
-            # logic for moving half of right key to left
+            # update current round
+            self._curr_rnd = index_rnd
+
+            # STEP01:RoundKey_64 (get the key schedule)
+            self._cy_generate_key_schedule(keys, index_rnd)
+
+            # update current step and check if you want results back
+            self._curr_step = STEP_RoundKey_64
+            if rnd == index_rnd and step == STEP_RoundKey_64:
+                # copppyyyy
+                # break the loop for round
+                break
+
+            # STEP02:Right_64 (logic for moving half of right key to left)
             if index_rnd % 2 == 0:
                 _ptxt_a1 = self._ptxt_x1
                 _ptxt_a2 = self._ptxt_x2
@@ -334,8 +410,12 @@ cdef class SEEDAlgorithmCy:
                 _ptxt_a3 = self._ptxt_x1
                 _ptxt_a4 = self._ptxt_x2
 
-            # get the key schedule
-            self._cy_generate_key_schedule(keys, index_rnd)
+            # update current step and check if you want results back
+            self._curr_step = STEP_Right_64
+            if rnd == index_rnd and step == STEP_Right_64:
+                # copppyyyy
+                # break the loop for round
+                break
 
             # check number of keys
             if_many_keys = 1
@@ -346,69 +426,77 @@ cdef class SEEDAlgorithmCy:
 
             # iterate over all plain text values
             for index_ptxt in range(self._num_ptxt):
-                #print('kkkkkkkkkkkkkkkkkkk')
-                #print(hex(self._curr_key_schedule_0[index_ptxt]))
-                #print(hex(self._curr_key_schedule_1[index_ptxt]))
-                #print('ttttttttttttttttttt')
-                #print(hex(_ptxt_a1[index_ptxt]))
-                #print(hex(_ptxt_a2[index_ptxt]))
-                #print(hex(_ptxt_a3[index_ptxt]))
-                #print(hex(_ptxt_a4[index_ptxt]))
+                print('kkkkkkkkkkkkkkkkkkk')
+                print(hex(self._curr_key_schedule_0[index_ptxt]))
+                print(hex(self._curr_key_schedule_1[index_ptxt]))
+                print('ttttttttttttttttttt')
+                print(hex(_ptxt_a1[index_ptxt]))
+                print(hex(_ptxt_a2[index_ptxt]))
+                print(hex(_ptxt_a3[index_ptxt]))
+                print(hex(_ptxt_a4[index_ptxt]))
 
-                # step
+                # STEP03:AddRoundKey_64
                 temp0 = _ptxt_a3[index_ptxt] ^ self._curr_key_schedule_0[index_ptxt * if_many_keys]
                 temp1 = _ptxt_a4[index_ptxt] ^ self._curr_key_schedule_1[index_ptxt * if_many_keys]
+
+                # STEP---
                 temp2 = temp1 ^ temp0
 
-                # step
+                # STEP04:GDa_32
                 temp3 = self._const_SS0[temp2 & 0xff] ^ \
                         self._const_SS1[(temp2>>8) & 0xff] ^ \
                         self._const_SS2[(temp2>>16) & 0xff] ^ \
                         self._const_SS3[(temp2>>24) & 0xff]
 
-                # step
+                # STEP---
                 temp4 = temp3 + temp0
 
-                # step
+                # STEP05:GC_32
                 temp5 = self._const_SS0[temp4 & 0xff] ^ \
                         self._const_SS1[(temp4>>8) & 0xff] ^ \
                         self._const_SS2[(temp4>>16) & 0xff] ^ \
                         self._const_SS3[(temp4>>24) & 0xff]
 
-                # step
+                # STEP---
                 temp6 = temp5 + temp3
 
-                # step
+                # STEP06:GDb_32
                 temp7 = self._const_SS0[temp6 & 0xff] ^ \
                         self._const_SS1[(temp6>>8) & 0xff] ^ \
                         self._const_SS2[(temp6>>16) & 0xff] ^ \
                         self._const_SS3[(temp6>>24) & 0xff]
 
-                # step
+                # STEP---
                 temp8 = temp5 + temp7
 
-                # step
+                # STEP07:F_64
                 _ptxt_a1[index_ptxt] = _ptxt_a1[index_ptxt] ^ temp8
                 _ptxt_a2[index_ptxt] = _ptxt_a2[index_ptxt] ^ temp7
 
+                # STEP:Output (only happens on last round)
+                if rnd == 15:
+                    pass
 
-        # keep track of the last step
-        self._curr_step = step
-        self._curr_rnd = rnd
+        return result
 
 
 
 
+    @cython.profile(True)
     def encrypt(self, plain_text, keys, rnd, step):
-        self._cy_encrypt_seed(plain_text, keys, rnd, step)
+        self._cy_encrypt(plain_text, keys, rnd, step)
 
 
-cdef Py_ssize_t _MAX_ROUNDS = 16
-cdef Py_ssize_t _MAX_STEPS = 99
-cdef Py_ssize_t _STEP_UNKNOWN = 0
-cdef Py_ssize_t _STEP_1 = 1
-cdef Py_ssize_t _STEP_2 = 2
-cdef Py_ssize_t _STEP_END = 99
+cdef Py_ssize_t MAX_ROUNDS = 16
+cdef Py_ssize_t STEP_RoundKey_64 = 0
+cdef Py_ssize_t STEP_Right_64 = 1
+cdef Py_ssize_t STEP_AddRoundKey_64 = 2
+cdef Py_ssize_t STEP_GDa_32 = 3
+cdef Py_ssize_t STEP_GC_32 = 4
+cdef Py_ssize_t STEP_GDb_32 = 5
+cdef Py_ssize_t STEP_F_64 = 6
+cdef Py_ssize_t STEP_Output_128 = 7
+
 
 
 cdef np.uint32_t *_KC = \
