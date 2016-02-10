@@ -332,8 +332,16 @@ if __name__ == '__main__':
 
     acy = SEEDAlgorithmCy()
 
-    for rnd in range(1,17):
+
+    for rnd in range(1,17)[::-1]:
         res = acy.encrypt(tt, kk, rnd, STEPS_PROVIDED.RoundKey_64)
+        res = acy.encrypt(tt, kk, rnd, STEPS_PROVIDED.Right_64)
+        res = acy.encrypt(tt, kk, rnd, STEPS_PROVIDED.AddRoundKey_64)
+        res = acy.encrypt(tt, kk, rnd, STEPS_PROVIDED.GDa_32)
+        res = acy.encrypt(tt, kk, rnd, STEPS_PROVIDED.GC_32)
+        res = acy.encrypt(tt, kk, rnd, STEPS_PROVIDED.GDb_32)
+        res = acy.encrypt(tt, kk, rnd, STEPS_PROVIDED.F_64)
+        #res = acy.encrypt(tt, kk, rnd, STEPS_PROVIDED.Output_128)
         print('Round ............... '+str(rnd))
         print(res)
         for rr in res:

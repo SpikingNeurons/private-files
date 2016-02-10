@@ -357,6 +357,8 @@ cdef class SEEDAlgorithmCy:
         cdef np.uint32_t *_ptxt_a3
         cdef np.uint32_t *_ptxt_a4
 
+        print('>>>>')
+
         # Reset if persistence info ahead of requested round. Also reset when persistent info is equal to requested
         # round as persistent info for round n is useful for next round (n+1) only
         if self._persisted_rnd_number >= rnd:
@@ -396,10 +398,14 @@ cdef class SEEDAlgorithmCy:
             # fragment plaintext to four words and store them to class variables
             self._cy_fragment_ptxt_to_words(plain_text)
 
-
         # rounds of encryption
-        # first argument of range is part of logic to use results from previous iteration
-        for index_rnd in range((self._persisted_rnd_number+1), MAX_ROUNDS):
+        # 1st argument of range function
+        #   - is part of logic to use results from previous iteration
+        # 2nd argument of range function
+        #   - allows the for loop to execute till requested round only
+        for index_rnd in range((self._persisted_rnd_number+1), rnd+1):
+
+            print('.index.' + str(index_rnd) + '\t.rnd.' + str(rnd) + '\t.step.' + str(step) + '\t.pers.' + str(self._persisted_rnd_number) + '\t.kesch.' + str(self._key_schedule_rnd_number))
 
             # STEP01:RoundKey_64 (get the key schedule)
             if self._key_schedule_rnd_number != index_rnd:
@@ -534,7 +540,9 @@ cdef class SEEDAlgorithmCy:
                     else:
                         print("\n\n\nSTEP: " + str(STEPS_PROVIDED._fields[step]) +
                               " only possible with last round (i.e. " + str(MAX_ROUNDS) + ")")
-                    pass
+
+
+
 
         # time to return results
         if res_64_size > 0:
