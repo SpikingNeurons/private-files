@@ -346,9 +346,9 @@ cdef class SEEDAlgorithmCy:
         """
 
         # some typed local variables
-        cdef Py_ssize_t index_ptxt, index_rnd, index_copy, if_many_keys
+        cdef Py_ssize_t index_ptxt, index_rnd, index_copy, if_many_keys, index_temp
         cdef Py_ssize_t res_64_size, res_32_size, res_8_size
-        cdef np.uint32_t temp0, temp1, temp2, temp3, temp4, temp5, temp6, temp7, temp8
+        cdef np.uint32_t temp0, temp1, temp2, temp3, temp4, temp5, temp6, temp7, temp8, temp99
         cdef bint if_persist
 
         # temp references to achieve movement of two words (half plaintext) from right to left
@@ -370,26 +370,27 @@ cdef class SEEDAlgorithmCy:
         if step == STEP_RoundKey_64:
             res_64_size = self._num_keys
             res_32_size = 0
-            res_8_size = 0
+            res_128_size = 0
         elif step == STEP_Right_64 or step == STEP_AddRoundKey_64 or step == STEP_F_64:
             res_64_size = self._num_ptxt
             res_32_size = 0
-            res_8_size = 0
+            res_128_size = 0
         elif step == STEP_GDa_32 or step == STEP_GC_32 or step == STEP_GDb_32:
             res_64_size = 0
             res_32_size = self._num_ptxt
+            res_128_size = 0
         elif step == STEP_Output_128:
             res_64_size = 0
             res_32_size = 0
-            res_8_size = self._num_ptxt
+            res_128_size = self._num_ptxt
         else:
             res_64_size = 0
             res_32_size = 0
-            res_8_size = 0
+            res_128_size = 0
             print("\n\n\n\nInvalid Step selected")
         cdef np.uint64_t[:,:] result_64 = np.empty((res_64_size, 1), dtype=np.uint64)
         cdef np.uint32_t[:,:] result_32 = np.empty((res_32_size, 1), dtype=np.uint32)
-        cdef np.uint8_t[:,:] result_8 = np.empty((res_8_size, 16), dtype=np.uint8)
+        cdef np.uint8_t[:,:] result_128 = np.empty((res_128_size, 16), dtype=np.uint8)
 
         # here we do the things only once for the lifetime of this object
         if self._persisted_rnd_number == -1:
@@ -536,7 +537,47 @@ cdef class SEEDAlgorithmCy:
                 # STEP:Output (only happens on last round)
                 if rnd == index_rnd and step == STEP_Output_128:
                     if rnd == MAX_ROUNDS - 1:
-                        pass
+                        print('hhhh')
+                        index_temp = 0
+                        #
+                        temp99 = _ptxt_a1[index_ptxt]
+                        result_128[index_ptxt, index_temp] = <np.uint8_t> (temp99>>24) & 0xff
+                        index_temp += 1
+                        result_128[index_ptxt, index_temp] = <np.uint8_t> (temp99>>16) & 0xff
+                        index_temp += 1
+                        result_128[index_ptxt, index_temp] = <np.uint8_t> (temp99>>8) & 0xff
+                        index_temp += 1
+                        result_128[index_ptxt, index_temp] = <np.uint8_t> temp99 & 0xff
+                        #
+                        temp99 = _ptxt_a2[index_ptxt]
+                        index_temp += 1
+                        result_128[index_ptxt, index_temp] = <np.uint8_t> (temp99>>24) & 0xff
+                        index_temp += 1
+                        result_128[index_ptxt, index_temp] = <np.uint8_t> (temp99>>16) & 0xff
+                        index_temp += 1
+                        result_128[index_ptxt, index_temp] = <np.uint8_t> (temp99>>8) & 0xff
+                        index_temp += 1
+                        result_128[index_ptxt, index_temp] = <np.uint8_t> temp99 & 0xff
+                        #
+                        temp99 = _ptxt_a3[index_ptxt]
+                        index_temp += 1
+                        result_128[index_ptxt, index_temp] = <np.uint8_t> (temp99>>24) & 0xff
+                        index_temp += 1
+                        result_128[index_ptxt, index_temp] = <np.uint8_t> (temp99>>16) & 0xff
+                        index_temp += 1
+                        result_128[index_ptxt, index_temp] = <np.uint8_t> (temp99>>8) & 0xff
+                        index_temp += 1
+                        result_128[index_ptxt, index_temp] = <np.uint8_t> temp99 & 0xff
+                        #
+                        temp99 = _ptxt_a4[index_ptxt]
+                        index_temp += 1
+                        result_128[index_ptxt, index_temp] = <np.uint8_t> (temp99>>24) & 0xff
+                        index_temp += 1
+                        result_128[index_ptxt, index_temp] = <np.uint8_t> (temp99>>16) & 0xff
+                        index_temp += 1
+                        result_128[index_ptxt, index_temp] = <np.uint8_t> (temp99>>8) & 0xff
+                        index_temp += 1
+                        result_128[index_ptxt, index_temp] = <np.uint8_t> temp99 & 0xff
                     else:
                         print("\n\n\nSTEP: " + str(STEPS_PROVIDED._fields[step]) +
                               " only possible with last round (i.e. " + str(MAX_ROUNDS) + ")")
@@ -549,8 +590,8 @@ cdef class SEEDAlgorithmCy:
             return result_64
         elif res_32_size > 0:
             return result_32
-        elif res_8_size > 0:
-            return result_8
+        elif res_128_size > 0:
+            return result_128
         else:
             return None
 

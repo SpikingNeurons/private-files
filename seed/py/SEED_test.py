@@ -333,20 +333,31 @@ if __name__ == '__main__':
     acy = SEEDAlgorithmCy()
 
 
-    for rnd in range(1,17)[::-1]:
-        res = acy.encrypt(tt, kk, rnd, STEPS_PROVIDED.RoundKey_64)
-        res = acy.encrypt(tt, kk, rnd, STEPS_PROVIDED.Right_64)
-        res = acy.encrypt(tt, kk, rnd, STEPS_PROVIDED.AddRoundKey_64)
-        res = acy.encrypt(tt, kk, rnd, STEPS_PROVIDED.GDa_32)
-        res = acy.encrypt(tt, kk, rnd, STEPS_PROVIDED.GC_32)
-        res = acy.encrypt(tt, kk, rnd, STEPS_PROVIDED.GDb_32)
-        res = acy.encrypt(tt, kk, rnd, STEPS_PROVIDED.F_64)
+    #for rnd in range(1,17)[::-1]:
+        #res = acy.encrypt(tt, kk, rnd, STEPS_PROVIDED.RoundKey_64)
+        #res = acy.encrypt(tt, kk, rnd, STEPS_PROVIDED.Right_64)
+        #res = acy.encrypt(tt, kk, rnd, STEPS_PROVIDED.AddRoundKey_64)
+        #res = acy.encrypt(tt, kk, rnd, STEPS_PROVIDED.GDa_32)
+        #res = acy.encrypt(tt, kk, rnd, STEPS_PROVIDED.GC_32)
+        #res = acy.encrypt(tt, kk, rnd, STEPS_PROVIDED.GDb_32)
+        #res = acy.encrypt(tt, kk, rnd, STEPS_PROVIDED.F_64)
         #res = acy.encrypt(tt, kk, rnd, STEPS_PROVIDED.Output_128)
-        print('Round ............... '+str(rnd))
-        print(res)
-        for rr in res:
-            for r in rr:
-                print(hex(r))
+        #print('Round ............... '+str(rnd))
+        #print(res)
+        #for rr in res:
+        #    for r in rr:
+        #        print(hex(r))
+
+
+
+    res = acy.encrypt(tt, kk, 16, STEPS_PROVIDED.Output_128)
+    res = np.asarray(res)
+    #res.dtype = np.uint64
+    print('Round ............... ')
+    print(res)
+    for rr in res:
+        for r in rr:
+            print(hex(r))
 
     #cProfile.run('acy.encrypt(tt, kk, 16, 7)')
 
