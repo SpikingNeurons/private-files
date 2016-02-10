@@ -318,17 +318,26 @@ if __name__ == '__main__':
 
     #run_test_cases()
 
-    from SEED_cy import SEEDAlgorithmCy
+    from SEED_cy import SEEDAlgorithmCy, STEPS_PROVIDED
     from SEED_py import SEEDAlgorithmPy
 
-    tt = np.tile(test_vectors_sksp[3].ptx, 1)
+
+    #tt = np.tile(test_vectors_sksp.ptx, 1)
     #kk = np.tile(test_vectors_sksp[3].key, 1000000)
-    kk = test_vectors_sksp[3].key
+
+
+    # four ptxt and four key
+    tt = test_vector_mkmp.ptx
+    kk = test_vector_mkmp.key
 
     acy = SEEDAlgorithmCy()
-    #apy = SEEDAlgorithmPy()
 
-    cProfile.run('acy.encrypt(tt, kk, 15, 7)')
-    #cProfile.run('apy.encrypt(tt, kk, 15, 0)')
+    res = acy.encrypt(tt, kk, 16, STEPS_PROVIDED.RoundKey_64)
+
+    #cProfile.run('acy.encrypt(tt, kk, 16, 7)')
+
+    for rr in res:
+        for r in rr:
+            print(hex(r))
 
 

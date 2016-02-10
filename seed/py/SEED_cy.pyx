@@ -5,6 +5,9 @@ from libc.stdlib cimport malloc, free
 from cpython.mem cimport PyMem_Malloc, PyMem_Realloc, PyMem_Free
 from numpy cimport ndarray
 cimport cython
+from collections import namedtuple
+import sys
+
 
 
 @cython.boundscheck(False)
@@ -28,6 +31,7 @@ cdef class SEEDAlgorithmCy:
     # round and step related variables to keep track of algorithm
     cdef Py_ssize_t _curr_rnd
     cdef Py_ssize_t _curr_step
+    cdef Py_ssize_t _curr_key_schedule_rnd
 
     # current key schedule
     cdef np.uint32_t *_curr_key_schedule_0
@@ -79,6 +83,7 @@ cdef class SEEDAlgorithmCy:
         self._num_keys = -1
         self._curr_rnd = -1
         self._curr_step = -1
+        self._curr_key_schedule_rnd = -1
 
         # initialize SEED algorithm related constants
         self._const_KC = _KC
@@ -110,6 +115,7 @@ cdef class SEEDAlgorithmCy:
         self._num_keys = -1
         self._curr_rnd = -1
         self._curr_step = -1
+        self._curr_key_schedule_rnd = -1
 
         # Deallocate arrays allocated by cython SEED algorithm
         # plain text
@@ -343,7 +349,7 @@ cdef class SEEDAlgorithmCy:
         """
 
         # some typed local variables
-        cdef Py_ssize_t index_ptxt, index_rnd, if_many_keys
+        cdef Py_ssize_t index_ptxt, index_rnd, index_copy, if_many_keys
         cdef np.uint32_t temp0, temp1, temp2, temp3, temp4, temp5, temp6, temp7, temp8
 
         # temp references to achieve movement of two words (half plaintext) from right to left
@@ -354,25 +360,34 @@ cdef class SEEDAlgorithmCy:
 
         # check data types
         if keys.dtype is not np.uint8 and plain_text.dtype is not np.uint8:
-            assert "Please verify the datatype of plain text and keys"
+            print("\n\n\n\nPlease verify the data-type of plain text and keys")
 
         # initialize the number of plaintexts and keys
         self._num_keys = keys.shape[0] / 16
         self._num_ptxt = plain_text.shape[0] / 16
 
         # allocate memory for the result based on step selected
+        cdef np.uint64_t[:,:] result_64
+        cdef np.uint32_t[:,:] result_32
+        cdef np.uint8_t[:,:] result_8
         if step == STEP_RoundKey_64:
-            res_temp = np.empty(self._num_keys, dtype=np.uint64)
+            result_64 = np.empty((self._num_keys, 1), dtype=np.uint64)
+            result_32 = None
+            result_8 = None
         elif step == STEP_Right_64 or step == STEP_AddRoundKey_64 or step == STEP_F_64:
-            res_temp = np.empty(self._num_ptxt, dtype=np.uint64)
+            result_64 = np.empty((self._num_ptxt, 1), dtype=np.uint64)
+            result_32 = None
+            result_8 = None
         elif step == STEP_GDa_32 or step == STEP_GC_32 or step == STEP_GDb_32:
-            res_temp = np.empty(self._num_ptxt, dtype=np.uint32)
+            result_64 = None
+            result_32 = np.empty((self._num_ptxt, 1), dtype=np.uint32)
+            result_8 = None
         elif step == STEP_Output_128:
-            res_temp = np.empty(self._num_ptxt * 16, dtype=np.uint8)
+            result_64 = None
+            result_32 = None
+            result_8 = np.empty((self._num_ptxt, 16), dtype=np.uint8)
         else:
-            assert "Invalid Step selected"
-        res_temp.dtype = np.uint8
-        cdef np.uint8_t[:] result = res_temp
+            print("\n\n\n\nInvalid Step selected")
 
         # here we do the things only once for the lifetime of this object
         if self._curr_rnd == -1 and self._curr_step == -1:
@@ -389,12 +404,18 @@ cdef class SEEDAlgorithmCy:
             self._curr_rnd = index_rnd
 
             # STEP01:RoundKey_64 (get the key schedule)
-            self._cy_generate_key_schedule(keys, index_rnd)
+            if self._curr_key_schedule_rnd != index_rnd:
+                self._cy_generate_key_schedule(keys, index_rnd)
+                self._curr_key_schedule_rnd = index_rnd
 
             # update current step and check if you want results back
             self._curr_step = STEP_RoundKey_64
             if rnd == index_rnd and step == STEP_RoundKey_64:
-                # copppyyyy
+                # copy results
+                for index_copy in range(self._num_keys):
+                    result_64[index_copy, 0] = \
+                        (<np.uint64_t> self._curr_key_schedule_1[index_copy]<<32) | \
+                        (<np.uint64_t> self._curr_key_schedule_0[index_copy])
                 # break the loop for round
                 break
 
@@ -426,14 +447,14 @@ cdef class SEEDAlgorithmCy:
 
             # iterate over all plain text values
             for index_ptxt in range(self._num_ptxt):
-                print('kkkkkkkkkkkkkkkkkkk')
-                print(hex(self._curr_key_schedule_0[index_ptxt]))
-                print(hex(self._curr_key_schedule_1[index_ptxt]))
-                print('ttttttttttttttttttt')
-                print(hex(_ptxt_a1[index_ptxt]))
-                print(hex(_ptxt_a2[index_ptxt]))
-                print(hex(_ptxt_a3[index_ptxt]))
-                print(hex(_ptxt_a4[index_ptxt]))
+                #print('kkkkkkkkkkkkkkkkkkk')
+                #print(hex(self._curr_key_schedule_0[index_ptxt]))
+                #print(hex(self._curr_key_schedule_1[index_ptxt]))
+                #print('ttttttttttttttttttt')
+                #print(hex(_ptxt_a1[index_ptxt]))
+                #print(hex(_ptxt_a2[index_ptxt]))
+                #print(hex(_ptxt_a3[index_ptxt]))
+                #print(hex(_ptxt_a4[index_ptxt]))
 
                 # STEP03:AddRoundKey_64
                 temp0 = _ptxt_a3[index_ptxt] ^ self._curr_key_schedule_0[index_ptxt * if_many_keys]
@@ -477,17 +498,33 @@ cdef class SEEDAlgorithmCy:
                 if rnd == 15:
                     pass
 
-        return result
+        if result_64 is not None:
+            return np.asarray(result_64)
+        elif result_32 is not None:
+            return np.asarray(result_32)
+        elif result_8 is not None:
+            return np.asarray(result_8)
+        else:
+            return None
 
 
 
 
     @cython.profile(True)
     def encrypt(self, plain_text, keys, rnd, step):
-        self._cy_encrypt(plain_text, keys, rnd, step)
+        # validate round
+        if rnd < 1 or rnd >16:
+            print('\n\n\n\nInvalid round entered. Round can be between 1 and 16. Found: ' + str(rnd))
+            return None
+
+        if step < min(STEPS_PROVIDED) or step > max(STEPS_PROVIDED):
+            print('\n\n\n\nInvalid step entered. Valid steps are: ' + str(STEPS_PROVIDED._fields))
+            return None
+
+        # we use zero indexed round
+        return self._cy_encrypt(plain_text, keys, rnd-1, step)
 
 
-cdef Py_ssize_t MAX_ROUNDS = 16
 cdef Py_ssize_t STEP_RoundKey_64 = 0
 cdef Py_ssize_t STEP_Right_64 = 1
 cdef Py_ssize_t STEP_AddRoundKey_64 = 2
@@ -497,6 +534,21 @@ cdef Py_ssize_t STEP_GDb_32 = 5
 cdef Py_ssize_t STEP_F_64 = 6
 cdef Py_ssize_t STEP_Output_128 = 7
 
+
+_STEPS_PROVIDED = namedtuple('STEPS', 'RoundKey_64, Right_64, AddRoundKey_64, GDa_32, GC_32, GDb_32, F_64, Output_128')
+
+STEPS_PROVIDED = _STEPS_PROVIDED(
+    RoundKey_64=STEP_RoundKey_64,
+    Right_64=STEP_Right_64,
+    AddRoundKey_64=STEP_AddRoundKey_64,
+    GDa_32=STEP_GDa_32,
+    GC_32=STEP_GC_32,
+    GDb_32=STEP_GDb_32,
+    F_64=STEP_F_64,
+    Output_128=STEP_Output_128
+)
+
+cpdef Py_ssize_t MAX_ROUNDS = 16
 
 
 cdef np.uint32_t *_KC = \
