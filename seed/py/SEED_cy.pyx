@@ -357,8 +357,6 @@ cdef class SEEDAlgorithmCy:
         cdef np.uint32_t *_ptxt_a3
         cdef np.uint32_t *_ptxt_a4
 
-        print('>>>>')
-
         # Reset if persistence info ahead of requested round. Also reset when persistent info is equal to requested
         # round as persistent info for round n is useful for next round (n+1) only
         if self._persisted_rnd_number >= rnd:
@@ -397,6 +395,8 @@ cdef class SEEDAlgorithmCy:
         if self._persisted_rnd_number == -1:
             # fragment plaintext to four words and store them to class variables
             self._cy_fragment_ptxt_to_words(plain_text)
+
+        print('>>>>')
 
         # rounds of encryption
         # 1st argument of range function
