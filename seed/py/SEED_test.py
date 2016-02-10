@@ -332,12 +332,15 @@ if __name__ == '__main__':
 
     acy = SEEDAlgorithmCy()
 
-    res = acy.encrypt(tt, kk, 16, STEPS_PROVIDED.RoundKey_64)
+    for rnd in range(1,17):
+        res = acy.encrypt(tt, kk, rnd, STEPS_PROVIDED.RoundKey_64)
+        print('Round ............... '+str(rnd))
+        print(res)
+        for rr in res:
+            for r in rr:
+                print(hex(r))
 
     #cProfile.run('acy.encrypt(tt, kk, 16, 7)')
 
-    for rr in res:
-        for r in rr:
-            print(hex(r))
 
 

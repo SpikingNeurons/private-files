@@ -28,14 +28,13 @@ cdef class SEEDAlgorithmCy:
     # variables used for fast looping
     cdef Py_ssize_t _num_ptxt, _num_keys
 
-    # round and step related variables to keep track of algorithm
-    cdef Py_ssize_t _curr_rnd
-    cdef Py_ssize_t _curr_step
-    cdef Py_ssize_t _curr_key_schedule_rnd
+    # variables to keep track of algorithm
+    cdef Py_ssize_t _key_schedule_rnd_number
+    cdef Py_ssize_t _persisted_rnd_number
 
     # current key schedule
-    cdef np.uint32_t *_curr_key_schedule_0
-    cdef np.uint32_t *_curr_key_schedule_1
+    cdef np.uint32_t *_key_schedule_0
+    cdef np.uint32_t *_key_schedule_1
 
     # variables used to store the plaintext passed by python modules in words
     # four variables represent four parts of plaintext
@@ -81,9 +80,8 @@ cdef class SEEDAlgorithmCy:
         # some internal variables
         self._num_ptxt = -1
         self._num_keys = -1
-        self._curr_rnd = -1
-        self._curr_step = -1
-        self._curr_key_schedule_rnd = -1
+        self._key_schedule_rnd_number = -1
+        self._persisted_rnd_number = -1
 
         # initialize SEED algorithm related constants
         self._const_KC = _KC
@@ -104,8 +102,8 @@ cdef class SEEDAlgorithmCy:
         self._keys_x3 = NULL
         self._keys_x4 = NULL
         # current key schedule
-        self._curr_key_schedule_0 = NULL
-        self._curr_key_schedule_1 = NULL
+        self._key_schedule_0 = NULL
+        self._key_schedule_1 = NULL
 
     @cython.profile(True)
     cdef _cy_seed_reset(self):
@@ -113,9 +111,8 @@ cdef class SEEDAlgorithmCy:
         # reset internal variables
         self._num_ptxt = -1
         self._num_keys = -1
-        self._curr_rnd = -1
-        self._curr_step = -1
-        self._curr_key_schedule_rnd = -1
+        self._key_schedule_rnd_number = -1
+        self._persisted_rnd_number = -1
 
         # Deallocate arrays allocated by cython SEED algorithm
         # plain text
@@ -139,11 +136,11 @@ cdef class SEEDAlgorithmCy:
         self._keys_x3 = NULL
         self._keys_x4 = NULL
         # current key schedule
-        if self._curr_key_schedule_0 != NULL and self._curr_key_schedule_1 != NULL:
-            PyMem_Free(self._curr_key_schedule_0)
-            PyMem_Free(self._curr_key_schedule_1)
-        self._curr_key_schedule_0 = NULL
-        self._curr_key_schedule_1 = NULL
+        if self._key_schedule_0 != NULL and self._key_schedule_1 != NULL:
+            PyMem_Free(self._key_schedule_0)
+            PyMem_Free(self._key_schedule_1)
+        self._key_schedule_0 = NULL
+        self._key_schedule_1 = NULL
 
 
 
@@ -162,13 +159,13 @@ cdef class SEEDAlgorithmCy:
         self._cy_fragment_keys_to_words(keys)
 
         # allocate memory for key scheduled
-        if self._curr_key_schedule_0 == NULL and self._curr_key_schedule_1 == NULL:
+        if self._key_schedule_0 == NULL and self._key_schedule_1 == NULL:
             # initialize the number of keys to encrypt
             self._num_keys = keys.shape[0] / 16
             # allocate memory
-            self._curr_key_schedule_0 = <np.uint32_t *> PyMem_Malloc(self._num_keys * sizeof(np.uint32_t))
-            self._curr_key_schedule_1 = <np.uint32_t *> PyMem_Malloc(self._num_keys * sizeof(np.uint32_t))
-            assert self._curr_key_schedule_0 is not NULL and self._curr_key_schedule_1 is not NULL, \
+            self._key_schedule_0 = <np.uint32_t *> PyMem_Malloc(self._num_keys * sizeof(np.uint32_t))
+            self._key_schedule_1 = <np.uint32_t *> PyMem_Malloc(self._num_keys * sizeof(np.uint32_t))
+            assert self._key_schedule_0 is not NULL and self._key_schedule_1 is not NULL, \
                 "Failed to allocate memory fot Key Schedule"
 
         # round 0 update
@@ -176,11 +173,11 @@ cdef class SEEDAlgorithmCy:
             for index in range(self._num_keys):
                 temp_var0 = self._keys_x1[index] + self._keys_x3[index] - self._const_KC[0]
                 temp_var1 = self._keys_x2[index] - self._keys_x4[index] + self._const_KC[0]
-                self._curr_key_schedule_0[index] = self._const_SS0[temp_var0 & 0xff] ^ \
+                self._key_schedule_0[index] = self._const_SS0[temp_var0 & 0xff] ^ \
                                                    self._const_SS1[(temp_var0>>8) & 0xff] ^ \
                                                    self._const_SS2[(temp_var0>>16) & 0xff] ^ \
                                                    self._const_SS3[(temp_var0>>24) & 0xff]
-                self._curr_key_schedule_1[index] = self._const_SS0[temp_var1 & 0xff] ^ \
+                self._key_schedule_1[index] = self._const_SS0[temp_var1 & 0xff] ^ \
                                                    self._const_SS1[(temp_var1>>8) & 0xff] ^ \
                                                    self._const_SS2[(temp_var1>>16) & 0xff] ^ \
                                                    self._const_SS3[(temp_var1>>24) & 0xff]
@@ -194,11 +191,11 @@ cdef class SEEDAlgorithmCy:
             for index in range(self._num_keys):
                 temp_var0 = self._keys_x1[index] + self._keys_x3[index] - self._const_KC[1]
                 temp_var1 = self._keys_x2[index] - self._keys_x4[index] + self._const_KC[1]
-                self._curr_key_schedule_0[index] = self._const_SS0[temp_var0 & 0xff] ^ \
+                self._key_schedule_0[index] = self._const_SS0[temp_var0 & 0xff] ^ \
                                                    self._const_SS1[(temp_var0>>8) & 0xff] ^ \
                                                    self._const_SS2[(temp_var0>>16) & 0xff] ^ \
                                                    self._const_SS3[(temp_var0>>24) & 0xff]
-                self._curr_key_schedule_1[index] = self._const_SS0[temp_var1 & 0xff] ^ \
+                self._key_schedule_1[index] = self._const_SS0[temp_var1 & 0xff] ^ \
                                                    self._const_SS1[(temp_var1>>8) & 0xff] ^ \
                                                    self._const_SS2[(temp_var1>>16) & 0xff] ^ \
                                                    self._const_SS3[(temp_var1>>24) & 0xff]
@@ -213,11 +210,11 @@ cdef class SEEDAlgorithmCy:
                 for index in range(self._num_keys):
                     temp_var0 = self._keys_x1[index] + self._keys_x3[index] - self._const_KC[rnd]
                     temp_var1 = self._keys_x2[index] + self._const_KC[rnd] - self._keys_x4[index]
-                    self._curr_key_schedule_0[index] = self._const_SS0[temp_var0 & 0xff] ^ \
+                    self._key_schedule_0[index] = self._const_SS0[temp_var0 & 0xff] ^ \
                                                        self._const_SS1[(temp_var0>>8) & 0xff] ^ \
                                                        self._const_SS2[(temp_var0>>16) & 0xff] ^ \
                                                        self._const_SS3[(temp_var0>>24) & 0xff]
-                    self._curr_key_schedule_1[index] = self._const_SS0[temp_var1 & 0xff] ^ \
+                    self._key_schedule_1[index] = self._const_SS0[temp_var1 & 0xff] ^ \
                                                        self._const_SS1[(temp_var1>>8) & 0xff] ^ \
                                                        self._const_SS2[(temp_var1>>16) & 0xff] ^ \
                                                        self._const_SS3[(temp_var1>>24) & 0xff]
@@ -229,11 +226,11 @@ cdef class SEEDAlgorithmCy:
                 for index in range(self._num_keys):
                     temp_var0 = self._keys_x1[index] + self._keys_x3[index] - self._const_KC[rnd]
                     temp_var1 = self._keys_x2[index] + self._const_KC[rnd] - self._keys_x4[index]
-                    self._curr_key_schedule_0[index] = self._const_SS0[temp_var0 & 0xff] ^ \
+                    self._key_schedule_0[index] = self._const_SS0[temp_var0 & 0xff] ^ \
                                                        self._const_SS1[(temp_var0>>8) & 0xff] ^ \
                                                        self._const_SS2[(temp_var0>>16) & 0xff] ^ \
                                                        self._const_SS3[(temp_var0>>24) & 0xff]
-                    self._curr_key_schedule_1[index] = self._const_SS0[temp_var1 & 0xff] ^ \
+                    self._key_schedule_1[index] = self._const_SS0[temp_var1 & 0xff] ^ \
                                                        self._const_SS1[(temp_var1>>8) & 0xff] ^ \
                                                        self._const_SS2[(temp_var1>>16) & 0xff] ^ \
                                                        self._const_SS3[(temp_var1>>24) & 0xff]
@@ -253,7 +250,7 @@ cdef class SEEDAlgorithmCy:
         cdef Py_ssize_t index, index_1
 
         # check if done earlier (only need to be done once for the lifetime of object)
-        if self._keys_x1 == NULL and self._keys_x2 == NULL and self._keys_x3 == NULL and self._keys_x4 == NULL:
+        if self._keys_x1 is NULL and self._keys_x2 is NULL and self._keys_x3 is NULL and self._keys_x4 is NULL:
 
             # allocate memory
             self._keys_x1 = <np.uint32_t *> PyMem_Malloc(self._num_keys * sizeof(np.uint32_t))
@@ -294,7 +291,7 @@ cdef class SEEDAlgorithmCy:
         cdef Py_ssize_t index, index_1
 
         # check if done earlier (only need to be done once for the lifetime of object)
-        if self._ptxt_x1 == NULL and self._ptxt_x2 == NULL and self._ptxt_x3 == NULL and self._ptxt_x4 == NULL:
+        if self._ptxt_x1 is NULL and self._ptxt_x2 is NULL and self._ptxt_x3 is NULL and self._ptxt_x4 is NULL:
 
             # allocate memory
             self._ptxt_x1 = <np.uint32_t *> PyMem_Malloc(self._num_ptxt * sizeof(np.uint32_t))
@@ -350,7 +347,9 @@ cdef class SEEDAlgorithmCy:
 
         # some typed local variables
         cdef Py_ssize_t index_ptxt, index_rnd, index_copy, if_many_keys
+        cdef Py_ssize_t res_64_size, res_32_size, res_8_size
         cdef np.uint32_t temp0, temp1, temp2, temp3, temp4, temp5, temp6, temp7, temp8
+        cdef bint if_persist
 
         # temp references to achieve movement of two words (half plaintext) from right to left
         cdef np.uint32_t *_ptxt_a1
@@ -358,64 +357,63 @@ cdef class SEEDAlgorithmCy:
         cdef np.uint32_t *_ptxt_a3
         cdef np.uint32_t *_ptxt_a4
 
-        # check data types
-        if keys.dtype is not np.uint8 and plain_text.dtype is not np.uint8:
-            print("\n\n\n\nPlease verify the data-type of plain text and keys")
+        # Reset if persistence info ahead of requested round. Also reset when persistent info is equal to requested
+        # round as persistent info for round n is useful for next round (n+1) only
+        if self._persisted_rnd_number >= rnd:
+            self._cy_seed_reset()
 
-        # initialize the number of plaintexts and keys
+        # check how many plaintexts and keys are there
         self._num_keys = keys.shape[0] / 16
         self._num_ptxt = plain_text.shape[0] / 16
 
         # allocate memory for the result based on step selected
-        cdef np.uint64_t[:,:] result_64
-        cdef np.uint32_t[:,:] result_32
-        cdef np.uint8_t[:,:] result_8
         if step == STEP_RoundKey_64:
-            result_64 = np.empty((self._num_keys, 1), dtype=np.uint64)
-            result_32 = None
-            result_8 = None
+            res_64_size = self._num_keys
+            res_32_size = 0
+            res_8_size = 0
         elif step == STEP_Right_64 or step == STEP_AddRoundKey_64 or step == STEP_F_64:
-            result_64 = np.empty((self._num_ptxt, 1), dtype=np.uint64)
-            result_32 = None
-            result_8 = None
+            res_64_size = self._num_ptxt
+            res_32_size = 0
+            res_8_size = 0
         elif step == STEP_GDa_32 or step == STEP_GC_32 or step == STEP_GDb_32:
-            result_64 = None
-            result_32 = np.empty((self._num_ptxt, 1), dtype=np.uint32)
-            result_8 = None
+            res_64_size = 0
+            res_32_size = self._num_ptxt
         elif step == STEP_Output_128:
-            result_64 = None
-            result_32 = None
-            result_8 = np.empty((self._num_ptxt, 16), dtype=np.uint8)
+            res_64_size = 0
+            res_32_size = 0
+            res_8_size = self._num_ptxt
         else:
+            res_64_size = 0
+            res_32_size = 0
+            res_8_size = 0
             print("\n\n\n\nInvalid Step selected")
+        cdef np.uint64_t[:,:] result_64 = np.empty((res_64_size, 1), dtype=np.uint64)
+        cdef np.uint32_t[:,:] result_32 = np.empty((res_32_size, 1), dtype=np.uint32)
+        cdef np.uint8_t[:,:] result_8 = np.empty((res_8_size, 16), dtype=np.uint8)
 
         # here we do the things only once for the lifetime of this object
-        if self._curr_rnd == -1 and self._curr_step == -1:
-            # update current round
-            self._curr_rnd = 0
+        if self._persisted_rnd_number == -1:
             # fragment plaintext to four words and store them to class variables
             self._cy_fragment_ptxt_to_words(plain_text)
 
-        # rounds of encryption
-        # first argument of range is efficient logic to retrieve results from previous iteration
-        for index_rnd in range(self._curr_rnd, MAX_ROUNDS):
 
-            # update current round
-            self._curr_rnd = index_rnd
+        # rounds of encryption
+        # first argument of range is part of logic to use results from previous iteration
+        for index_rnd in range((self._persisted_rnd_number+1), MAX_ROUNDS):
 
             # STEP01:RoundKey_64 (get the key schedule)
-            if self._curr_key_schedule_rnd != index_rnd:
+            if self._key_schedule_rnd_number != index_rnd:
                 self._cy_generate_key_schedule(keys, index_rnd)
-                self._curr_key_schedule_rnd = index_rnd
+                # update state variable
+                self._key_schedule_rnd_number = index_rnd
 
-            # update current step and check if you want results back
-            self._curr_step = STEP_RoundKey_64
+            # check if you want results back
             if rnd == index_rnd and step == STEP_RoundKey_64:
                 # copy results
                 for index_copy in range(self._num_keys):
                     result_64[index_copy, 0] = \
-                        (<np.uint64_t> self._curr_key_schedule_1[index_copy]<<32) | \
-                        (<np.uint64_t> self._curr_key_schedule_0[index_copy])
+                        (<np.uint64_t> self._key_schedule_0[index_copy]<<32) | \
+                        (<np.uint64_t> self._key_schedule_1[index_copy])
                 # break the loop for round
                 break
 
@@ -431,10 +429,13 @@ cdef class SEEDAlgorithmCy:
                 _ptxt_a3 = self._ptxt_x1
                 _ptxt_a4 = self._ptxt_x2
 
-            # update current step and check if you want results back
-            self._curr_step = STEP_Right_64
+            # check if you want results back
             if rnd == index_rnd and step == STEP_Right_64:
-                # copppyyyy
+                # copy results
+                for index_copy in range(self._num_ptxt):
+                    result_64[index_copy, 0] = \
+                        (<np.uint64_t> _ptxt_a3[index_copy]<<32) | \
+                        (<np.uint64_t> _ptxt_a4[index_copy])
                 # break the loop for round
                 break
 
@@ -448,8 +449,8 @@ cdef class SEEDAlgorithmCy:
             # iterate over all plain text values
             for index_ptxt in range(self._num_ptxt):
                 #print('kkkkkkkkkkkkkkkkkkk')
-                #print(hex(self._curr_key_schedule_0[index_ptxt]))
-                #print(hex(self._curr_key_schedule_1[index_ptxt]))
+                #print(hex(self._key_schedule_0[index_ptxt]))
+                #print(hex(self._key_schedule_1[index_ptxt]))
                 #print('ttttttttttttttttttt')
                 #print(hex(_ptxt_a1[index_ptxt]))
                 #print(hex(_ptxt_a2[index_ptxt]))
@@ -457,17 +458,27 @@ cdef class SEEDAlgorithmCy:
                 #print(hex(_ptxt_a4[index_ptxt]))
 
                 # STEP03:AddRoundKey_64
-                temp0 = _ptxt_a3[index_ptxt] ^ self._curr_key_schedule_0[index_ptxt * if_many_keys]
-                temp1 = _ptxt_a4[index_ptxt] ^ self._curr_key_schedule_1[index_ptxt * if_many_keys]
-
-                # STEP---
+                temp0 = _ptxt_a3[index_ptxt] ^ self._key_schedule_0[index_ptxt * if_many_keys]
+                temp1 = _ptxt_a4[index_ptxt] ^ self._key_schedule_1[index_ptxt * if_many_keys]
                 temp2 = temp1 ^ temp0
+
+                # check if you want results back
+                if rnd == index_rnd and step == STEP_AddRoundKey_64:
+                    # copy results
+                    result_64[index_ptxt, 0] = (<np.uint64_t> temp0<<32) | (<np.uint64_t> temp2)
+                    continue
 
                 # STEP04:GDa_32
                 temp3 = self._const_SS0[temp2 & 0xff] ^ \
                         self._const_SS1[(temp2>>8) & 0xff] ^ \
                         self._const_SS2[(temp2>>16) & 0xff] ^ \
                         self._const_SS3[(temp2>>24) & 0xff]
+
+                # check if you want results back
+                if rnd == index_rnd and step == STEP_GDa_32:
+                    # copy results
+                    result_32[index_ptxt, 0] = temp3
+                    continue
 
                 # STEP---
                 temp4 = temp3 + temp0
@@ -478,6 +489,12 @@ cdef class SEEDAlgorithmCy:
                         self._const_SS2[(temp4>>16) & 0xff] ^ \
                         self._const_SS3[(temp4>>24) & 0xff]
 
+                # check if you want results back
+                if rnd == index_rnd and step == STEP_GC_32:
+                    # copy results
+                    result_32[index_ptxt, 0] = temp5
+                    continue
+
                 # STEP---
                 temp6 = temp5 + temp3
 
@@ -487,23 +504,45 @@ cdef class SEEDAlgorithmCy:
                         self._const_SS2[(temp6>>16) & 0xff] ^ \
                         self._const_SS3[(temp6>>24) & 0xff]
 
-                # STEP---
-                temp8 = temp5 + temp7
+                # check if you want results back
+                if rnd == index_rnd and step == STEP_GDb_32:
+                    # copy results
+                    result_32[index_ptxt, 0] = temp7
+                    continue
 
                 # STEP07:F_64
+                temp8 = temp5 + temp7
+
+                # check if you want results back
+                #   Notice that there is no continue for this if block as it is assumed that if last step for given
+                #   rnd is called, then there is need to persist the state for next round
+                if rnd == index_rnd and step == STEP_F_64:
+                    # copy results
+                    result_64[index_ptxt, 0] = (<np.uint64_t> temp8<<32) | (<np.uint64_t> temp7)
+
+                # moving of results
                 _ptxt_a1[index_ptxt] = _ptxt_a1[index_ptxt] ^ temp8
                 _ptxt_a2[index_ptxt] = _ptxt_a2[index_ptxt] ^ temp7
 
+                # store the state that current round intermediate results are persisted
+                self._persisted_rnd_number = index_rnd
+
                 # STEP:Output (only happens on last round)
-                if rnd == 15:
+                if rnd == index_rnd and step == STEP_Output_128:
+                    if rnd == MAX_ROUNDS - 1:
+                        pass
+                    else:
+                        print("\n\n\nSTEP: " + str(STEPS_PROVIDED._fields[step]) +
+                              " only possible with last round (i.e. " + str(MAX_ROUNDS) + ")")
                     pass
 
-        if result_64 is not None:
-            return np.asarray(result_64)
-        elif result_32 is not None:
-            return np.asarray(result_32)
-        elif result_8 is not None:
-            return np.asarray(result_8)
+        # time to return results
+        if res_64_size > 0:
+            return result_64
+        elif res_32_size > 0:
+            return result_32
+        elif res_8_size > 0:
+            return result_8
         else:
             return None
 
