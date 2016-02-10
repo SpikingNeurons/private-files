@@ -537,7 +537,8 @@ cdef class SEEDAlgorithmCy:
                 # STEP:Output (only happens on last round)
                 if rnd == index_rnd and step == STEP_Output_128:
                     if rnd == MAX_ROUNDS - 1:
-                        print('hhhh')
+                        # This is just a simple and fast logic to unpack word to bytes and save to result array
+                        # This basically undo the swap that was required in self._cy_fragment_ptxt_to_words
                         index_temp = 0
                         #
                         temp99 = _ptxt_a1[index_ptxt]
