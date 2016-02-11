@@ -5,6 +5,7 @@ from libc.stdlib cimport malloc, free
 from cpython.mem cimport PyMem_Malloc, PyMem_Realloc, PyMem_Free
 from numpy cimport ndarray
 cimport cython
+from cython import parallel
 from collections import namedtuple
 import sys
 
@@ -346,7 +347,7 @@ cdef class SEEDAlgorithmCy:
         """
 
         # some typed local variables
-        cdef Py_ssize_t index_ptxt, index_rnd, index_copy, if_many_keys, index_temp
+        cdef Py_ssize_t index_ptxt, index_rnd, index_copy, if_many_keys
         cdef Py_ssize_t res_64_size, res_32_size, res_8_size
         cdef np.uint32_t temp0, temp1, temp2, temp3, temp4, temp5, temp6, temp7, temp8, temp99
         cdef bint if_persist
@@ -455,6 +456,7 @@ cdef class SEEDAlgorithmCy:
 
             # iterate over all plain text values
             for index_ptxt in range(self._num_ptxt):
+            #for index_ptxt in parallel.prange(self._num_ptxt, num_threads=8, nogil=True):
                 #print('kkkkkkkkkkkkkkkkkkk')
                 #print(hex(self._key_schedule_0[index_ptxt]))
                 #print(hex(self._key_schedule_1[index_ptxt]))
@@ -539,49 +541,33 @@ cdef class SEEDAlgorithmCy:
                     if rnd == MAX_ROUNDS - 1:
                         # This is just a simple and fast logic to unpack word to bytes and save to result array
                         # This basically undo the swap that was required in self._cy_fragment_ptxt_to_words
-                        index_temp = 0
                         #
                         temp99 = _ptxt_a1[index_ptxt]
-                        result_128[index_ptxt, index_temp] = <np.uint8_t> (temp99>>24) & 0xff
-                        index_temp += 1
-                        result_128[index_ptxt, index_temp] = <np.uint8_t> (temp99>>16) & 0xff
-                        index_temp += 1
-                        result_128[index_ptxt, index_temp] = <np.uint8_t> (temp99>>8) & 0xff
-                        index_temp += 1
-                        result_128[index_ptxt, index_temp] = <np.uint8_t> temp99 & 0xff
+                        result_128[index_ptxt, 0] = <np.uint8_t> (temp99>>24) & 0xff
+                        result_128[index_ptxt, 1] = <np.uint8_t> (temp99>>16) & 0xff
+                        result_128[index_ptxt, 2] = <np.uint8_t> (temp99>>8) & 0xff
+                        result_128[index_ptxt, 3] = <np.uint8_t> temp99 & 0xff
                         #
                         temp99 = _ptxt_a2[index_ptxt]
-                        index_temp += 1
-                        result_128[index_ptxt, index_temp] = <np.uint8_t> (temp99>>24) & 0xff
-                        index_temp += 1
-                        result_128[index_ptxt, index_temp] = <np.uint8_t> (temp99>>16) & 0xff
-                        index_temp += 1
-                        result_128[index_ptxt, index_temp] = <np.uint8_t> (temp99>>8) & 0xff
-                        index_temp += 1
-                        result_128[index_ptxt, index_temp] = <np.uint8_t> temp99 & 0xff
+                        result_128[index_ptxt, 4] = <np.uint8_t> (temp99>>24) & 0xff
+                        result_128[index_ptxt, 5] = <np.uint8_t> (temp99>>16) & 0xff
+                        result_128[index_ptxt, 6] = <np.uint8_t> (temp99>>8) & 0xff
+                        result_128[index_ptxt, 7] = <np.uint8_t> temp99 & 0xff
                         #
                         temp99 = _ptxt_a3[index_ptxt]
-                        index_temp += 1
-                        result_128[index_ptxt, index_temp] = <np.uint8_t> (temp99>>24) & 0xff
-                        index_temp += 1
-                        result_128[index_ptxt, index_temp] = <np.uint8_t> (temp99>>16) & 0xff
-                        index_temp += 1
-                        result_128[index_ptxt, index_temp] = <np.uint8_t> (temp99>>8) & 0xff
-                        index_temp += 1
-                        result_128[index_ptxt, index_temp] = <np.uint8_t> temp99 & 0xff
+                        result_128[index_ptxt, 8] = <np.uint8_t> (temp99>>24) & 0xff
+                        result_128[index_ptxt, 9] = <np.uint8_t> (temp99>>16) & 0xff
+                        result_128[index_ptxt, 10] = <np.uint8_t> (temp99>>8) & 0xff
+                        result_128[index_ptxt, 11] = <np.uint8_t> temp99 & 0xff
                         #
                         temp99 = _ptxt_a4[index_ptxt]
-                        index_temp += 1
-                        result_128[index_ptxt, index_temp] = <np.uint8_t> (temp99>>24) & 0xff
-                        index_temp += 1
-                        result_128[index_ptxt, index_temp] = <np.uint8_t> (temp99>>16) & 0xff
-                        index_temp += 1
-                        result_128[index_ptxt, index_temp] = <np.uint8_t> (temp99>>8) & 0xff
-                        index_temp += 1
-                        result_128[index_ptxt, index_temp] = <np.uint8_t> temp99 & 0xff
-                    else:
-                        print("\n\n\nSTEP: " + str(STEPS_PROVIDED._fields[step]) +
-                              " only possible with last round (i.e. " + str(MAX_ROUNDS) + ")")
+                        result_128[index_ptxt, 12] = <np.uint8_t> (temp99>>24) & 0xff
+                        result_128[index_ptxt, 13] = <np.uint8_t> (temp99>>16) & 0xff
+                        result_128[index_ptxt, 14] = <np.uint8_t> (temp99>>8) & 0xff
+                        result_128[index_ptxt, 15] = <np.uint8_t> temp99 & 0xff
+                    #else:
+                        #print("\n\n\nSTEP: " + str(STEPS_PROVIDED._fields[step]) +
+                        #      " only possible with last round (i.e. " + str(MAX_ROUNDS) + ")")
 
 
 

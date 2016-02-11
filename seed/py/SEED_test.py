@@ -12,7 +12,7 @@ pyximport.install(inplace=False,
                   reload_support=True)
 from Cython.Build import cythonize
 # TODO: check with multi thread
-cythonize('SEED_cy.pyx', annotate=True)
+cythonize('SEED_cy.pyx', annotate=True, nthreads=8)
 
 from cryptography.hazmat.backends.openssl.backend import backend
 from cryptography.hazmat.primitives.ciphers import algorithms, base, modes
@@ -75,7 +75,7 @@ test_vector_mkmp = test_vector(
                    np.uint8)
 )
 
-test_big_size = 10000
+test_big_size = 1000000
 test_vector_big_skmp = test_vector(
     key=np.asarray(
         [0x28, 0xDB, 0xC3, 0xBC, 0x49, 0xFF, 0xD8, 0x7D, 0xCF, 0xA5, 0x09, 0xB1, 0x1D, 0x42, 0x2B, 0xE7],
