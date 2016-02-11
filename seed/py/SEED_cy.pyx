@@ -596,7 +596,7 @@ cdef class SEEDAlgorithmCy:
         # 1st argument of range function
         #   - is part of logic to use results from previous iteration
         # 2nd argument of range function
-        #   - allows the for loop to execute till requested round only
+        #   - forces the for loop to execute till requested round only
         for index_rnd in range((self._persisted_rnd_number+1), rnd+1):
 
             #print('.index.' + str(index_rnd) + '\t.rnd.' + str(rnd) + '\t.step.' + str(step) + '\t.pers.' + str(self._persisted_rnd_number) + '\t.kesch.' + str(self._key_schedule_rnd_number))
