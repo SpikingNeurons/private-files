@@ -20,7 +20,7 @@ from cryptography.hazmat.primitives.ciphers import algorithms, base, modes
 
 
 
-test_vector = namedtuple('test_vector', 'key ptx ctx')
+test_vector = namedtuple('test_vector', 'key, ptx, ctx')
 
 test_vectors_sksp = [
     test_vector(
@@ -124,37 +124,6 @@ def encrypt_third_party(mode, key, plaintext):
     ct = encryptor.update(binascii.unhexlify(plaintext))
     ct += encryptor.finalize()
     return binascii.hexlify(ct)
-
-
-def build_vectors(mode, filename):
-    with open(filename, "r") as f:
-        vector_file = f.read().splitlines()
-
-    count = 0
-    output = []
-    key = None
-    iv = None
-    plaintext = None
-    for line in vector_file:
-        line = line.strip()
-        if line.startswith("KEY"):
-            if count != 0:
-                output.append("CIPHERTEXT = {0}".format(
-                    encrypt_third_party(mode, key, iv, plaintext))
-                )
-            output.append("\nCOUNT = {0}".format(count))
-            count += 1
-            name, key = line.split(" = ")
-            output.append("KEY = {0}".format(key))
-        elif line.startswith("IV"):
-            name, iv = line.split(" = ")
-            output.append("IV = {0}".format(iv))
-        elif line.startswith("PLAINTEXT"):
-            name, plaintext = line.split(" = ")
-            output.append("PLAINTEXT = {0}".format(plaintext))
-
-    output.append("CIPHERTEXT = {0}".format(encrypt_third_party(mode, key, plaintext)))
-    return "\n".join(output)
 
 
 def write_file(data, filename):
@@ -314,61 +283,26 @@ def run_test_cases():
 
 if __name__ == '__main__':
     import sys
-    #np.__config__.show()
-    #sys.stdout = open('del_console_stdout.txt', 'w')
-    print('Main of SEED.py')
-    #test_c_types()
-    #create_fake_trace_file()
-    #check_test_vectors()
-    #ECB_PATH = "seed_data\seed-ecb.txt"
-    #write_file(build_vectors(modes.ECB, ECB_PATH), "seed_data\seed-ecb-temp.txt")
-
-    #generate_key_schedule(test_vectors[3].key)
-    #generate_key_schedule(test_vector_big.key[48:64])
-    #for i in np.arange(16):
-        #generate_key_schedule(test_vector_big.key, i)
-    #encrypt_seed(test_vector_big.ptx, test_vector_big.key, 0)
-
-    #run_test_cases()
-
     from SEED_cy import SEEDAlgorithmCy, STEPS_PROVIDED
-    from SEED_py import SEEDAlgorithmPy
+    print('Main of SEED.py')
 
-
-    #tt = np.tile(test_vectors_sksp.ptx, 1)
-    #kk = np.tile(test_vectors_sksp[3].key, 1000000)
-
-
-    # four ptxt and four key
     ptx = test_vector_big_mkmp.ptx
     key = test_vector_big_mkmp.key
     ctx = test_vector_big_mkmp.ctx
 
     acy = SEEDAlgorithmCy()
 
-
-    #for rnd in range(1,17)[::-1]:
-        #res = acy.encrypt(tt, kk, rnd, STEPS_PROVIDED.RoundKey_64)
-        #res = acy.encrypt(tt, kk, rnd, STEPS_PROVIDED.Right_64)
-        #res = acy.encrypt(tt, kk, rnd, STEPS_PROVIDED.AddRoundKey_64)
-        #res = acy.encrypt(tt, kk, rnd, STEPS_PROVIDED.GDa_32)
-        #res = acy.encrypt(tt, kk, rnd, STEPS_PROVIDED.GC_32)
-        #res = acy.encrypt(tt, kk, rnd, STEPS_PROVIDED.GDb_32)
-        #res = acy.encrypt(tt, kk, rnd, STEPS_PROVIDED.F_64)
-        #res = acy.encrypt(tt, kk, rnd, STEPS_PROVIDED.Output_128)
-        #print('Round ............... '+str(rnd))
-        #print(res)
-        #for rr in res:
-        #    for r in rr:
-        #        print(hex(r))
-
-
-
-    cProfile.run('acy.encrypt(ptx, key, 16, STEPS_PROVIDED.Output_128)')
+    #cProfile.run('acy.encrypt(ptx, key, 16, STEPS_PROVIDED.Output_128)')
+    res = acy.encrypt(ptx, key, 10, STEPS_PROVIDED.F_64)
     res = acy.encrypt(ptx, key, 16, STEPS_PROVIDED.Output_128)
-    #res = np.asarray(res)
-    #res.dtype = np.uint64
-    print('Round ............... ')
+
+    #res_actual = np.load('seed_data/ciphertext_seed.npy')
+    #res_actual.dtype = np.uint8
+
+    res = np.reshape(res, ctx.shape)
+
+    diff = np.array_equal(res, ctx)
+    print(diff)
 
 
 
