@@ -152,9 +152,9 @@ cdef class SEEDAlgorithmCy:
         cdef np.uint32_t temp_var0, temp_var1
 
         # here we do the things only once for the lifetime of this object
-        if self._keys_x1 == NULL and self._keys_x2 == NULL and self._keys_x3 == NULL and self._keys_x4 == NULL:
+        #if self._keys_x1 == NULL and self._keys_x2 == NULL and self._keys_x3 == NULL and self._keys_x4 == NULL:
             # fragment plaintext to four words and store them to class variables
-            self._cy_fragment_keys_to_words(keys)
+            #self._cy_fragment_keys_to_words(keys)
         #TODO: check this if the call can be avoided
         self._cy_fragment_keys_to_words(keys)
 
@@ -397,7 +397,7 @@ cdef class SEEDAlgorithmCy:
             # fragment plaintext to four words and store them to class variables
             self._cy_fragment_ptxt_to_words(plain_text)
 
-        print('>>>>')
+        #print('>>>>')
 
         # rounds of encryption
         # 1st argument of range function
@@ -406,7 +406,7 @@ cdef class SEEDAlgorithmCy:
         #   - allows the for loop to execute till requested round only
         for index_rnd in range((self._persisted_rnd_number+1), rnd+1):
 
-            print('.index.' + str(index_rnd) + '\t.rnd.' + str(rnd) + '\t.step.' + str(step) + '\t.pers.' + str(self._persisted_rnd_number) + '\t.kesch.' + str(self._key_schedule_rnd_number))
+            #print('.index.' + str(index_rnd) + '\t.rnd.' + str(rnd) + '\t.step.' + str(step) + '\t.pers.' + str(self._persisted_rnd_number) + '\t.kesch.' + str(self._key_schedule_rnd_number))
 
             # STEP01:RoundKey_64 (get the key schedule)
             if self._key_schedule_rnd_number != index_rnd:
