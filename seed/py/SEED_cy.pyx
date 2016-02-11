@@ -543,10 +543,10 @@ cdef class SEEDAlgorithmCy:
         cdef np.uint32_t temp0, temp1, temp2, temp3, temp4, temp5, temp6, temp7, temp8, temp99
 
         # temp references to achieve movement of two words (half plaintext) from right to left
-        cdef np.uint32_t *_ptxt_a1
-        cdef np.uint32_t *_ptxt_a2
-        cdef np.uint32_t *_ptxt_a3
-        cdef np.uint32_t *_ptxt_a4
+        cdef np.uint32_t *_local_a1
+        cdef np.uint32_t *_local_a2
+        cdef np.uint32_t *_local_a3
+        cdef np.uint32_t *_local_a4
 
         # Reset if persistence info ahead of requested round. Also reset when persistent info is equal to requested
         # round as persistent info for round n is useful for next round (n+1) only
@@ -617,25 +617,25 @@ cdef class SEEDAlgorithmCy:
                 # break the loop for round
                 break
 
-            # STEP02:Right_64 (logic for moving half of right key to left)
+            # STEP02:Right_64 (logic for moving half of right plain text to left)
             if index_rnd % 2 == 0:
-                _ptxt_a1 = self._p_ptxt_x1
-                _ptxt_a2 = self._p_ptxt_x2
-                _ptxt_a3 = self._p_ptxt_x3
-                _ptxt_a4 = self._p_ptxt_x4
+                _local_a1 = self._p_ptxt_x1
+                _local_a2 = self._p_ptxt_x2
+                _local_a3 = self._p_ptxt_x3
+                _local_a4 = self._p_ptxt_x4
             else:
-                _ptxt_a1 = self._p_ptxt_x3
-                _ptxt_a2 = self._p_ptxt_x4
-                _ptxt_a3 = self._p_ptxt_x1
-                _ptxt_a4 = self._p_ptxt_x2
+                _local_a1 = self._p_ptxt_x3
+                _local_a2 = self._p_ptxt_x4
+                _local_a3 = self._p_ptxt_x1
+                _local_a4 = self._p_ptxt_x2
 
             # check if you want results back
             if rnd == index_rnd and step == STEP_Right_64:
                 # copy results
                 for index_copy in range(self._num_ptxt):
                     result_64[index_copy, 0] = \
-                        (<np.uint64_t> _ptxt_a3[index_copy]<<32) | \
-                        (<np.uint64_t> _ptxt_a4[index_copy])
+                        (<np.uint64_t> _local_a3[index_copy]<<32) | \
+                        (<np.uint64_t> _local_a4[index_copy])
                 # break the loop for round
                 break
 
@@ -653,14 +653,14 @@ cdef class SEEDAlgorithmCy:
                 #print(hex(self._p_key_schedule_0[index_ptxt]))
                 #print(hex(self._p_key_schedule_1[index_ptxt]))
                 #print('ttttttttttttttttttt')
-                #print(hex(_ptxt_a1[index_ptxt]))
-                #print(hex(_ptxt_a2[index_ptxt]))
-                #print(hex(_ptxt_a3[index_ptxt]))
-                #print(hex(_ptxt_a4[index_ptxt]))
+                #print(hex(_local_a1[index_ptxt]))
+                #print(hex(_local_a2[index_ptxt]))
+                #print(hex(_local_a3[index_ptxt]))
+                #print(hex(_local_a4[index_ptxt]))
 
-                # STEP03:AddRoundKey_64
-                temp0 = _ptxt_a3[index_ptxt] ^ self._p_key_schedule_0[index_ptxt * if_many_keys]
-                temp1 = _ptxt_a4[index_ptxt] ^ self._p_key_schedule_1[index_ptxt * if_many_keys]
+                # STEP03:AddRoundKey_64 (Here we add round key schedule to plain text)
+                temp0 = _local_a3[index_ptxt] ^ self._p_key_schedule_0[index_ptxt * if_many_keys]
+                temp1 = _local_a4[index_ptxt] ^ self._p_key_schedule_1[index_ptxt * if_many_keys]
                 temp2 = temp1 ^ temp0
 
                 # check if you want results back
@@ -669,7 +669,7 @@ cdef class SEEDAlgorithmCy:
                     result_64[index_ptxt, 0] = (<np.uint64_t> temp0<<32) | (<np.uint64_t> temp2)
                     continue
 
-                # STEP04:GDa_32
+                # STEP04:GDa_32 (1st use of G-Function)
                 temp3 = self._const_SS0[temp2 & 0xff] ^ \
                         self._const_SS1[(temp2>>8) & 0xff] ^ \
                         self._const_SS2[(temp2>>16) & 0xff] ^ \
@@ -684,7 +684,7 @@ cdef class SEEDAlgorithmCy:
                 # STEP---
                 temp4 = temp3 + temp0
 
-                # STEP05:GC_32
+                # STEP05:GC_32 (2nd use of G-Function)
                 temp5 = self._const_SS0[temp4 & 0xff] ^ \
                         self._const_SS1[(temp4>>8) & 0xff] ^ \
                         self._const_SS2[(temp4>>16) & 0xff] ^ \
@@ -699,7 +699,7 @@ cdef class SEEDAlgorithmCy:
                 # STEP---
                 temp6 = temp5 + temp3
 
-                # STEP06:GDb_32
+                # STEP06:GDb_32 (3rd use of G-Function)
                 temp7 = self._const_SS0[temp6 & 0xff] ^ \
                         self._const_SS1[(temp6>>8) & 0xff] ^ \
                         self._const_SS2[(temp6>>16) & 0xff] ^ \
@@ -711,7 +711,7 @@ cdef class SEEDAlgorithmCy:
                     result_32[index_ptxt, 0] = temp7
                     continue
 
-                # STEP07:F_64
+                # STEP07:F_64 (Output of F-function which is made of 3 G-Functions and 3 additions)
                 temp8 = temp5 + temp7
 
                 # check if you want results back
@@ -722,8 +722,8 @@ cdef class SEEDAlgorithmCy:
                     result_64[index_ptxt, 0] = (<np.uint64_t> temp8<<32) | (<np.uint64_t> temp7)
 
                 # moving of results
-                _ptxt_a1[index_ptxt] = _ptxt_a1[index_ptxt] ^ temp8
-                _ptxt_a2[index_ptxt] = _ptxt_a2[index_ptxt] ^ temp7
+                _local_a1[index_ptxt] = _local_a1[index_ptxt] ^ temp8
+                _local_a2[index_ptxt] = _local_a2[index_ptxt] ^ temp7
 
                 # store the state that current round intermediate results are persisted
                 self._persisted_rnd_number = index_rnd
@@ -734,32 +734,29 @@ cdef class SEEDAlgorithmCy:
                         # This is just a simple and fast logic to unpack word to bytes and save to result array
                         # This basically undo the swap that was required in self._cy_fragment_ptxt_to_words
                         #
-                        temp99 = _ptxt_a1[index_ptxt]
+                        temp99 = _local_a1[index_ptxt]
                         result_128[index_ptxt, 0] = <np.uint8_t> (temp99>>24) & 0xff
                         result_128[index_ptxt, 1] = <np.uint8_t> (temp99>>16) & 0xff
                         result_128[index_ptxt, 2] = <np.uint8_t> (temp99>>8) & 0xff
                         result_128[index_ptxt, 3] = <np.uint8_t> temp99 & 0xff
                         #
-                        temp99 = _ptxt_a2[index_ptxt]
+                        temp99 = _local_a2[index_ptxt]
                         result_128[index_ptxt, 4] = <np.uint8_t> (temp99>>24) & 0xff
                         result_128[index_ptxt, 5] = <np.uint8_t> (temp99>>16) & 0xff
                         result_128[index_ptxt, 6] = <np.uint8_t> (temp99>>8) & 0xff
                         result_128[index_ptxt, 7] = <np.uint8_t> temp99 & 0xff
                         #
-                        temp99 = _ptxt_a3[index_ptxt]
+                        temp99 = _local_a3[index_ptxt]
                         result_128[index_ptxt, 8] = <np.uint8_t> (temp99>>24) & 0xff
                         result_128[index_ptxt, 9] = <np.uint8_t> (temp99>>16) & 0xff
                         result_128[index_ptxt, 10] = <np.uint8_t> (temp99>>8) & 0xff
                         result_128[index_ptxt, 11] = <np.uint8_t> temp99 & 0xff
                         #
-                        temp99 = _ptxt_a4[index_ptxt]
+                        temp99 = _local_a4[index_ptxt]
                         result_128[index_ptxt, 12] = <np.uint8_t> (temp99>>24) & 0xff
                         result_128[index_ptxt, 13] = <np.uint8_t> (temp99>>16) & 0xff
                         result_128[index_ptxt, 14] = <np.uint8_t> (temp99>>8) & 0xff
                         result_128[index_ptxt, 15] = <np.uint8_t> temp99 & 0xff
-
-
-
 
         # time to return results
         if res_64_size > 0:
@@ -770,8 +767,6 @@ cdef class SEEDAlgorithmCy:
             return result_128
         else:
             return None
-
-
 
 
     @cython.profile(True)
