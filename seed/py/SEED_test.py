@@ -313,25 +313,20 @@ if __name__ == '__main__':
     #res = acy.decrypt(ctx, key, 10, STEPS_PROVIDED.F_64)
     for rnd in range(16,0,-1):
         print(rnd)
-        #res = acy.decrypt(ctx, key, rnd, STEPS_PROVIDED.Right_64)
+        res = acy.decrypt(ctx, key, rnd, STEPS_PROVIDED.Right_64)
 
 
-    res = acy.decrypt(ctx, key, 16, STEPS_PROVIDED.Right_64)
-    res = acy.decrypt(ctx, key, 15, STEPS_PROVIDED.Right_64)
     res = acy.decrypt(ctx, key, 1, STEPS_PROVIDED.Output_128)
 
 
-    #res = np.reshape(res, ctx.shape)
+    res = np.reshape(res, ctx.shape)
 
-    #diff = np.array_equal(res, ptx)
-    #print(diff)
+    diff = np.array_equal(res, ptx)
+    print(diff)
 
     #_print_hex(ctx)
     #_print_hex(res)
 
-    for rr in res:
-        for r in rr:
-            print(hex(r))
 
 
 

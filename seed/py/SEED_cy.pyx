@@ -888,15 +888,15 @@ cdef class SEEDAlgorithmCy:
 
             # STEP02:Right_64 (logic for moving half of right plain text to left)
             if index_rnd % 2 == 0:
-                _local_a1 = self._p_vals_x1
-                _local_a2 = self._p_vals_x2
-                _local_a3 = self._p_vals_x3
-                _local_a4 = self._p_vals_x4
-            else:
                 _local_a1 = self._p_vals_x3
                 _local_a2 = self._p_vals_x4
                 _local_a3 = self._p_vals_x1
                 _local_a4 = self._p_vals_x2
+            else:
+                _local_a1 = self._p_vals_x1
+                _local_a2 = self._p_vals_x2
+                _local_a3 = self._p_vals_x3
+                _local_a4 = self._p_vals_x4
 
             # check if you want results back
             if rnd == index_rnd and step == STEP_Right_64:
