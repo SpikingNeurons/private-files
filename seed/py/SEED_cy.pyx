@@ -213,22 +213,26 @@ cdef class SEEDAlgorithmCy:
     cdef const np.uint32_t *_const_SS3
 
     # variables used for fast looping
-    cdef Py_ssize_t _num_ptxt, _num_keys
+    cdef Py_ssize_t _num_vals, _num_keys
+    
+    # variable that stores status if class is for encryption or decryption
+    cdef bint _do_encryption
 
     # variables to keep track of algorithm
     cdef Py_ssize_t _key_schedule_rnd_number
-    cdef Py_ssize_t _persisted_rnd_number
+    cdef Py_ssize_t _persisted_rnd_number_encrypt
+    cdef Py_ssize_t _persisted_rnd_number_decrypt
 
     # current key schedule
     cdef np.uint32_t *_p_key_schedule_0
     cdef np.uint32_t *_p_key_schedule_1
 
-    # variables used to store the plaintext passed by python modules in words
-    # four variables represent four parts of plaintext
-    cdef np.uint32_t *_p_ptxt_x1
-    cdef np.uint32_t *_p_ptxt_x2
-    cdef np.uint32_t *_p_ptxt_x3
-    cdef np.uint32_t *_p_ptxt_x4
+    # variables used to store the plaintext/ciphertext passed by python modules in words
+    # four variables represent four parts of plaintext/ciphertext for encryption/decryption
+    cdef np.uint32_t *_p_vals_x1
+    cdef np.uint32_t *_p_vals_x2
+    cdef np.uint32_t *_p_vals_x3
+    cdef np.uint32_t *_p_vals_x4
 
     # variables used to store the keys passed by python modules in words
     # four variables represent four parts of keys
@@ -263,12 +267,17 @@ cdef class SEEDAlgorithmCy:
 
     @cython.profile(True)
     cdef _cy_seed_init(self):
+        """
+
+        :return: None
+        """
 
         # some internal variables
-        self._num_ptxt = -1
+        self._num_vals = -1
         self._num_keys = -1
         self._key_schedule_rnd_number = -1
-        self._persisted_rnd_number = -1
+        self._persisted_rnd_number_encrypt = -1
+        self._persisted_rnd_number_decrypt = MAX_ROUNDS
 
         # initialize SEED algorithm related constants
         self._const_KC = _KC
@@ -279,10 +288,10 @@ cdef class SEEDAlgorithmCy:
 
         # remaining variables referenced or allocated are set to NULL
         # plain text
-        self._p_ptxt_x1 = NULL
-        self._p_ptxt_x2 = NULL
-        self._p_ptxt_x3 = NULL
-        self._p_ptxt_x4 = NULL
+        self._p_vals_x1 = NULL
+        self._p_vals_x2 = NULL
+        self._p_vals_x3 = NULL
+        self._p_vals_x4 = NULL
         # keys
         self._p_keys_x1 = NULL
         self._p_keys_x2 = NULL
@@ -294,25 +303,30 @@ cdef class SEEDAlgorithmCy:
 
     @cython.profile(True)
     cdef _cy_seed_reset(self):
+        """
+
+        :return: None
+        """
 
         # reset internal variables
-        self._num_ptxt = -1
+        self._num_vals = -1
         self._num_keys = -1
         self._key_schedule_rnd_number = -1
-        self._persisted_rnd_number = -1
+        self._persisted_rnd_number_encrypt = -1
+        self._persisted_rnd_number_decrypt = MAX_ROUNDS
 
         # Deallocate arrays allocated by cython SEED algorithm
         # plain text
-        if self._p_ptxt_x1 != NULL and self._p_ptxt_x2 != NULL and self._p_ptxt_x3 != NULL and \
-                        self._p_ptxt_x4 != NULL:
-            PyMem_Free(self._p_ptxt_x1)
-            PyMem_Free(self._p_ptxt_x2)
-            PyMem_Free(self._p_ptxt_x3)
-            PyMem_Free(self._p_ptxt_x4)
-        self._p_ptxt_x1 = NULL
-        self._p_ptxt_x2 = NULL
-        self._p_ptxt_x3 = NULL
-        self._p_ptxt_x4 = NULL
+        if self._p_vals_x1 != NULL and self._p_vals_x2 != NULL and self._p_vals_x3 != NULL and \
+                        self._p_vals_x4 != NULL:
+            PyMem_Free(self._p_vals_x1)
+            PyMem_Free(self._p_vals_x2)
+            PyMem_Free(self._p_vals_x3)
+            PyMem_Free(self._p_vals_x4)
+        self._p_vals_x1 = NULL
+        self._p_vals_x2 = NULL
+        self._p_vals_x3 = NULL
+        self._p_vals_x4 = NULL
         # keys
         if self._p_keys_x1 != NULL and self._p_keys_x2 != NULL and self._p_keys_x3 != NULL and \
                         self._p_keys_x4 != NULL:
@@ -335,6 +349,12 @@ cdef class SEEDAlgorithmCy:
 
     @cython.profile(True)
     cdef _cy_generate_key_schedule(self, np.ndarray[np.uint8_t, ndim=1] keys, Py_ssize_t rnd):
+        """
+
+        :param keys:
+        :param rnd:
+        :return: None
+        """
 
         # some typed local variables
         cdef Py_ssize_t index, index_rnd
@@ -471,44 +491,45 @@ cdef class SEEDAlgorithmCy:
 
 
     @cython.profile(True)
-    cdef _cy_fragment_ptxt_to_words(self, np.ndarray[np.uint8_t, ndim=1] ptxt):
+    cdef _cy_fragment_vals_to_words(self, np.ndarray[np.uint8_t, ndim=1] ptxt):
         """
-        Takes plaintext bytes as input and converts them in unsigned word. This step is required so that arithmetic
-        operations can be performed. Every plaintext block has 16 bytes. These bytes are shuffled to obtain word. We
-        get four words for a 128-bit block (or 16-byte block). This method assigns to class members four extracted
-        words.
-        :param ptxt: byte array that contains plaintext provided by trace file
+        Takes plaintext/ciphertext bytes as input and converts them in unsigned word. This step is required so that
+        arithmetic operations can be performed. Every plaintext/ciphertext block has 16 bytes. These bytes are shuffled
+        to obtain word. We get four words for a 128-bit block (or 16-byte block). This method assigns to class members
+        four extracted words.
+        :param ptxt: byte array that contains plaintext/ciphertext provided by trace file
         :return: None
         """
         # some local temp variables that need to be typed for fast computations
         cdef Py_ssize_t index, index_1
 
         # check if done earlier (only need to be done once for the lifetime of object)
-        if self._p_ptxt_x1 is NULL and self._p_ptxt_x2 is NULL and self._p_ptxt_x3 is NULL and self._p_ptxt_x4 is NULL:
+        if self._p_vals_x1 is NULL and self._p_vals_x2 is NULL and self._p_vals_x3 is NULL and self._p_vals_x4 is NULL:
 
             # allocate memory
-            self._p_ptxt_x1 = <np.uint32_t *> PyMem_Malloc(self._num_ptxt * sizeof(np.uint32_t))
-            self._p_ptxt_x2 = <np.uint32_t *> PyMem_Malloc(self._num_ptxt * sizeof(np.uint32_t))
-            self._p_ptxt_x3 = <np.uint32_t *> PyMem_Malloc(self._num_ptxt * sizeof(np.uint32_t))
-            self._p_ptxt_x4 = <np.uint32_t *> PyMem_Malloc(self._num_ptxt * sizeof(np.uint32_t))
-            if self._p_ptxt_x1 is NULL or self._p_ptxt_x2 is NULL or self._p_ptxt_x3 is NULL or self._p_ptxt_x4 is NULL:
-                logger.exception("PyMem_Malloc failed to allocate memory fot plain text")
+            self._p_vals_x1 = <np.uint32_t *> PyMem_Malloc(self._num_vals * sizeof(np.uint32_t))
+            self._p_vals_x2 = <np.uint32_t *> PyMem_Malloc(self._num_vals * sizeof(np.uint32_t))
+            self._p_vals_x3 = <np.uint32_t *> PyMem_Malloc(self._num_vals * sizeof(np.uint32_t))
+            self._p_vals_x4 = <np.uint32_t *> PyMem_Malloc(self._num_vals * sizeof(np.uint32_t))
+            if self._p_vals_x1 is NULL or self._p_vals_x2 is NULL or self._p_vals_x3 is NULL or self._p_vals_x4 is NULL:
+                logger.exception("PyMem_Malloc failed to allocate memory fot plaintext/ciphertext")
         else:
-            logger.error("Plaintext memory from previous sessions is not de-allocated")
+            if self._persisted_rnd_number_encrypt is not -1 or self._persisted_rnd_number_decrypt is not MAX_ROUNDS:
+                logger.error("Plaintext/Ciphertext memory from previous sessions is not de-allocated")
 
         # byte shuffle logic to convert four bytes to unsigned word, so that arithmetic operations can be performed
-        for index in range(self._num_ptxt):
+        for index in range(self._num_vals):
             index_1 = index * 16
-            self._p_ptxt_x1[index] = ((<np.uint32_t> ptxt[index_1]) << 24) | ((<np.uint32_t> ptxt[index_1+1]) << 16)\
+            self._p_vals_x1[index] = ((<np.uint32_t> ptxt[index_1]) << 24) | ((<np.uint32_t> ptxt[index_1+1]) << 16)\
                                    | ((<np.uint32_t> ptxt[index_1+2]) << 8) | (<np.uint32_t> ptxt[index_1+3])
             index_1 += 4
-            self._p_ptxt_x2[index] = ((<np.uint32_t> ptxt[index_1]) << 24) | ((<np.uint32_t> ptxt[index_1+1]) << 16)\
+            self._p_vals_x2[index] = ((<np.uint32_t> ptxt[index_1]) << 24) | ((<np.uint32_t> ptxt[index_1+1]) << 16)\
                                    | ((<np.uint32_t> ptxt[index_1+2]) << 8) | (<np.uint32_t> ptxt[index_1+3])
             index_1 += 4
-            self._p_ptxt_x3[index] = ((<np.uint32_t> ptxt[index_1]) << 24) | ((<np.uint32_t> ptxt[index_1+1]) << 16)\
+            self._p_vals_x3[index] = ((<np.uint32_t> ptxt[index_1]) << 24) | ((<np.uint32_t> ptxt[index_1+1]) << 16)\
                                    | ((<np.uint32_t> ptxt[index_1+2]) << 8) | (<np.uint32_t> ptxt[index_1+3])
             index_1 += 4
-            self._p_ptxt_x4[index] = ((<np.uint32_t> ptxt[index_1]) << 24) | ((<np.uint32_t> ptxt[index_1+1]) << 16)\
+            self._p_vals_x4[index] = ((<np.uint32_t> ptxt[index_1]) << 24) | ((<np.uint32_t> ptxt[index_1+1]) << 16)\
                                    | ((<np.uint32_t> ptxt[index_1+2]) << 8) | (<np.uint32_t> ptxt[index_1+3])
 
 
@@ -550,12 +571,12 @@ cdef class SEEDAlgorithmCy:
 
         # Reset if persistence info ahead of requested round. Also reset when persistent info is equal to requested
         # round as persistent info for round n is useful for next round (n+1) only
-        if self._persisted_rnd_number >= rnd:
+        if self._persisted_rnd_number_encrypt >= rnd:
             self._cy_seed_reset()
 
         # check how many plaintexts and keys are there
         self._num_keys = keys.shape[0] / 16
-        self._num_ptxt = plain_text.shape[0] / 16
+        self._num_vals = plain_text.shape[0] / 16
 
         # allocate memory for the result based on step selected
         #   - Note: The below code might look surprising and big. But the reason to keep it this way was because
@@ -565,17 +586,17 @@ cdef class SEEDAlgorithmCy:
             res_32_size = 0
             res_128_size = 0
         elif step == STEP_Right_64 or step == STEP_AddRoundKey_64 or step == STEP_F_64:
-            res_64_size = self._num_ptxt
+            res_64_size = self._num_vals
             res_32_size = 0
             res_128_size = 0
         elif step == STEP_GDa_32 or step == STEP_GC_32 or step == STEP_GDb_32:
             res_64_size = 0
-            res_32_size = self._num_ptxt
+            res_32_size = self._num_vals
             res_128_size = 0
         elif step == STEP_Output_128:
             res_64_size = 0
             res_32_size = 0
-            res_128_size = self._num_ptxt
+            res_128_size = self._num_vals
         else:
             res_64_size = 0
             res_32_size = 0
@@ -586,9 +607,9 @@ cdef class SEEDAlgorithmCy:
         cdef np.uint8_t[:,:] result_128 = np.empty((res_128_size, 16), dtype=np.uint8)
 
         # here we do the things only once for the lifetime of this object
-        if self._persisted_rnd_number == -1:
+        if self._persisted_rnd_number_encrypt == -1:
             # fragment plaintext to four words and store them to class variables
-            self._cy_fragment_ptxt_to_words(plain_text)
+            self._cy_fragment_vals_to_words(plain_text)
 
         #print('>>>>')
 
@@ -597,9 +618,9 @@ cdef class SEEDAlgorithmCy:
         #   - is part of logic to use results from previous iteration
         # 2nd argument of range function
         #   - forces the for loop to execute till requested round only
-        for index_rnd in range((self._persisted_rnd_number+1), rnd+1):
+        for index_rnd in range((self._persisted_rnd_number_encrypt+1), rnd+1):
 
-            #print('.index.' + str(index_rnd) + '\t.rnd.' + str(rnd) + '\t.step.' + str(step) + '\t.pers.' + str(self._persisted_rnd_number) + '\t.kesch.' + str(self._key_schedule_rnd_number))
+            #print('.index.' + str(index_rnd) + '\t.rnd.' + str(rnd) + '\t.step.' + str(step) + '\t.pers.' + str(self._persisted_rnd_number_encrypt) + '\t.kesch.' + str(self._key_schedule_rnd_number))
 
             # STEP01:RoundKey_64 (get the key schedule)
             if self._key_schedule_rnd_number != index_rnd:
@@ -619,20 +640,20 @@ cdef class SEEDAlgorithmCy:
 
             # STEP02:Right_64 (logic for moving half of right plain text to left)
             if index_rnd % 2 == 0:
-                _local_a1 = self._p_ptxt_x1
-                _local_a2 = self._p_ptxt_x2
-                _local_a3 = self._p_ptxt_x3
-                _local_a4 = self._p_ptxt_x4
+                _local_a1 = self._p_vals_x1
+                _local_a2 = self._p_vals_x2
+                _local_a3 = self._p_vals_x3
+                _local_a4 = self._p_vals_x4
             else:
-                _local_a1 = self._p_ptxt_x3
-                _local_a2 = self._p_ptxt_x4
-                _local_a3 = self._p_ptxt_x1
-                _local_a4 = self._p_ptxt_x2
+                _local_a1 = self._p_vals_x3
+                _local_a2 = self._p_vals_x4
+                _local_a3 = self._p_vals_x1
+                _local_a4 = self._p_vals_x2
 
             # check if you want results back
             if rnd == index_rnd and step == STEP_Right_64:
                 # copy results
-                for index_copy in range(self._num_ptxt):
+                for index_copy in range(self._num_vals):
                     result_64[index_copy, 0] = \
                         (<np.uint64_t> _local_a3[index_copy]<<32) | \
                         (<np.uint64_t> _local_a4[index_copy])
@@ -647,8 +668,8 @@ cdef class SEEDAlgorithmCy:
             #print('--------------------------------------------------------------------')
 
             # iterate over all plain text values
-            for index_ptxt in range(self._num_ptxt):
-            #for index_ptxt in parallel.prange(self._num_ptxt, num_threads=8, nogil=True):
+            for index_ptxt in range(self._num_vals):
+            #for index_ptxt in parallel.prange(self._num_vals, num_threads=8, nogil=True):
                 #print('kkkkkkkkkkkkkkkkkkk')
                 #print(hex(self._p_key_schedule_0[index_ptxt]))
                 #print(hex(self._p_key_schedule_1[index_ptxt]))
@@ -726,13 +747,13 @@ cdef class SEEDAlgorithmCy:
                 _local_a2[index_ptxt] = _local_a2[index_ptxt] ^ temp7
 
                 # store the state that current round intermediate results are persisted
-                self._persisted_rnd_number = index_rnd
+                self._persisted_rnd_number_encrypt = index_rnd
 
                 # STEP:Output (only happens on last round)
                 if rnd == index_rnd and step == STEP_Output_128:
                     if rnd == MAX_ROUNDS - 1:
                         # This is just a simple and fast logic to unpack word to bytes and save to result array
-                        # This basically undo the swap that was required in self._cy_fragment_ptxt_to_words
+                        # This basically undo the swap that was required in self._cy_fragment_vals_to_words
                         #
                         temp99 = _local_a1[index_ptxt]
                         result_128[index_ptxt, 0] = <np.uint8_t> (temp99>>24) & 0xff
@@ -770,6 +791,254 @@ cdef class SEEDAlgorithmCy:
 
 
     @cython.profile(True)
+    cdef _cy_decrypt(
+            self,
+            np.ndarray[np.uint8_t, ndim=1] cipher_text,
+            np.ndarray[np.uint8_t, ndim=1] keys,
+            Py_ssize_t rnd,
+            Py_ssize_t step):
+        """
+
+        :param plain_text:
+        :param keys:
+        :param rnd:
+        :param step:
+        :return:
+        """
+
+        # some typed local variables
+        cdef Py_ssize_t index_ctxt, index_rnd, index_copy, if_many_keys
+        cdef Py_ssize_t res_64_size, res_32_size, res_8_size
+        cdef np.uint32_t temp0, temp1, temp2, temp3, temp4, temp5, temp6, temp7, temp8, temp99
+
+        # temp references to achieve movement of two words (half plaintext) from right to left
+        cdef np.uint32_t *_local_a1
+        cdef np.uint32_t *_local_a2
+        cdef np.uint32_t *_local_a3
+        cdef np.uint32_t *_local_a4
+
+        # Reset if persistence info ahead of requested round. Also reset when persistent info is equal to requested
+        # round as persistent info for round n is useful for next round (n+1) only
+        if self._persisted_rnd_number_decrypt <= rnd:
+            self._cy_seed_reset()
+
+        # check how many plaintexts and keys are there
+        self._num_keys = keys.shape[0] / 16
+        self._num_vals = cipher_text.shape[0] / 16
+
+        # allocate memory for the result based on step selected
+        #   - Note: The below code might look surprising and big. But the reason to keep it this way was because
+        #           cython compiler adds calls to Python API if you do not declare and initialize array in same line.
+        if step == STEP_RoundKey_64:
+            res_64_size = self._num_keys
+            res_32_size = 0
+            res_128_size = 0
+        elif step == STEP_Right_64 or step == STEP_AddRoundKey_64 or step == STEP_F_64:
+            res_64_size = self._num_vals
+            res_32_size = 0
+            res_128_size = 0
+        elif step == STEP_GDa_32 or step == STEP_GC_32 or step == STEP_GDb_32:
+            res_64_size = 0
+            res_32_size = self._num_vals
+            res_128_size = 0
+        elif step == STEP_Output_128:
+            res_64_size = 0
+            res_32_size = 0
+            res_128_size = self._num_vals
+        else:
+            res_64_size = 0
+            res_32_size = 0
+            res_128_size = 0
+            logger.error("Invalid Step selected")
+        cdef np.uint64_t[:,:] result_64 = np.empty((res_64_size, 1), dtype=np.uint64)
+        cdef np.uint32_t[:,:] result_32 = np.empty((res_32_size, 1), dtype=np.uint32)
+        cdef np.uint8_t[:,:] result_128 = np.empty((res_128_size, 16), dtype=np.uint8)
+
+        # here we do the things only once for the lifetime of this object
+        if self._persisted_rnd_number_decrypt == MAX_ROUNDS:
+            # fragment ciphertext to four words and store them to class variables
+            self._cy_fragment_vals_to_words(cipher_text)
+
+        print('>>>>')
+
+        # rounds of decryption
+        # 1st argument of range function
+        #   - is part of logic to use results from previous iteration
+        # 2nd argument of range function
+        #   - forces the for loop to execute till requested round only
+        for index_rnd in range((self._persisted_rnd_number_decrypt-1), rnd-1, -1):
+
+            # STEP01:RoundKey_64 (get the key schedule)
+            if self._key_schedule_rnd_number != index_rnd:
+                self._cy_generate_key_schedule(keys, index_rnd)
+                # update state variable
+                self._key_schedule_rnd_number = index_rnd
+
+            print('.index.' + str(index_rnd) + '\t.rnd.' + str(rnd) + '\t.step.' + str(step) + '\t.pers.' + str(self._persisted_rnd_number_decrypt) + '\t.kesch.' + str(self._key_schedule_rnd_number))
+
+            # check if you want results back
+            if rnd == index_rnd and step == STEP_RoundKey_64:
+                # copy results
+                for index_copy in range(self._num_keys):
+                    result_64[index_copy, 0] = \
+                        (<np.uint64_t> self._p_key_schedule_0[index_copy]<<32) | \
+                        (<np.uint64_t> self._p_key_schedule_1[index_copy])
+                # break the loop for round
+                break
+
+            # STEP02:Right_64 (logic for moving half of right plain text to left)
+            if index_rnd % 2 == 0:
+                _local_a1 = self._p_vals_x1
+                _local_a2 = self._p_vals_x2
+                _local_a3 = self._p_vals_x3
+                _local_a4 = self._p_vals_x4
+            else:
+                _local_a1 = self._p_vals_x3
+                _local_a2 = self._p_vals_x4
+                _local_a3 = self._p_vals_x1
+                _local_a4 = self._p_vals_x2
+
+            # check if you want results back
+            if rnd == index_rnd and step == STEP_Right_64:
+                # copy results
+                for index_copy in range(self._num_vals):
+                    result_64[index_copy, 0] = \
+                        (<np.uint64_t> _local_a3[index_copy]<<32) | \
+                        (<np.uint64_t> _local_a4[index_copy])
+                # break the loop for round
+                break
+
+            # check number of keys
+            if_many_keys = 1
+            if self._num_keys == 1:
+                if_many_keys = 0
+
+            #print('--------------------------------------------------------------------')
+
+            # iterate over all plain text values
+            for index_ctxt in range(self._num_vals):
+            #for index_ptxt in parallel.prange(self._num_vals, num_threads=8, nogil=True):
+                #print('kkkkkkkkkkkkkkkkkkk')
+                #print(hex(self._p_key_schedule_0[index_ptxt]))
+                #print(hex(self._p_key_schedule_1[index_ptxt]))
+                #print('ttttttttttttttttttt')
+                #print(hex(_local_a1[index_ptxt]))
+                #print(hex(_local_a2[index_ptxt]))
+                #print(hex(_local_a3[index_ptxt]))
+                #print(hex(_local_a4[index_ptxt]))
+
+                # STEP03:AddRoundKey_64 (Here we add round key schedule to cipher text)
+                temp0 = _local_a3[index_ctxt] ^ self._p_key_schedule_0[index_ctxt * if_many_keys]
+                temp1 = _local_a4[index_ctxt] ^ self._p_key_schedule_1[index_ctxt * if_many_keys]
+                temp2 = temp1 ^ temp0
+
+                # check if you want results back
+                if rnd == index_rnd and step == STEP_AddRoundKey_64:
+                    # copy results
+                    result_64[index_ctxt, 0] = (<np.uint64_t> temp0<<32) | (<np.uint64_t> temp2)
+                    continue
+
+                # STEP04:GDa_32 (1st use of G-Function)
+                temp3 = self._const_SS0[temp2 & 0xff] ^ \
+                        self._const_SS1[(temp2>>8) & 0xff] ^ \
+                        self._const_SS2[(temp2>>16) & 0xff] ^ \
+                        self._const_SS3[(temp2>>24) & 0xff]
+
+                # check if you want results back
+                if rnd == index_rnd and step == STEP_GDa_32:
+                    # copy results
+                    result_32[index_ctxt, 0] = temp3
+                    continue
+
+                # STEP---
+                temp4 = temp3 + temp0
+
+                # STEP05:GC_32 (2nd use of G-Function)
+                temp5 = self._const_SS0[temp4 & 0xff] ^ \
+                        self._const_SS1[(temp4>>8) & 0xff] ^ \
+                        self._const_SS2[(temp4>>16) & 0xff] ^ \
+                        self._const_SS3[(temp4>>24) & 0xff]
+
+                # check if you want results back
+                if rnd == index_rnd and step == STEP_GC_32:
+                    # copy results
+                    result_32[index_ctxt, 0] = temp5
+                    continue
+
+                # STEP---
+                temp6 = temp5 + temp3
+
+                # STEP06:GDb_32 (3rd use of G-Function)
+                temp7 = self._const_SS0[temp6 & 0xff] ^ \
+                        self._const_SS1[(temp6>>8) & 0xff] ^ \
+                        self._const_SS2[(temp6>>16) & 0xff] ^ \
+                        self._const_SS3[(temp6>>24) & 0xff]
+
+                # check if you want results back
+                if rnd == index_rnd and step == STEP_GDb_32:
+                    # copy results
+                    result_32[index_ctxt, 0] = temp7
+                    continue
+
+                # STEP07:F_64 (Output of F-function which is made of 3 G-Functions and 3 additions)
+                temp8 = temp5 + temp7
+
+                # check if you want results back
+                #   Notice that there is no continue for this if block as it is assumed that if last step for given
+                #   rnd is called, then there is need to persist the state for next round
+                if rnd == index_rnd and step == STEP_F_64:
+                    # copy results
+                    result_64[index_ctxt, 0] = (<np.uint64_t> temp8<<32) | (<np.uint64_t> temp7)
+
+                # moving of results
+                _local_a1[index_ctxt] = _local_a1[index_ctxt] ^ temp8
+                _local_a2[index_ctxt] = _local_a2[index_ctxt] ^ temp7
+
+                # store the state that current round intermediate results are persisted
+                self._persisted_rnd_number_decrypt = index_rnd
+
+                # STEP:Output (only happens on last round)
+                if rnd == index_rnd and step == STEP_Output_128:
+                    if rnd == 0:
+                        # This is just a simple and fast logic to unpack word to bytes and save to result array
+                        # This basically undo the swap that was required in self._cy_fragment_vals_to_words
+                        #
+                        temp99 = _local_a1[index_ctxt]
+                        result_128[index_ctxt, 0] = <np.uint8_t> (temp99>>24) & 0xff
+                        result_128[index_ctxt, 1] = <np.uint8_t> (temp99>>16) & 0xff
+                        result_128[index_ctxt, 2] = <np.uint8_t> (temp99>>8) & 0xff
+                        result_128[index_ctxt, 3] = <np.uint8_t> temp99 & 0xff
+                        #
+                        temp99 = _local_a2[index_ctxt]
+                        result_128[index_ctxt, 4] = <np.uint8_t> (temp99>>24) & 0xff
+                        result_128[index_ctxt, 5] = <np.uint8_t> (temp99>>16) & 0xff
+                        result_128[index_ctxt, 6] = <np.uint8_t> (temp99>>8) & 0xff
+                        result_128[index_ctxt, 7] = <np.uint8_t> temp99 & 0xff
+                        #
+                        temp99 = _local_a3[index_ctxt]
+                        result_128[index_ctxt, 8] = <np.uint8_t> (temp99>>24) & 0xff
+                        result_128[index_ctxt, 9] = <np.uint8_t> (temp99>>16) & 0xff
+                        result_128[index_ctxt, 10] = <np.uint8_t> (temp99>>8) & 0xff
+                        result_128[index_ctxt, 11] = <np.uint8_t> temp99 & 0xff
+                        #
+                        temp99 = _local_a4[index_ctxt]
+                        result_128[index_ctxt, 12] = <np.uint8_t> (temp99>>24) & 0xff
+                        result_128[index_ctxt, 13] = <np.uint8_t> (temp99>>16) & 0xff
+                        result_128[index_ctxt, 14] = <np.uint8_t> (temp99>>8) & 0xff
+                        result_128[index_ctxt, 15] = <np.uint8_t> temp99 & 0xff
+
+        # time to return results
+        if res_64_size > 0:
+            return result_64
+        elif res_32_size > 0:
+            return result_32
+        elif res_128_size > 0:
+            return result_128
+        else:
+            return None
+
+
+    @cython.profile(True)
     def encrypt(self, plain_text, keys, rnd, step):
         # validate round
         if rnd < 1 or rnd > MAX_ROUNDS:
@@ -791,3 +1060,26 @@ cdef class SEEDAlgorithmCy:
         # we use zero indexed round inside algorithm hence (rnd-1)
         return self._cy_encrypt(plain_text, keys, rnd-1, step)
 
+
+
+    @cython.profile(True)
+    def decrypt(self, cipher_text, keys, rnd, step):
+        # validate round
+        if rnd < 1 or rnd > MAX_ROUNDS:
+            logger.error('Invalid round entered. Round can be between 1 and 16. Found: ' + str(rnd))
+            return None
+
+        # validate step
+        if step < min(STEPS_PROVIDED) or step > max(STEPS_PROVIDED):
+            logger.error('Invalid step entered. Valid steps are: ' + str(STEPS_PROVIDED._fields))
+            return None
+
+        # validate STEP Output_128 belongs to last rnd
+        if step is STEPS_PROVIDED.Output_128:
+            if rnd is not 1:
+                logger.error("STEP: " + str(STEPS_PROVIDED._fields[step]) + " only possible with last round (i.e. " +
+                             str(1) + ")")
+                return None
+
+        # we use zero indexed round inside algorithm hence (rnd-1)
+        return self._cy_decrypt(cipher_text, keys, rnd-1, step)

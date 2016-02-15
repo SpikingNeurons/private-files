@@ -286,9 +286,12 @@ if __name__ == '__main__':
     from SEED_cy import SEEDAlgorithmCy, STEPS_PROVIDED
     print('Main of SEED.py')
 
-    ptx = test_vector_big_mkmp.ptx
-    key = test_vector_big_mkmp.key
-    ctx = test_vector_big_mkmp.ctx
+    #ptx = test_vector_big_mkmp.ptx
+    #key = test_vector_big_mkmp.key
+    #ctx = test_vector_big_mkmp.ctx
+    ptx = test_vectors_sksp[3].ptx
+    key = test_vectors_sksp[3].key
+    ctx = test_vectors_sksp[3].ctx
 
     acy = SEEDAlgorithmCy()
 
@@ -303,6 +306,32 @@ if __name__ == '__main__':
 
     diff = np.array_equal(res, ctx)
     print(diff)
+
+    ## decrypt
+    del acy
+    acy = SEEDAlgorithmCy()
+    #res = acy.decrypt(ctx, key, 10, STEPS_PROVIDED.F_64)
+    for rnd in range(16,0,-1):
+        print(rnd)
+        #res = acy.decrypt(ctx, key, rnd, STEPS_PROVIDED.Right_64)
+
+
+    res = acy.decrypt(ctx, key, 16, STEPS_PROVIDED.Right_64)
+    res = acy.decrypt(ctx, key, 15, STEPS_PROVIDED.Right_64)
+    res = acy.decrypt(ctx, key, 1, STEPS_PROVIDED.Output_128)
+
+
+    #res = np.reshape(res, ctx.shape)
+
+    #diff = np.array_equal(res, ptx)
+    #print(diff)
+
+    #_print_hex(ctx)
+    #_print_hex(res)
+
+    for rr in res:
+        for r in rr:
+            print(hex(r))
 
 
 
