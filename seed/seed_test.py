@@ -548,10 +548,6 @@ class StandAloneTest(unittest.TestCase):
 
 class TraceFileHandlerTest(unittest.TestCase):
 
-    def setUp(self):
-        if _SCAFFOLD:
-            self.skipTest('No scaffold project found')
-
     def test_encrypt_with_CryptoDataTarget(self):
         """
         Check encryption with TraceFileHandler (with single key) and
@@ -822,10 +818,6 @@ class TraceFileHandlerTest(unittest.TestCase):
 
 
 class CryptoDataTargetTest(unittest.TestCase):
-
-    def setUp(self):
-        if _SCAFFOLD:
-            self.skipTest('No scaffold project found')
 
     def test_encrypt_with_CryptoDataTarget(self):
         """
