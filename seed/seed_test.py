@@ -12,6 +12,7 @@ pyximport.install(setup_args={'include_dirs': [np.get_include(), '.']},
                   inplace=True)
 
 _SCAFFOLD = False
+_PRINT = False
 
 from collections import namedtuple
 
@@ -172,6 +173,8 @@ def get_test_vector_big_mkmp(test_big_size):
 
 
 def print_utility(time_taken, data_size, method_name):
+    if not _PRINT:
+        return
     _G_custom_stream.write('\n..... ' + str(time_taken) + '\t sec taken by ' +
                            method_name + ' for data size of ' +
                            str(data_size))
@@ -412,12 +415,7 @@ class TimingTest(unittest.TestCase):
             equality_check, 'SEED_helper_decrypt_single_key failed')
 
 
-class UnitTest(unittest.TestCase):
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
+class StandAloneTest(unittest.TestCase):
 
     def test_third_party_SEED_encrypt(self):
         """
@@ -520,6 +518,39 @@ class UnitTest(unittest.TestCase):
         equality_check = np.array_equal(res, test_vec.ptx)
         self.assertTrue(
             equality_check, 'SEED_helper_decrypt_single_key failed')
+
+    def test_key_schedule_while_encryption(self):
+        """
+        Test of key schedule generation logic while encryption
+        """
+        pass
+
+    def test_key_schedule_while_decryption(self):
+        """
+        Test of key schedule generation logic while decryption
+        """
+        pass
+
+    def test_intermediate_F_while_encryption(self):
+        """
+        We only test output of function F which is intermediate value.
+        We check for all rounds.
+        """
+        pass
+
+    def test_intermediate_F_while_decryption(self):
+        """
+        We only test output of function F which is intermediate value.
+        We check for all rounds.
+        """
+        pass
+
+
+class TraceFileHandlerTest(unittest.TestCase):
+
+    def setUp(self):
+        if _SCAFFOLD:
+            self.skipTest('No scaffold project found')
 
     def test_encrypt_with_CryptoDataTarget(self):
         """
@@ -789,37 +820,90 @@ class UnitTest(unittest.TestCase):
 
         pass
 
-    def test_key_schedule_while_encryption(self):
-        """
-        Test of key schedule generation logic while encryption
-        """
-        pass
 
-    def test_key_schedule_while_decryption(self):
-        """
-        Test of key schedule generation logic while decryption
-        """
-        pass
+class CryptoDataTargetTest(unittest.TestCase):
 
-    def test_intermediate_F_while_encryption(self):
-        """
-        We only test output of function F which is intermediate value.
-        We check for all rounds.
-        """
-        pass
+    def setUp(self):
+        if _SCAFFOLD:
+            self.skipTest('No scaffold project found')
 
-    def test_intermediate_F_while_decryption(self):
+    def test_encrypt_with_CryptoDataTarget(self):
         """
-        We only test output of function F which is intermediate value.
-        We check for all rounds.
+        Check encryption with TraceFileHandler (with single key) and
+        CryptoDataTarget
         """
-        pass
+        # get the trace file
+        tf = TraceFile(_G_file_name_single_key)
+
+        # check trace file
+        if tf.has_local_field('key'):
+            self.skipTest('You did not provide trace file with single key')
+            return
+
+        # get key and plain text
+        tfh = TraceFileHandler(tf, algo='SEED', algo_param={'decrypt': False})
+        key = tf['key'].astype(np.uint8)
+        ptx = tfh['plaintext'].astype(np.uint8)
+
+        # we are using fake trace file so generate cipher text
+        # from third party code
+        ctx = []
+        for p in ptx:
+            c = third_party_encrypt(p, key, 'SEED')
+            ctx.append(c)
+        ctx = np.asarray(ctx)
+
+        # use TraceFileHandler to get the output of final round
+        target = SEEDCryptoTarget(
+            trace_file=tf, rnd=16, step='Output', keysize=128, decrypt=False)
+        res = tfh[target].astype(np.uint8)
+
+        # equality_check
+        equality_check = np.array_equal(ctx, res)
+        self.assertTrue(
+            equality_check, 'test_encrypt_single_key_with_tfh failed')
+
+    def test_decrypt_with_CryptoDataTarget(self):
+        """
+        Check decryption with TraceFileHandler (with single key) and
+        CryptoDataTarget
+        """
+        # get the trace file
+        tf = TraceFile(_G_file_name_single_key)
+
+        # check trace file
+        if tf.has_local_field('key'):
+            self.skipTest('You did not provide trace file with single key')
+            return
+
+        # get key and cipher text
+        tfh = TraceFileHandler(tf, algo='SEED', algo_param={'decrypt': True})
+        key = tf['key'].astype(np.uint8)
+        ctx = tfh['ciphertext'].astype(np.uint8)
+
+        # we are using fake trace file so generate
+        # plain text from third party code
+        ptx = []
+        for c in ctx:
+            p = third_party_decrypt(c, key, 'SEED')
+            ptx.append(p)
+        ptx = np.asarray(ptx)
+
+        # use TraceFileHandler to get the output of final round
+        target = SEEDCryptoTarget(
+            trace_file=tf, rnd=16, step='Output', keysize=128, decrypt=True)
+        res = tfh[target].astype(np.uint8)
+
+        # equality_check
+        equality_check = np.array_equal(ptx, res)
+        self.assertTrue(
+            equality_check, 'test_decrypt_single_key_with_tfh failed')
 
 
-if __name__ == '__main__':
+def all_tests():
     test_loader = unittest.TestLoader()
-    suite1 = test_loader.loadTestsFromTestCase(UnitTest)
-    suite2 = test_loader.loadTestsFromTestCase(TimingTest)
+    suite1 = test_loader.loadTestsFromTestCase(TimingTest)
+    suite2 = test_loader.loadTestsFromTestCase(StandAloneTest)
     # suite = unittest.TestSuite()
     # suite.addTest(suite1)
     # suite.addTest(suite2)
@@ -835,3 +919,13 @@ if __name__ == '__main__':
                                 verbosity=3).run(suite2)
     _G_custom_stream.write('\n|||||||||||||||||||||||||||||||||||||||||||||||'
                            '|||||||||||||||||||||||||||||||\n\n')
+    pass
+
+
+def one_test():
+    pass
+
+
+if __name__ == '__main__':
+    #unittest.main()
+    all_tests()
