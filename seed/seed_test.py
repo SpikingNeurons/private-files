@@ -1,42 +1,19 @@
 # -*- coding: utf-8 -*-
 
+# Generic libraries import
 import numpy as np
-import time
-import sys
-import cProfile
-# Code to generate html file and compile pyd file
-import subprocess
-import pyximport
-subprocess.call(['cython', '-a', 'SEED_helper.pyx'])
-pyximport.install(setup_args={'include_dirs': [np.get_include(), '.']},
-                  inplace=True)
-
-_SCAFFOLD = False
-_PRINT = False
-
-from collections import namedtuple
-
-# from Cython.Includes.libcpp.stack import stack
-
-if _SCAFFOLD:
-    from scaffold.crypto.SEED import SEEDCryptoTarget
-    import scaffold.crypto.SEED_helper as SEED_helper
-    from scaffold.core import TraceFile, TraceFileHandler, config
-    import scaffold
-else:
-    import SEED_helper
-
 import time, os, sys
+from collections import namedtuple
 import unittest
 
+# import SEED and TraceFileHandler modules
+import SEED_helper
+
+
+# some config params
+_PRINT = False
+
 # some global params
-if _SCAFFOLD:
-    cfg = config.Config(scaffold.config_file())
-    SAMPLES_PATH = cfg.get('file_settings', 'samples_dir')
-    TRACE_FILE_SINGLE_KEY = 'aes8bit_fixed_key_10k.bin'
-    TRACE_FILE_MULTI_KEY = 'aes8bit_fixed_key_10k.bin'
-    _G_file_name_single_key = os.path.join(SAMPLES_PATH, TRACE_FILE_SINGLE_KEY)
-    _G_file_name_multi_key = os.path.join(SAMPLES_PATH, TRACE_FILE_MULTI_KEY)
 _G_custom_stream = sys.stdout
 
 # Test vectors to check SEED encryption and decryption
@@ -173,76 +150,15 @@ def get_test_vector_big_mkmp(test_big_size):
 
 
 def print_utility(time_taken, data_size, method_name):
+
     if not _PRINT:
         return
+
     _G_custom_stream.write('\n..... ' + str(time_taken) + '\t sec taken by ' +
                            method_name + ' for data size of ' +
                            str(data_size))
     _G_custom_stream.write('\n..... ')
     pass
-
-
-def write_file(data, filename):
-    with open(filename, "w") as f:
-        f.write(data)
-
-
-def _test_c_types():
-    aa = np.arange(500).reshape(100, 5)
-    print(aa[:, 0].flags['C_CONTIGUOUS'])
-    print(aa[0, :].flags['C_CONTIGUOUS'])
-
-    tt = aa[:, 0]
-    _print_pointer(tt)
-    tt = aa[:, 1]
-    _print_pointer(tt)
-    tt = aa[0, :]
-    _print_pointer(tt)
-    tt = aa[1, :]
-    _print_pointer(tt)
-
-    print(aa.ctypes.shape)
-    print(aa.ctypes.strides)
-    print(aa.ctypes.strides)
-
-
-def _print_hex(arr):
-    fill = 0
-    if arr.dtype == np.uint8:
-        fill = 2
-    elif arr.dtype == np.uint16:
-        fill = 4
-    elif arr.dtype == np.uint32:
-        fill = 8
-    elif arr.dtype == np.uint64:
-        fill = 16
-    for elem in arr:
-        ss = hex(elem)[2:].zfill(fill)
-        print(ss, end=' ')
-    print('\n')
-
-
-def _print_pointer(data):
-    import ctypes
-    import sys
-    print('.........................................')
-    print(data.ctypes.data_as(ctypes.c_void_p))
-    print('Size: ' + str(sys.getsizeof(data)))
-    print('dtype: ' + str(data.dtype))
-    print('shape: ' + str(data.shape))
-    print('strides: ' + str(data.strides))
-    print('')
-    print('')
-    print('')
-
-
-def _print_extra_info(time_taken):
-    """
-    generates string to be printed
-    """
-    return '\n\t>>>> 1111 : ' + str(1111) + \
-           '\n....' + 'time taken: [[' + str(time_taken) + ']]' + \
-           '\n'
 
 
 def _third_party_encrypt_seed(plain_text, key):
@@ -326,6 +242,10 @@ def third_party_decrypt(cipher_text, key, algorithm):
 
 
 class TimingTest(unittest.TestCase):
+    """
+    Tests related to timing performance of SEED module.
+    Note that the data is generated in memory using fake data.
+    """
     def setUp(self):
         self.big_size = 10000
         self.threads_to_use = 1
@@ -334,7 +254,7 @@ class TimingTest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test_SEED_helper_encrypt_multiple_key(self):
+    def test_encrypt_multiple_key(self):
         """
         Check for cython implementation encryption of SEED (with multiple keys)
         """
@@ -354,7 +274,7 @@ class TimingTest(unittest.TestCase):
         self.assertTrue(
             equality_check, 'SEED_helper_encrypt_multiple_key failed')
 
-    def test_SEED_helper_decrypt_multiple_key(self):
+    def test_decrypt_multiple_key(self):
         """
         Check for cython implementation decryption of SEED (with multiple keys)
         """
@@ -374,7 +294,7 @@ class TimingTest(unittest.TestCase):
         self.assertTrue(
             equality_check, 'SEED_helper_decrypt_multiple_key failed')
 
-    def test_SEED_helper_encrypt_single_key(self):
+    def test_encrypt_single_key(self):
         """
         Check for cython implementation encryption of SEED (with single keys)
         """
@@ -394,7 +314,7 @@ class TimingTest(unittest.TestCase):
         self.assertTrue(
             equality_check, 'SEED_helper_encrypt_single_key failed')
 
-    def test_SEED_helper_decrypt_single_key(self):
+    def test_decrypt_single_key(self):
         """
         Check for cython implementation decryption of SEED (with single keys)
         """
@@ -415,9 +335,18 @@ class TimingTest(unittest.TestCase):
             equality_check, 'SEED_helper_decrypt_single_key failed')
 
 
-class StandAloneTest(unittest.TestCase):
+class ThirdPartyTest(unittest.TestCase):
+    """
+    This is the third party SEED module for verifying the encryption and
+    decryption. You can safely ignore these tests.
+    """
+    def setUp(self):
+        pass
 
-    def test_third_party_SEED_encrypt(self):
+    def tearDown(self):
+        pass
+
+    def test_encrypt(self):
         """
         Check for third party encryption of SEED
         """
@@ -435,7 +364,7 @@ class StandAloneTest(unittest.TestCase):
         except ImportError as e:
             self.skipTest('Third party SEED library missing: ' + str(e))
 
-    def test_third_party_SEED_decrypt(self):
+    def test_decrypt(self):
         """
         Check for third party decryption of SEED
         """
@@ -453,7 +382,19 @@ class StandAloneTest(unittest.TestCase):
         except ImportError as e:
             self.skipTest('Third party SEED library missing: ' + str(e))
 
-    def test_SEED_helper_encrypt_multiple_key(self):
+
+class StandAloneTest(unittest.TestCase):
+    """
+    Test all basic functions using fake test vectors.
+    """
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_encrypt_multi_key(self):
         """
         Check for cython implementation encryption of SEED (with multiple keys)
         """
@@ -469,7 +410,7 @@ class StandAloneTest(unittest.TestCase):
         self.assertTrue(
             equality_check, 'SEED_helper_encrypt_multiple_key failed')
 
-    def test_SEED_helper_decrypt_multiple_key(self):
+    def test_decrypt_multi_key(self):
         """
         Check for cython implementation decryption of SEED (with multiple keys)
         """
@@ -485,7 +426,7 @@ class StandAloneTest(unittest.TestCase):
         self.assertTrue(
             equality_check, 'SEED_helper_decrypt_multiple_key failed')
 
-    def test_SEED_helper_encrypt_single_key(self):
+    def test_encrypt_single_key(self):
         """
         Check for cython implementation encryption of SEED (with single keys)
         """
@@ -502,7 +443,7 @@ class StandAloneTest(unittest.TestCase):
         self.assertTrue(
             equality_check, 'SEED_helper_encrypt_single_key failed')
 
-    def test_SEED_helper_decrypt_single_key(self):
+    def test_decrypt_single_key(self):
         """
         Check for cython implementation decryption of SEED (with single keys)
         """
@@ -519,380 +460,35 @@ class StandAloneTest(unittest.TestCase):
         self.assertTrue(
             equality_check, 'SEED_helper_decrypt_single_key failed')
 
-    def test_key_schedule_while_encryption(self):
+    def test_encrypt_key_schedule(self):
         """
         Test of key schedule generation logic while encryption
         """
         pass
 
-    def test_key_schedule_while_decryption(self):
+    def test_decrypt_key_schedule(self):
         """
         Test of key schedule generation logic while decryption
         """
         pass
 
-    def test_intermediate_F_while_encryption(self):
+    def test_encrypt_intermediate_F(self):
         """
         We only test output of function F which is intermediate value.
         We check for all rounds.
         """
         pass
 
-    def test_intermediate_F_while_decryption(self):
+    def test_decrypt_intermediate_F(self):
         """
         We only test output of function F which is intermediate value.
         We check for all rounds.
         """
         pass
-
-
-class TraceFileHandlerTest(unittest.TestCase):
-
-    def test_encrypt_with_CryptoDataTarget(self):
-        """
-        Check encryption with TraceFileHandler (with single key) and
-        CryptoDataTarget
-        """
-        # get the trace file
-        tf = TraceFile(_G_file_name_single_key)
-
-        # check trace file
-        if tf.has_local_field('key'):
-            self.skipTest('You did not provide trace file with single key')
-            return
-
-        # get key and plain text
-        tfh = TraceFileHandler(tf, algo='SEED', algo_param={'decrypt': False})
-        key = tf['key'].astype(np.uint8)
-        ptx = tfh['plaintext'].astype(np.uint8)
-
-        # we are using fake trace file so generate cipher text
-        # from third party code
-        ctx = []
-        for p in ptx:
-            c = third_party_encrypt(p, key, 'SEED')
-            ctx.append(c)
-        ctx = np.asarray(ctx)
-
-        # use TraceFileHandler to get the output of final round
-        target = SEEDCryptoTarget(
-            trace_file=tf, rnd=16, step='Output', keysize=128, decrypt=False)
-        res = tfh[target].astype(np.uint8)
-
-        # equality_check
-        equality_check = np.array_equal(ctx, res)
-        self.assertTrue(
-            equality_check, 'test_encrypt_single_key_with_tfh failed')
-
-    def test_decrypt_with_CryptoDataTarget(self):
-        """
-        Check decryption with TraceFileHandler (with single key) and
-        CryptoDataTarget
-        """
-        # get the trace file
-        tf = TraceFile(_G_file_name_single_key)
-
-        # check trace file
-        if tf.has_local_field('key'):
-            self.skipTest('You did not provide trace file with single key')
-            return
-
-        # get key and cipher text
-        tfh = TraceFileHandler(tf, algo='SEED', algo_param={'decrypt': True})
-        key = tf['key'].astype(np.uint8)
-        ctx = tfh['ciphertext'].astype(np.uint8)
-
-        # we are using fake trace file so generate
-        # plain text from third party code
-        ptx = []
-        for c in ctx:
-            p = third_party_decrypt(c, key, 'SEED')
-            ptx.append(p)
-        ptx = np.asarray(ptx)
-
-        # use TraceFileHandler to get the output of final round
-        target = SEEDCryptoTarget(
-            trace_file=tf, rnd=16, step='Output', keysize=128, decrypt=True)
-        res = tfh[target].astype(np.uint8)
-
-        # equality_check
-        equality_check = np.array_equal(ptx, res)
-        self.assertTrue(
-            equality_check, 'test_decrypt_single_key_with_tfh failed')
-
-    def test_encrypt_single_key_with_tfh(self):
-        """
-        Check encryption with TraceFileHandler (with single key)
-        """
-        # get the trace file
-        tf = TraceFile(_G_file_name_single_key)
-
-        # check trace file
-        if tf.has_local_field('key'):
-            self.skipTest('You did not provide trace file with single key')
-            return
-
-        # get key and plain text
-        tfh = TraceFileHandler(tf, algo='SEED', algo_param={'decrypt': False})
-        key = tf['key'].astype(np.uint8)
-        ptx = tfh['plaintext'].astype(np.uint8)
-
-        # we are using fake trace file so
-        # generate cipher text from third party code
-        ctx = []
-        for p in ptx:
-            c = third_party_encrypt(p, key, 'SEED')
-            ctx.append(c)
-        ctx = np.asarray(ctx)
-
-        # use TraceFileHandler to get the output of final round
-        res = tfh['16:Output'].astype(np.uint8)
-
-        # equality_check
-        equality_check = np.array_equal(ctx, res)
-        self.assertTrue(
-            equality_check, 'test_encrypt_single_key_with_tfh failed')
-
-    def test_decrypt_single_key_with_tfh(self):
-        """
-        Check decryption with TraceFileHandler (with single key)
-        """
-        # get the trace file
-        tf = TraceFile(_G_file_name_single_key)
-
-        # check trace file
-        if tf.has_local_field('key'):
-            self.skipTest('You did not provide trace file with single key')
-            return
-
-        # get key and cipher text
-        tfh = TraceFileHandler(tf, algo='SEED', algo_param={'decrypt': True})
-        key = tf['key'].astype(np.uint8)
-        ctx = tfh['ciphertext'].astype(np.uint8)
-
-        # we are using fake trace file so
-        # generate plain text from third party code
-        ptx = []
-        for c in ctx:
-            p = third_party_decrypt(c, key, 'SEED')
-            ptx.append(p)
-        ptx = np.asarray(ptx)
-
-        # use TraceFileHandler to get the output of final round
-        res = tfh['16:Output'].astype(np.uint8)
-
-        # equality_check
-        equality_check = np.array_equal(ptx, res)
-        self.assertTrue(
-            equality_check, 'test_decrypt_single_key_with_tfh failed')
-
-    def test_encrypt_multi_key_with_tfh(self):
-        """
-        Check encryption with TraceFileHandler (with multi key)
-        """
-        # get the trace file
-        tf = TraceFile(_G_file_name_multi_key)
-
-        # check trace file
-        if not tf.has_local_field('key'):
-            self.skipTest('You did not provide trace file with multi key')
-            return
-
-        # get key and plain text
-        tfh = TraceFileHandler(tf, algo='SEED', algo_param={'decrypt': False})
-        key = tf['key'].astype(np.uint8)
-        ptx = tfh['plaintext'].astype(np.uint8)
-
-        # we are using fake trace file so
-        # generate cipher text from third party code
-        ctx = []
-        for p, k in zip(ptx, key):
-            c = third_party_encrypt(p, k, 'SEED')
-            ctx.append(c)
-        ctx = np.asarray(ctx)
-
-        # use TraceFileHandler to get the output of final round
-        res = tfh['16:Output'].astype(np.uint8)
-
-        # equality_check
-        equality_check = np.array_equal(ctx, res)
-        self.assertTrue(
-            equality_check, 'test_encrypt_multi_key_with_tfh failed')
-
-    def test_decrypt_multi_key_with_tfh(self):
-        """
-        Check decryption with TraceFileHandler (with multi key)
-        """
-        # get the trace file
-        tf = TraceFile(_G_file_name_multi_key)
-
-        # check trace file
-        if not tf.has_local_field('key'):
-            self.skipTest('You did not provide trace file with multi key')
-            return
-
-        # get key and plain text
-        tfh = TraceFileHandler(tf, algo='SEED', algo_param={'decrypt': True})
-        key = tf['key'].astype(np.uint8)
-        ctx = tfh['ciphertext'].astype(np.uint8)
-
-        # we are using fake trace file so generate
-        # plain text from third party code
-        ptx = []
-        for c, k in zip(ctx, key):
-            p = third_party_decrypt(c, k, 'SEED')
-            ptx.append(p)
-        ptx = np.asarray(ptx)
-
-        # use TraceFileHandler to get the output of final round
-        res = tfh['16:Output'].astype(np.uint8)
-
-        # equality_check
-        equality_check = np.array_equal(ptx, res)
-        self.assertTrue(
-            equality_check, 'test_decrypt_multi_key_with_tfh failed')
-
-    def test_decrypt_steps_provided(self):
-        """
-        Test to check the steps provided by SEED algorithm in decrypt mode.
-        """
-        # get the trace file
-        tf = TraceFile(_G_file_name_single_key)
-
-        # get key and plain text
-        tfh = TraceFileHandler(tf, algo='SEED', algo_param={'decrypt': True})
-
-        # get crypto data processor
-        ret = tfh._data_processor.crypto_targets
-
-        # unittest check
-        for r in ret:
-            rnd = int(r.split(':')[0])
-            step = r.split(':')[1]
-            if not 0 < rnd <= 16:
-                self.assertTrue(False, 'Round not in range.')
-            if step not in [x[0] for x in
-                            SEED_helper.STEPS_PROVIDED_AND_MAX_RANGE]:
-                self.assertTrue(False, 'Step: ' + step + ' not provided')
-            if step == [x[0] for x in
-                            SEED_helper.STEPS_PROVIDED_AND_MAX_RANGE][-1]:
-                if rnd is not 16:
-                    self.assertTrue(
-                        False,
-                        'Step: ' + step + ' is only available for round 16'
-                    )
-
-        pass
-
-    def test_encrypt_steps_provided(self):
-        """
-        Test to check the steps provided by SEED algorithm in encrypt mode.
-        """
-        # get the trace file
-        tf = TraceFile(_G_file_name_single_key)
-
-        # get key and plain text
-        tfh = TraceFileHandler(tf, algo='SEED', algo_param={'decrypt': False})
-
-        # get crypto data processor
-        ret = tfh._data_processor.crypto_targets
-
-        # unittest check
-        for r in ret:
-            rnd = int(r.split(':')[0])
-            step = r.split(':')[1]
-            if not 0 < rnd <= 16:
-                self.assertTrue(False, 'Round not in range.')
-            if step not in [x[0] for x in
-                            SEED_helper.STEPS_PROVIDED_AND_MAX_RANGE]:
-                self.assertTrue(False, 'Step: ' + step + ' not provided')
-            if step == [x[0] for x in
-                            SEED_helper.STEPS_PROVIDED_AND_MAX_RANGE][-1]:
-                if rnd is not 16:
-                    self.assertTrue(
-                        False,
-                        'Step: ' + step + ' is only available for round 16'
-                    )
-
-        pass
-
-
-class CryptoDataTargetTest(unittest.TestCase):
-
-    def test_encrypt_with_CryptoDataTarget(self):
-        """
-        Check encryption with TraceFileHandler (with single key) and
-        CryptoDataTarget
-        """
-        # get the trace file
-        tf = TraceFile(_G_file_name_single_key)
-
-        # check trace file
-        if tf.has_local_field('key'):
-            self.skipTest('You did not provide trace file with single key')
-            return
-
-        # get key and plain text
-        tfh = TraceFileHandler(tf, algo='SEED', algo_param={'decrypt': False})
-        key = tf['key'].astype(np.uint8)
-        ptx = tfh['plaintext'].astype(np.uint8)
-
-        # we are using fake trace file so generate cipher text
-        # from third party code
-        ctx = []
-        for p in ptx:
-            c = third_party_encrypt(p, key, 'SEED')
-            ctx.append(c)
-        ctx = np.asarray(ctx)
-
-        # use TraceFileHandler to get the output of final round
-        target = SEEDCryptoTarget(
-            trace_file=tf, rnd=16, step='Output', keysize=128, decrypt=False)
-        res = tfh[target].astype(np.uint8)
-
-        # equality_check
-        equality_check = np.array_equal(ctx, res)
-        self.assertTrue(
-            equality_check, 'test_encrypt_single_key_with_tfh failed')
-
-    def test_decrypt_with_CryptoDataTarget(self):
-        """
-        Check decryption with TraceFileHandler (with single key) and
-        CryptoDataTarget
-        """
-        # get the trace file
-        tf = TraceFile(_G_file_name_single_key)
-
-        # check trace file
-        if tf.has_local_field('key'):
-            self.skipTest('You did not provide trace file with single key')
-            return
-
-        # get key and cipher text
-        tfh = TraceFileHandler(tf, algo='SEED', algo_param={'decrypt': True})
-        key = tf['key'].astype(np.uint8)
-        ctx = tfh['ciphertext'].astype(np.uint8)
-
-        # we are using fake trace file so generate
-        # plain text from third party code
-        ptx = []
-        for c in ctx:
-            p = third_party_decrypt(c, key, 'SEED')
-            ptx.append(p)
-        ptx = np.asarray(ptx)
-
-        # use TraceFileHandler to get the output of final round
-        target = SEEDCryptoTarget(
-            trace_file=tf, rnd=16, step='Output', keysize=128, decrypt=True)
-        res = tfh[target].astype(np.uint8)
-
-        # equality_check
-        equality_check = np.array_equal(ptx, res)
-        self.assertTrue(
-            equality_check, 'test_decrypt_single_key_with_tfh failed')
 
 
 def all_tests():
+
     test_loader = unittest.TestLoader()
     suite1 = test_loader.loadTestsFromTestCase(TimingTest)
     suite2 = test_loader.loadTestsFromTestCase(StandAloneTest)
@@ -911,13 +507,30 @@ def all_tests():
                                 verbosity=3).run(suite2)
     _G_custom_stream.write('\n|||||||||||||||||||||||||||||||||||||||||||||||'
                            '|||||||||||||||||||||||||||||||\n\n')
-    pass
 
 
 def one_test():
+
+    test_loader = unittest.TestLoader()
+    suite1 = test_loader.loadTestsFromTestCase(StandAloneTest)
+    _G_custom_stream.write('\n\n\n|||||||||||||||||||||||||||||||||||||||||||'
+                           '|||||||||||||||||||||||||||||||||||\n\n')
+    s = unittest.TextTestRunner(stream=_G_custom_stream, descriptions=True,
+                                verbosity=3).run(suite1)
+    _G_custom_stream.write('\n|||||||||||||||||||||||||||||||||||||||||||||||'
+                           '|||||||||||||||||||||||||||||||\n')
     pass
 
-
 if __name__ == '__main__':
+
+    #all_tests()
+    one_test()
     #unittest.main()
-    all_tests()
+
+
+
+
+
+
+
+
