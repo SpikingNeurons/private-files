@@ -173,8 +173,8 @@ class SEEDCryptoTarget:
 
         # set next and previous target to None;
         # will be computed as needed.
-        self._next = None
-        self._previous = None
+        # self._next = None
+        # self._previous = None
 
         # based on step selected check if the field is local
         if self.step_struct.name == STEPS_PROVIDED.RoundKey.name:
@@ -197,6 +197,10 @@ class SEEDCryptoTarget:
         # init superclasses
         # todo: later
         # super().__init__(trace_file, max_range, num_val, local)
+
+    def func(self):
+
+        pass
 
 
 
