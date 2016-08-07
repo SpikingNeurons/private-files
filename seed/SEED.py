@@ -117,6 +117,18 @@ class SEEDCryptoTarget:
     """
     Object interface for target query.
     It does not hold any computed information.
+
+    Attributes
+    ----------
+    rnd : :obj:`int`
+        Encryption/Decryption round
+    step_struct : STEP_STRUCT
+        namedtuple style step structure to store step details
+    keysize : :obj:`int`
+        The keysize supported by SEED algorithm (always 128)
+    decrypt : :obj:`bool`
+        Encrypt or Decrypt usage of SEEDCryptoTarget
+
     """
 
     def __init__(self, trace_file, rnd, step, keysize, decrypt):
@@ -159,11 +171,24 @@ class SEEDCryptoTarget:
                 SEED_ALGO.footer
             )
 
+        # initialize attributes
+        self.rnd = rnd  # type: int
+        self.step_struct = get_step_struct(step)  # type: STEP_STRUCT
+        self.keysize = keysize  # type: int
+        self.decrypt = decrypt  # type: bool
 
-        self.rnd = rnd
-        self.step = step
-        self.keysize = keysize
-        self.decrypt = decrypt
+        # set next and previous target to None;
+        # will be computed as needed.
+        self._next = None
+        self._previous = None
+
+        # based on step selected check if the field is local
+        if self.step_struct.name == STEPS_PROVIDED.RoundKey.name:
+            local = trace_file.has_local_field('key')
+        elif self.decrypt:
+            local = trace_file.has_local_field('ciphertext')
+        else:
+            local = trace_file.has_local_field('plaintext')
 
         # Determine num_val, the number of values a single element of the
         # intermediate might take. This is constant (2**8) in case of SEED as
@@ -173,29 +198,7 @@ class SEEDCryptoTarget:
         # max_range, or the number of elements in each intermediate-array.
         # This is not constant and can take different value based on step
         # selected.
-        max_range = STEPS_PROVIDED._asdict()[step]
-        for step_ in STEPS_PROVIDED_AND_MAX_RANGE:
-            if step_[0] == step:
-                max_range = step_[2]
-                break
-        else:
-            raise ValueError(
-                HEADER + "Invalid step: " + str(step) +
-                "\n You are allowed to use following steps: " +
-                [x[0] for x in STEPS_PROVIDED_AND_MAX_RANGE] + FOOTER)
-
-        # based on step selected check if the field is local
-        if self.step == 'RoundKey':
-            local = trace_file.has_local_field('key')
-        elif self.decrypt:
-            local = trace_file.has_local_field('ciphertext')
-        else:
-            local = trace_file.has_local_field('plaintext')
-
-        # set next and previous target to None;
-        # will be computed as needed.
-        self._next = None
-        self._previous = None
+        max_range = self.step_struct.num_of_bytes
 
         # init superclasses
         # todo: later
