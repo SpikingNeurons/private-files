@@ -40,6 +40,14 @@ STEPS_PROVIDED.F           = STEP_STRUCT(id=6, num_of_bytes=8,
                                          name='F')
 STEPS_PROVIDED.Output      = STEP_STRUCT(id=7, num_of_bytes=16,
                                          name='Output')
+# documentation
+STEPS_PROVIDED.__doc__ += ': \nStructure to store all SEED steps'
+STEP_STRUCT.__doc__ += ': \nStructure to store fields for each SEED step'
+STEP_STRUCT.id.__doc__ = \
+    'Unique id of SEED intermediate step'
+STEP_STRUCT.num_of_bytes.__doc__ = \
+    'Number of bytes used by SEED intermediate step'
+# .......................................................................... end
 
 
 def get_step_struct(step):
@@ -57,6 +65,7 @@ def get_step_struct(step):
 
     """
 
+    # init variable
     _step_index = -999
 
     if type(step) is str:
@@ -102,16 +111,6 @@ def get_step_struct(step):
         return STEPS_PROVIDED.F
     elif _step_index is STEPS_PROVIDED.Output.id:
         return STEPS_PROVIDED.Output
-
-
-# documentation
-STEPS_PROVIDED.__doc__ += ': \nStructure to store all SEED steps'
-STEP_STRUCT.__doc__ += ': \nStructure to store fields for each SEED step'
-STEP_STRUCT.id.__doc__ = \
-    'Unique id of SEED intermediate step'
-STEP_STRUCT.num_of_bytes.__doc__ = \
-    'Number of bytes used by SEED intermediate step'
-# .......................................................................... end
 
 
 class SEEDCryptoTarget:
