@@ -72,7 +72,8 @@ def get_step_struct(step):
         if step not in STEPS_PROVIDED._fields:
             raise ValueError(
                 SEED_ALGO.header  +
-                'Provided step: ' + step + ' not in ' + STEPS_PROVIDED._fields +
+                'Provided step: ' + str(step) + ' not in ' +
+                STEPS_PROVIDED._fields +
                 SEED_ALGO.footer
             )
         else:
@@ -161,13 +162,6 @@ class SEEDCryptoTarget:
             raise ValueError(
                 SEED_ALGO.header  +
                 'Keysize can be only 128 bit' +
-                SEED_ALGO.footer
-            )
-        # step check
-        if step not in STEPS_PROVIDED._fields:
-            raise ValueError(
-                SEED_ALGO.header  +
-                'Provided step: ' + step + ' not in ' + STEPS_PROVIDED._fields +
                 SEED_ALGO.footer
             )
 
