@@ -3,6 +3,8 @@
     <words>
       <w>ciphertext</w>
       <w>ctxt</w>
+      <w>keysize</w>
+      <w>struct</w>
       <w>vals</w>
     </words>
   </dictionary>
