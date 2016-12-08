@@ -1,24 +1,41 @@
 Install VS2015
 Install CUDA 8.0
+Install cuDNN 4
+    http://developer.download.nvidia.com/compute/machine-learning/cudnn/secure/v4/prod/cudnn-7.0-win-x64-v4.0.zip?autho=1481235804_73bb13728738592a78a39b1524ce653d&file=cudnn-7.0-win-x64-v4.0.zip
 Install cuDNN 5.1
+    http://developer.download.nvidia.com/compute/machine-learning/cudnn/secure/v5.1/prod/8.0/cudnn-8.0-windows10-x64-v5.1.zip?autho=1481235717_7854a619c86b7677b8faa76492550cf7&file=cudnn-8.0-windows10-x64-v5.1.zip
+    http://developer.download.nvidia.com/compute/machine-learning/cudnn/secure/v5.1/prod/8.0/cudnn-8.0-windows7-x64-v5.1.zip?autho=1481235688_0b1627c4e94176ef3cc59086894a8376&file=cudnn-8.0-windows7-x64-v5.1.zip
+Add cuDNN to PATH variable
 Install Anaconda3-4.2.0-Windows-x86_64.exe
+Install CNTK???  https://github.com/Microsoft/CNTK/releases
+Install caffe??? https://github.com/BVLC/caffe/tree/windows
 
 
 pip download pycuda
-pip install pycuda-2016.1.2.tar.gz
-
 pip download scikit-learn
-pip install scikit_learn-0.18.1-cp35-cp35m-win_amd64.whl
-
 pip download scikit-cuda
-pip install scikit-cuda-0.5.1.tar.gz
-
-pip download tensorflow_gpu-0.12.0rc0-cp35-cp35m-win_amd64.whl
-pip download tensorflow-0.12.0rc0-cp35-cp35m-win_amd64.whl
-pip install tensorflow_gpu-0.12.0rc0-cp35-cp35m-win_amd64.whl
-
+pip download tensorflow
+pip download tensorflow_gpu
 pip download tflearn
+pip download scikit-image
+pip download dask
+# curses download from http://www.lfd.uci.edu/~gohlke/pythonlibs/#curses
+# opencv download from https://anaconda.org/menpo/opencv/2.4.11/download/win-64/opencv-2.4.11-py27_1.tar.bz2
+# opencv download from https://anaconda.org/menpo/opencv3/3.1.0/download/win-64/opencv3-3.1.0-py35_0.tar.bz2
+# h5py download from https://anaconda.org/conda-forge/h5py/2.6.0/download/win-64/h5py-2.6.0-np111py35_7.tar.bz2
+pip download pandas
+
+pip install pycuda-2016.1.2.tar.gz
+pip install scikit_learn-0.18.1-cp35-cp35m-win_amd64.whl
+pip install scikit-cuda-0.5.1.tar.gz
+pip install tensorflow_gpu-0.12.0rc0-cp35-cp35m-win_amd64.whl
 pip install tflearn-0.2.1.tar.gz
+pip install scikit-image-0.12.3.tar.gz
+pip install dask-0.12.0-py2.py3-none-any.whl
+pip install curses-2.2-cp35-none-win_amd64.whl
+# install opencv :(
+conda install --offline win-64-h5py-2.6.0-np111py35_7.tar.bz2
+pip install pandas-0.19.1-cp35-cp35m-win_amd64.whl
 
 
 
