@@ -28,6 +28,7 @@ pip download dask
 pip download pandas
 pip download pip
 pip download matplotlib
+pip download django
 ```
 
 From URL
@@ -58,7 +59,7 @@ python -m pip install --upgrade pip-9.0.1-py2.py3-none-any.whl
 conda install --offline win-64-opencv3-3.1.0-py35_0.tar.bz2
 pip install matplotlib-1.5.3-cp35-cp35m-win_amd64.whl
 conda install --offline win-64-scipy-0.18.1-np111py35_0.tar.bz2
-
+pip install Django-1.10.4-py2.py3-none-any.whl
 ```
 
 # Install caffe 
