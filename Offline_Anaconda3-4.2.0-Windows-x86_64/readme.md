@@ -28,7 +28,6 @@ pip download dask
 pip download pandas
 pip download pip
 pip download matplotlib
-pip download scipy
 ```
 
 From URL
@@ -39,7 +38,9 @@ From URL
   + https://anaconda.org/menpo/opencv3/3.1.0/download/win-64/opencv3-3.1.0-py35_0.tar.bz2
 + h5py  : 
   + https://anaconda.org/conda-forge/h5py/2.6.0/download/win-64/h5py-2.6.0-np111py35_7.tar.bz2
-
++ scipy:
+  + https://anaconda.org/anaconda/scipy/0.18.1/download/win-64/scipy-0.18.1-np111py35_0.tar.bz2
+  
 # Install downloaded packages
 
 ```bat
@@ -56,7 +57,7 @@ pip install pandas-0.19.1-cp35-cp35m-win_amd64.whl
 python -m pip install --upgrade pip-9.0.1-py2.py3-none-any.whl
 conda install --offline win-64-opencv3-3.1.0-py35_0.tar.bz2
 pip install matplotlib-1.5.3-cp35-cp35m-win_amd64.whl
-pip install scipy-0.18.1.tar.gz
+conda install --offline win-64-scipy-0.18.1-np111py35_0.tar.bz2
 
 ```
 
