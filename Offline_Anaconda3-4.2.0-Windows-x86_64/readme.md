@@ -14,8 +14,9 @@ Install cuDNN 5.1
 Add cuDNN to PATH variable
 Install Anaconda3-4.2.0-Windows-x86_64.exe
 
-# way to download packages
+# Way to download packages
 
+```bat
 pip download pycuda
 pip download scikit-learn
 pip download scikit-cuda
@@ -26,15 +27,22 @@ pip download scikit-image
 pip download dask
 pip download pandas
 pip download pip
+pip download matplotlib
+pip download scipy
+```
 
 From URL
 
-+ curses: http://www.lfd.uci.edu/~gohlke/pythonlibs/#curses
-+ opencv: https://anaconda.org/menpo/opencv3/3.1.0/download/win-64/opencv3-3.1.0-py35_0.tar.bz2
-+ h5py  : https://anaconda.org/conda-forge/h5py/2.6.0/download/win-64/h5py-2.6.0-np111py35_7.tar.bz2
++ curses: 
+  + http://www.lfd.uci.edu/~gohlke/pythonlibs/#curses
++ opencv: 
+  + https://anaconda.org/menpo/opencv3/3.1.0/download/win-64/opencv3-3.1.0-py35_0.tar.bz2
++ h5py  : 
+  + https://anaconda.org/conda-forge/h5py/2.6.0/download/win-64/h5py-2.6.0-np111py35_7.tar.bz2
 
-# install downloaded packages
+# Install downloaded packages
 
+```bat
 pip install pycuda-2016.1.2.tar.gz
 pip install scikit_learn-0.18.1-cp35-cp35m-win_amd64.whl
 pip install scikit-cuda-0.5.1.tar.gz
@@ -47,11 +55,25 @@ conda install --offline win-64-h5py-2.6.0-np111py35_7.tar.bz2
 pip install pandas-0.19.1-cp35-cp35m-win_amd64.whl
 python -m pip install --upgrade pip-9.0.1-py2.py3-none-any.whl
 conda install --offline win-64-opencv3-3.1.0-py35_0.tar.bz2
+pip install matplotlib-1.5.3-cp35-cp35m-win_amd64.whl
+pip install scipy-0.18.1.tar.gz
 
-# caffe and cntk
+```
+
+# Install caffe 
+
+Get zip from https://github.com/BVLC/caffe/tree/windows
+
+
+```bat
+
+
+```
+
 
 Install CNTK???  https://github.com/Microsoft/CNTK/releases
-Install caffe??? https://github.com/BVLC/caffe/tree/windows
+
+Install caffe??? 
 
 
 
