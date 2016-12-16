@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import cv2
-from lib import tracker
+import lib.tracker as tracker
 
 BLUE = (255, 50, 50)
 GREEN = (50, 255, 50)
@@ -12,7 +12,7 @@ WHITE = (255, 255, 255)
 def main():
     markers = tracker.find_markers(img)
 
-    for m_id, marker in markers.iteritems():
+    for m_id, marker in markers.items():
         cv2.drawContours(img, [marker.contour], -1, GREEN, 2)
         cv2.line(img, marker.position, marker.major_axis, WHITE, 2)
         cv2.line(img, marker.position, marker.minor_axis, WHITE, 2)
@@ -22,7 +22,7 @@ def main():
 
 
 if __name__ == '__main__':
-    STATIC = True
+    STATIC = False
 
     if STATIC:
         img = cv2.imread('test.jpg')
