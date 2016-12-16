@@ -59,6 +59,7 @@ pip install scikit-image-0.12.3.tar.gz
 pip install dask-0.12.0-py2.py3-none-any.whl
 pip install curses-2.2-cp35-none-win_amd64.whl
 conda install --offline win-64-h5py-2.6.0-np111py35_7.tar.bz2
+pip install h5py-2.6.0-cp35-cp35m-win_amd64.whl
 pip install pandas-0.19.1-cp35-cp35m-win_amd64.whl
 python -m pip install --upgrade pip-9.0.1-py2.py3-none-any.whl
 conda install --offline win-64-opencv3-3.1.0-py35_0.tar.bz2
