@@ -29,6 +29,8 @@ pip download pandas
 pip download pip
 pip download matplotlib
 pip download django
+pip download PyQt5
+pip download pyqtgraph
 ```
 
 From URL
@@ -41,6 +43,9 @@ From URL
   + https://anaconda.org/conda-forge/h5py/2.6.0/download/win-64/h5py-2.6.0-np111py35_7.tar.bz2
 + scipy:
   + https://anaconda.org/anaconda/scipy/0.18.1/download/win-64/scipy-0.18.1-np111py35_0.tar.bz2
++ PyQt4:
+  + http://www.lfd.uci.edu/~gohlke/pythonlibs/#pyqt4
+  
   
 # Install downloaded packages
 
@@ -60,6 +65,9 @@ conda install --offline win-64-opencv3-3.1.0-py35_0.tar.bz2
 pip install matplotlib-1.5.3-cp35-cp35m-win_amd64.whl
 conda install --offline win-64-scipy-0.18.1-np111py35_0.tar.bz2
 pip install Django-1.10.4-py2.py3-none-any.whl
+pip install PyQt5-5.7-cp35-none-win_amd64.whl
+pip install PyQt4-4.11.4-cp35-none-win_amd64.whl
+pip install pyqtgraph-0.10.0.tar.gz
 ```
 
 # Install caffe 
